@@ -63,12 +63,12 @@ return [
     |
     */
 
-    'logo' => '<b>Admin</b>LTE',
-    'logo_img' => 'vendor/adminlte/dist/img/AdminLTELogo.png',
+    'logo' => '<b>TPSR</b>-PJKR',
+    'logo_img' => null,
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,
     'logo_img_xl_class' => 'brand-image-xs',
-    'logo_img_alt' => 'Admin Logo',
+    'logo_img_alt' => 'TPSR-PJKR Logo',
 
     /*
     |--------------------------------------------------------------------------
@@ -304,6 +304,7 @@ return [
             'text' => 'Dashboard',
             'url' => 'dashboard',
             'icon' => 'fas fa-fw fa-home',
+            'classes' => 'nav-link-dashboard',
         ],
 
         // ===== MENU GURU =====
@@ -339,6 +340,8 @@ return [
             'text' => 'Penilaian TPSR',
             'icon' => 'fas fa-fw fa-clipboard-list',
             'can' => 'view_assessment',
+            'label' => 'LIVE',
+            'label_color' => 'danger',
             'submenu' => [
                 [
                     'text' => 'Quick Assessment',
