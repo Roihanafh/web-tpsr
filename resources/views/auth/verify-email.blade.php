@@ -1,31 +1,50 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn\'t receive the email, we will gladly send you another.') }}
-    </div>
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', 'TPSR') }}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,800&display=swap" rel="stylesheet">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <style>
+        * { box-sizing: border-box; }
+        body { background: #eef3fb; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 24px; font-family: 'Montserrat', sans-serif; color: #1f2937; }
+        .auth-card { width: 920px; max-width: 100%; min-height: 520px; display: grid; grid-template-columns: 1fr 1fr; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 14px 28px rgba(15, 23, 42, 0.24), 0 10px 10px rgba(15, 23, 42, 0.18); }
+        .auth-panel { padding: 54px 48px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+        .brand-panel { background: linear-gradient(to right, #0b2f5b, #061a33); color: #ffffff; }
+        h1 { margin: 0; font-size: 30px; font-weight: 800; }
+        p { font-size: 14px; line-height: 20px; letter-spacing: 0.4px; margin: 18px 0 26px; }
+        .auth-button { border-radius: 20px; border: 1px solid #0b2f5b; background-color: #0b2f5b; color: #ffffff; font-size: 12px; font-weight: 800; padding: 12px 34px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; margin-top: 12px; }
+        .auth-button.ghost { background: transparent; border-color: #ffffff; color: #ffffff; }
+        .button-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+        @media (max-width: 760px) { .auth-card { grid-template-columns: 1fr; } .brand-panel { min-height: 220px; } }
+    </style>
+</head>
+<body>
+    <main class="auth-card">
+        <section class="auth-panel">
+            <h1>Verifikasi Email</h1>
+            <p>Verifikasi email tidak digunakan pada aplikasi ini. Jika akun Anda belum bisa digunakan, silakan hubungi admin.</p>
 
-    @if (session('status') == 'verification-link-sent')
-        <div class="mb-4 font-medium text-sm text-green-600">
-            {{ __('A new verification link has been sent to the email address you provided during registration.') }}
-        </div>
-    @endif
-
-    <div class="mt-4 flex items-center justify-between">
-        <form method="POST" action="{{ route('verification.send') }}">
-            @csrf
-
-            <div>
-                <x-primary-button>
-                    {{ __('Resend Verification Email') }}
-                </x-primary-button>
+            <div class="button-row">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button class="auth-button" type="submit">Keluar</button>
+                </form>
             </div>
-        </form>
+        </section>
 
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-
-            <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                {{ __('Log Out') }}
-            </button>
-        </form>
-    </div>
-</x-guest-layout>
+        <section class="auth-panel brand-panel">
+            <h1>Akses Akun</h1>
+            <p>Admin dapat membantu pengecekan dan aktivasi akun jika diperlukan.</p>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button class="auth-button ghost" type="submit">Kembali Masuk</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
