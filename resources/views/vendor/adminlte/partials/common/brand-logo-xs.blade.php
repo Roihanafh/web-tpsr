@@ -58,7 +58,8 @@
             margin-top: 2px;
             line-height: 1.2;
         " data-hide-on-collapse="true">
-            {{ $user_role }}
+
+            {{ ($user_role == 'guru') ? "Guru TPSR PJKR" : $user_role; }}
         </span>
     </div>
 
