@@ -3,6 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('css')
+    @livewireStyles
     @vite('resources/css/app.css')
 @stop
 
@@ -16,4 +17,5 @@
 
 @section('js')
     @vite('resources/js/app.js')
+    @livewireScripts
 @stop
