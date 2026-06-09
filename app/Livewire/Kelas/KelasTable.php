@@ -17,11 +17,20 @@ class KelasTable extends DataTableComponent
 
     public function configure(): void
     {
+        $this->setTableName('kelas-table');
         $this->setPrimaryKey('id');
         $this->setDefaultSort('kelas.id', 'desc');
         $this->setPerPageAccepted([10, 25, 50]);
         $this->setSearchPlaceholder('Search');
         $this->setSearchDebounce(300);
+        $this->setColumnSelectDisabled();
+        $this->setExcludeDeselectedColumnsFromQueryDisabled();
+        $this->setAdditionalSelects([
+            'kelas.id as id',
+            'kelas.nama as nama',
+            'kelas.sekolah_id as sekolah_id',
+            'kelas.tahun_ajar_id as tahun_ajar_id',
+        ]);
     }
 
     public function builder(): Builder
@@ -36,11 +45,11 @@ class KelasTable extends DataTableComponent
 
     public function applySearch(): Builder
     {
-        if (! $this->searchIsEnabled() || ! $this->hasSearch()) {
+        $search = trim($this->search);
+
+        if ($search === '') {
             return $this->getBuilder();
         }
-
-        $search = $this->getSearch();
 
         $this->setBuilder(
             $this->getBuilder()->where(function (Builder $query) use ($search) {
