@@ -39,7 +39,23 @@ Profil
             </div>
             <div class="card-body">
                 <strong>{{ $user->name }}</strong>
-                <p class="text-muted mb-0">{{ $user->email }}</p>
+                <p class="text-muted">{{ $user->email }}</p>
+
+                <hr>
+
+                <strong>
+                    <i class="fas fa-school mr-1"></i>Sekolah
+                </strong>
+                <p class="text-muted mb-1">
+                    {{ $user->sekolah?->nama ?? 'Belum terhubung dengan sekolah' }}
+                </p>
+
+                <strong>
+                    <i class="fas fa-map-marker-alt mr-1"></i>Alamat
+                </strong>
+                <p class="text-muted mb-0">
+                    {{ $user->sekolah?->alamat ?? '-' }}
+                </p>
             </div>
         </div>
 

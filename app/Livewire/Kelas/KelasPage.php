@@ -150,7 +150,7 @@ class KelasPage extends Component
         }
 
         return Excel::download(
-            new KelasExport($sekolah, $this->filterTahunAjarId),
+            new KelasExport($sekolah, $this->filterTahunAjarId ?: null),
             'data-kelas.xlsx',
         );
     }

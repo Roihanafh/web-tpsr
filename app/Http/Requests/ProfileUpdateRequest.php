@@ -26,6 +26,9 @@ class ProfileUpdateRequest extends FormRequest
                 'max:255',
                 Rule::unique(User::class)->ignore($this->user()->id),
             ],
+            'nama_sekolah' => ['nullable', 'string', 'max:255'],
+            'alamat_sekolah' => ['nullable', 'string'],
+            'sekolah_action' => ['nullable', 'string', Rule::in(['move'])],
         ];
     }
 }

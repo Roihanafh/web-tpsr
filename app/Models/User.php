@@ -5,7 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Spatie\Permission\Traits\HasRoles;
@@ -22,6 +22,7 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'sekolah_id',
         'name',
         'email',
         'password',
@@ -50,8 +51,8 @@ class User extends Authenticatable
         ];
     }
 
-    public function sekolah(): HasOne
+    public function sekolah(): BelongsTo
     {
-        return $this->hasOne(Sekolah::class);
+        return $this->belongsTo(Sekolah::class);
     }
 }

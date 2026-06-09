@@ -20,7 +20,8 @@
     <div class="kelas-panel">
         <div class="kelas-toolbar">
             <select class="form-control kelas-select" wire:model.live="filterTahunAjarId">
-                <option value="">Tahun Ajaran</option>
+                <option value="">Pilih Tahun Ajaran</option>
+                <option value="0">Semua Tahun Ajaran</option>
                 @foreach ($tahunAjarOptions as $tahunAjar)
                     <option value="{{ $tahunAjar->id }}">{{ $tahunAjar->nama }}</option>
                 @endforeach
@@ -139,7 +140,7 @@
                 <i class="fas fa-spinner fa-spin mr-2"></i>
                 Memuat data kelas...
             </div>
-            <livewire:kelas.kelas-table />
+            <livewire:kelas.kelas-table :tahun-ajar-id="$filterTahunAjarId" :key="'kelas-table-'.$filterTahunAjarId" />
         </div>
     </div>
 </div>

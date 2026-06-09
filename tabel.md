@@ -16,9 +16,11 @@ Menyimpan akun pengguna aplikasi.
 - `remember_token`: token untuk fitur remember me.
 - `created_at`, `updated_at`: timestamp Laravel.
 
+- `sekolah_id`: foreign key nullable ke `sekolah`. User admin tidak wajib memiliki data sekolah.
+
 Relasi:
 
-- One-to-one nullable dengan `sekolah`. User admin tidak wajib memiliki data sekolah.
+- Belongs-to nullable dengan `sekolah`. Banyak user/guru dapat terhubung ke satu sekolah.
 - Terhubung ke tabel role dan permission melalui package Spatie Laravel Permission.
 
 ### password_reset_tokens
@@ -145,14 +147,13 @@ Tabel pivot untuk menghubungkan role dengan permission.
 Menyimpan data sekolah. Tabel ini berhubungan one-to-one dengan `users`, tetapi relasinya nullable karena user admin tidak wajib memiliki data sekolah.
 
 - `id`: primary key.
-- `user_id`: foreign key nullable ke `users`, unique agar satu user hanya terhubung ke satu sekolah.
-- `nama`: nama sekolah.
+- `nama`: nama sekolah, unik.
 - `alamat`: alamat sekolah.
 - `created_at`, `updated_at`: timestamp Laravel.
 
 Relasi:
 
-- Belongs-to `users`.
+- Has-many `users`.
 - Has-many `kelas`.
 
 ### tahun_ajar

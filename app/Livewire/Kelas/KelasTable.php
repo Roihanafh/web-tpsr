@@ -80,7 +80,7 @@ class KelasTable extends DataTableComponent
     #[On('kelas-filter-changed')]
     public function updateTahunAjarFilter(?int $tahunAjarId = null): void
     {
-        $this->tahunAjarId = $tahunAjarId;
+        $this->tahunAjarId = $tahunAjarId ?: null;
         $this->resetPage();
     }
 }
