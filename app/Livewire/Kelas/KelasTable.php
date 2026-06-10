@@ -13,6 +13,8 @@ class KelasTable extends DataTableComponent
 {
     public ?int $tahunAjarId = null;
 
+    public string $search = '';
+
     protected $model = Kelas::class;
 
     public function configure(): void
@@ -20,9 +22,11 @@ class KelasTable extends DataTableComponent
         $this->setTableName('kelas-table');
         $this->setPrimaryKey('id');
         $this->setDefaultSort('kelas.id', 'desc');
+        $this->setTheme('bootstrap-5');
+        $this->setPaginationTheme('bootstrap');
         $this->setPerPageAccepted([10, 25, 50]);
-        $this->setSearchPlaceholder('Search');
-        $this->setSearchDebounce(300);
+        $this->setSearchDisabled();
+        $this->setSortingPillsDisabled();
         $this->setColumnSelectDisabled();
         $this->setExcludeDeselectedColumnsFromQueryDisabled();
         $this->setAdditionalSelects([
@@ -81,6 +85,13 @@ class KelasTable extends DataTableComponent
     public function updateTahunAjarFilter(?int $tahunAjarId = null): void
     {
         $this->tahunAjarId = $tahunAjarId ?: null;
+        $this->resetPage();
+    }
+
+    #[On('kelas-search-changed')]
+    public function updateSearch(string $search = ''): void
+    {
+        $this->search = $search;
         $this->resetPage();
     }
 }

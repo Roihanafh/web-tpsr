@@ -27,11 +27,17 @@ class KelasPage extends Component
 
     public ?int $filterTahunAjarId = null;
 
+    public string $search = '';
+
     public string $nama = '';
 
     public mixed $fileImport = null;
 
     public bool $isEditing = false;
+
+    public bool $showForm = false;
+
+    public bool $showImportForm = false;
 
     public array $importFailures = [];
 
@@ -39,6 +45,11 @@ class KelasPage extends Component
     {
         return view('livewire.kelas.kelas-page', [
             'tahunAjarOptions' => TahunAjar::orderByDesc('id')->get(),
+            'showForm' => $this->showForm,
+            'showImportForm' => $this->showImportForm,
+            'importFailures' => $this->importFailures,
+            'filterTahunAjarId' => $this->filterTahunAjarId,
+            'search' => $this->search,
             'sekolah' => $this->currentSekolah(),
         ]);
     }
@@ -93,6 +104,8 @@ class KelasPage extends Component
         $this->tahunAjarId = $kelas->tahun_ajar_id;
         $this->nama = $kelas->nama;
         $this->isEditing = true;
+        $this->showForm = true;
+        $this->showImportForm = false;
     }
 
     public function cancelEdit(): void
@@ -103,6 +116,23 @@ class KelasPage extends Component
     public function updatedFilterTahunAjarId(): void
     {
         $this->dispatch('kelas-filter-changed', tahunAjarId: $this->filterTahunAjarId);
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->dispatch('kelas-search-changed', search: trim($this->search));
+    }
+
+    public function toggleForm(): void
+    {
+        $this->showForm = ! $this->showForm;
+        $this->showImportForm = false;
+    }
+
+    public function toggleImportForm(): void
+    {
+        $this->showImportForm = ! $this->showImportForm;
+        $this->showForm = false;
     }
 
     public function import(): void
@@ -137,6 +167,7 @@ class KelasPage extends Component
         }
 
         $this->fileImport = null;
+        $this->showImportForm = false;
         $this->dispatch('refreshDatatable');
     }
 
@@ -164,6 +195,7 @@ class KelasPage extends Component
     {
         $this->reset(['kelasId', 'nama', 'isEditing']);
         $this->resetValidation();
+        $this->showForm = false;
     }
 
     private function currentSekolah(): ?Sekolah
