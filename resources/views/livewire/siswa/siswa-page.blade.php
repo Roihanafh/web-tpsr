@@ -20,10 +20,10 @@
     <div class="siswa-panel">
         <div class="siswa-toolbar">
             <div class="siswa-toolbar-filters">
-                <select class="form-control siswa-select" wire:model.live="filterKelasId">
-                    <option value="0">Kelas</option>
-                    @foreach ($kelasOptions as $kelas)
-                        <option value="{{ data_get($kelas, 'id') }}">{{ data_get($kelas, 'nama') }}</option>
+                <select class="form-control siswa-select" wire:model.live="filterKelasNama">
+                    <option value="">Kelas</option>
+                    @foreach ($filterKelasOptions as $kelasNama)
+                        <option value="{{ $kelasNama }}">{{ $kelasNama }}</option>
                     @endforeach
                 </select>
 
@@ -82,9 +82,20 @@
 
                 <form wire:submit="save" class="siswa-form">
                     <div class="form-row">
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-3 mb-2">
+                            <label for="tahunAjarId">Tahun Ajaran</label>
+                            <select id="tahunAjarId" class="form-control @error('tahunAjarId') is-invalid @enderror" wire:model.live="tahunAjarId" wire:loading.attr="disabled" wire:target="save,edit">
+                                <option value="">Pilih tahun ajaran</option>
+                                @foreach ($tahunAjarOptions as $tahunAjar)
+                                    <option value="{{ $tahunAjar->id }}">{{ $tahunAjar->nama }}</option>
+                                @endforeach
+                            </select>
+                            @error('tahunAjarId') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="col-md-3 mb-2">
                             <label for="kelasId">Kelas</label>
-                            <select id="kelasId" class="form-control @error('kelasId') is-invalid @enderror" wire:model="kelasId" wire:loading.attr="disabled" wire:target="save,edit">
+                            <select id="kelasId" class="form-control @error('kelasId') is-invalid @enderror" wire:model="kelasId" wire:loading.attr="disabled" wire:target="save,edit,tahunAjarId" @disabled(! $tahunAjarId)>
                                 <option value="">Pilih kelas</option>
                                 @foreach ($kelasOptions as $kelas)
                                     <option value="{{ data_get($kelas, 'id') }}">{{ data_get($kelas, 'nama') }}</option>
@@ -93,13 +104,23 @@
                             @error('kelasId') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-2 mb-2">
                             <label for="nama">Nama Siswa</label>
                             <input id="nama" type="text" maxlength="100" class="form-control @error('nama') is-invalid @enderror" wire:model="nama" placeholder="Nama Siswa" wire:loading.attr="disabled" wire:target="save,edit">
                             @error('nama') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="col-md-4 mb-2 siswa-submit">
+                        <div class="col-md-2 mb-2">
+                            <label for="gender">Jenis Kelamin</label>
+                            <select id="gender" wire:key="gender-{{ $siswaId ?? 'new' }}" class="form-control @error('gender') is-invalid @enderror" wire:model="gender" wire:loading.attr="disabled" wire:target="save,edit">
+                                <option value="">Pilih jenis kelamin</option>
+                                <option value="L">Laki-laki</option>
+                                <option value="P">Perempuan</option>
+                            </select>
+                            @error('gender') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="col-md-2 mb-2 siswa-submit">
                             <button type="submit" class="btn btn-primary siswa-btn" wire:loading.attr="disabled" wire:target="save">
                                 <span wire:loading.remove wire:target="save">
                                     <i class="fas fa-plus mr-1"></i>
@@ -187,11 +208,11 @@
             </div>
 
             <div class="siswa-table-wrap">
-                <div class="siswa-table-loading" wire:loading.flex wire:target="filterKelasId,filterTahunAjarId,search">
+                <div class="siswa-table-loading" wire:loading.flex wire:target="filterKelasNama,filterTahunAjarId,search">
                     <i class="fas fa-spinner fa-spin mr-2"></i>
                     Memuat data siswa...
                 </div>
-                <livewire:siswa.siswa-table :kelas-id="$filterKelasId" :tahun-ajar-id="$filterTahunAjarId" :key="'siswa-table-'.$filterKelasId.'-'.$filterTahunAjarId.'-'.$search" />
+                <livewire:siswa.siswa-table :kelas-nama="$filterKelasNama" :tahun-ajar-id="$filterTahunAjarId" :key="'siswa-table-'.$filterKelasNama.'-'.$filterTahunAjarId.'-'.$search" />
             </div>
         </div>
     </div>

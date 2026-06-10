@@ -25,7 +25,9 @@ class SiswaPage extends Component
 
     public ?int $kelasId = null;
 
-    public ?int $filterKelasId = null;
+    public ?int $tahunAjarId = null;
+
+    public string $filterKelasNama = '';
 
     public ?int $filterTahunAjarId = null;
 
@@ -51,12 +53,24 @@ class SiswaPage extends Component
 
         return view('livewire.siswa.siswa-page', [
             'kelasOptions' => $sekolah
-                ? $sekolah->kelas()->orderBy('nama')->get()
+                ? $sekolah->kelas()
+                    ->when($this->tahunAjarId, fn ($query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
+                    ->orderBy('nama')
+                    ->get()
+                : collect(),
+            'filterKelasOptions' => $sekolah
+                ? $sekolah->kelas()
+                    ->select('nama')
+                    ->distinct()
+                    ->orderBy('nama')
+                    ->pluck('nama')
                 : collect(),
             'tahunAjarOptions' => TahunAjar::orderByDesc('id')->get(),
-            'filterKelasId' => $this->filterKelasId,
+            'tahunAjarId' => $this->tahunAjarId,
+            'filterKelasNama' => $this->filterKelasNama,
             'filterTahunAjarId' => $this->filterTahunAjarId,
             'search' => $this->search,
+            'siswaId' => $this->siswaId,
             'showForm' => $this->showForm,
             'showImportForm' => $this->showImportForm,
             'importFailures' => $this->importFailures,
@@ -84,12 +98,25 @@ class SiswaPage extends Component
                     ->ignore($this->siswaId),
             ],
             'gender' => ['required', 'in:L,P'],
+            'tahunAjarId' => ['required', 'exists:tahun_ajar,id'],
             'kelasId' => ['required', 'exists:kelas,id'],
         ], [
             'nama.unique' => 'Nama siswa dengan kelas tersebut sudah ada.',
+            'tahunAjarId.required' => 'Tahun ajaran wajib dipilih.',
             'kelasId.required' => 'Kelas wajib dipilih.',
             'gender.required' => 'Jenis kelamin wajib dipilih.',
         ]);
+
+        $kelasExistsForTahunAjar = $sekolah->kelas()
+            ->whereKey($validated['kelasId'])
+            ->where('tahun_ajar_id', $validated['tahunAjarId'])
+            ->exists();
+
+        if (! $kelasExistsForTahunAjar) {
+            $this->addError('kelasId', 'Kelas yang dipilih tidak sesuai dengan tahun ajaran.');
+
+            return;
+        }
 
         Siswa::updateOrCreate(
             ['id' => $this->siswaId],
@@ -110,13 +137,16 @@ class SiswaPage extends Component
     #[On('edit-siswa')]
     public function edit(int $id): void
     {
-        $siswa = $this->baseSiswaQuery()->findOrFail($id);
+        $siswa = $this->baseSiswaQuery()->with('kelas')->findOrFail($id);
 
         $this->siswaId = $siswa->id;
         $this->kelasId = $siswa->kelas_id;
+        $this->tahunAjarId = $siswa->kelas?->tahun_ajar_id;
         $this->nama = $siswa->nama;
-        $this->gender = $siswa->gender;
+        $this->gender = $this->normalizeGender($siswa->gender);
         $this->isEditing = true;
+        $this->showForm = true;
+        $this->showImportForm = false;
     }
 
     public function cancelEdit(): void
@@ -124,19 +154,24 @@ class SiswaPage extends Component
         $this->resetForm();
     }
 
-    public function updatedFilterKelasId(): void
+    public function updatedFilterKelasNama(): void
     {
-        $this->dispatch('siswa-filter-changed', kelasId: $this->filterKelasId, tahunAjarId: $this->filterTahunAjarId);
+        $this->dispatch('siswa-filter-changed', kelasNama: $this->filterKelasNama, tahunAjarId: $this->filterTahunAjarId);
     }
 
     public function updatedFilterTahunAjarId(): void
     {
-        $this->dispatch('siswa-filter-changed', kelasId: $this->filterKelasId, tahunAjarId: $this->filterTahunAjarId);
+        $this->dispatch('siswa-filter-changed', kelasNama: $this->filterKelasNama, tahunAjarId: $this->filterTahunAjarId);
     }
 
     public function updatedSearch(): void
     {
         $this->dispatch('siswa-search-changed', search: trim($this->search));
+    }
+
+    public function updatedTahunAjarId(): void
+    {
+        $this->kelasId = null;
     }
 
     public function toggleForm(): void
@@ -195,7 +230,7 @@ class SiswaPage extends Component
         }
 
         return Excel::download(
-            new SiswaExport($sekolah, $this->filterKelasId ?: null, $this->filterTahunAjarId ?: null),
+            new SiswaExport($sekolah, $this->filterKelasNama !== '' ? $this->filterKelasNama : null, $this->filterTahunAjarId ?: null),
             'data-siswa.xlsx',
         );
     }
@@ -207,7 +242,7 @@ class SiswaPage extends Component
 
     private function resetForm(): void
     {
-        $this->reset(['siswaId', 'nama', 'gender', 'isEditing']);
+        $this->reset(['siswaId', 'kelasId', 'tahunAjarId', 'nama', 'gender', 'isEditing']);
         $this->resetValidation();
         $this->showForm = false;
     }
@@ -215,6 +250,17 @@ class SiswaPage extends Component
     private function currentSekolah(): ?Sekolah
     {
         return Auth::user()?->sekolah;
+    }
+
+    private function normalizeGender(?string $gender): string
+    {
+        $gender = strtoupper(trim((string) $gender));
+
+        return match ($gender) {
+            'L', 'LAKI', 'LAKI-LAKI' => 'L',
+            'P', 'PEREMPUAN' => 'P',
+            default => '',
+        };
     }
 
     private function baseSiswaQuery()

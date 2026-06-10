@@ -12,7 +12,7 @@ class SiswaExport implements FromCollection, WithHeadings
 {
     public function __construct(
         private readonly Sekolah $sekolah,
-        private readonly ?int $kelasId = null,
+        private readonly ?string $kelasNama = null,
         private readonly ?int $tahunAjarId = null,
     ) {}
 
@@ -22,9 +22,9 @@ class SiswaExport implements FromCollection, WithHeadings
             ->with('kelas')
             ->whereHas('kelas', function ($query) {
                 $query->where('sekolah_id', $this->sekolah->id)
-                    ->when($this->tahunAjarId, fn ($query) => $query->where('tahun_ajar_id', $this->tahunAjarId));
+                    ->when($this->tahunAjarId, fn ($query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
+                    ->when($this->kelasNama, fn ($query) => $query->where('nama', $this->kelasNama));
             })
-            ->when($this->kelasId, fn ($query) => $query->where('kelas_id', $this->kelasId))
             ->orderBy('nama')
             ->get()
             ->map(fn (Siswa $siswa) => [

@@ -11,7 +11,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class SiswaTable extends DataTableComponent
 {
-    public ?int $kelasId = null;
+    public string $kelasNama = '';
 
     public ?int $tahunAjarId = null;
 
@@ -48,9 +48,9 @@ class SiswaTable extends DataTableComponent
             ->with('kelas')
             ->whereHas('kelas', function (Builder $query) use ($sekolahId) {
                 $query->where('sekolah_id', $sekolahId)
-                    ->when($this->tahunAjarId, fn (Builder $query) => $query->where('tahun_ajar_id', $this->tahunAjarId));
-            })
-            ->when($this->kelasId, fn (Builder $query) => $query->where('kelas_id', $this->kelasId));
+                    ->when($this->tahunAjarId, fn (Builder $query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
+                    ->when($this->kelasNama !== '', fn (Builder $query) => $query->where('nama', $this->kelasNama));
+            });
     }
 
     public function applySearch(): Builder
@@ -94,9 +94,9 @@ class SiswaTable extends DataTableComponent
     }
 
     #[On('siswa-filter-changed')]
-    public function updateKelasFilter(?int $kelasId = null, ?int $tahunAjarId = null): void
+    public function updateKelasFilter(string $kelasNama = '', ?int $tahunAjarId = null): void
     {
-        $this->kelasId = $kelasId ?: null;
+        $this->kelasNama = $kelasNama;
         $this->tahunAjarId = $tahunAjarId ?: null;
         $this->resetPage();
     }
