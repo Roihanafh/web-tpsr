@@ -21,6 +21,10 @@ class SiswaPage extends Component
 {
     use WithFileUploads;
 
+    public ?string $tahunAjarYear = null;
+
+    public ?string $kelasNama = null;
+
     public ?int $siswaId = null;
 
     public ?int $kelasId = null;
@@ -50,6 +54,23 @@ class SiswaPage extends Component
     public function render(): View
     {
         $sekolah = $this->currentSekolah();
+        $tahunAjarOptions = TahunAjar::orderByDesc('id')->get();
+
+        $uniqueYears = $tahunAjarOptions->map(function ($ta) {
+            return trim(str_ireplace(['ganjil', 'genap'], '', $ta->nama));
+        })->unique()->filter()->values()->toArray();
+
+        $uniqueKelasOptions = collect();
+        if ($this->tahunAjarYear && $sekolah) {
+            $uniqueKelasOptions = $sekolah->kelas()
+                ->whereHas('tahunAjar', function ($query) {
+                    $query->where('nama', 'like', $this->tahunAjarYear . ' %');
+                })
+                ->select('nama')
+                ->distinct()
+                ->orderBy('nama')
+                ->pluck('nama');
+        }
 
         return view('livewire.siswa.siswa-page', [
             'kelasOptions' => $sekolah
@@ -58,6 +79,7 @@ class SiswaPage extends Component
                     ->orderBy('nama')
                     ->get()
                 : collect(),
+            'uniqueKelasOptions' => $uniqueKelasOptions,
             'filterKelasOptions' => $sekolah
                 ? $sekolah->kelas()
                     ->select('nama')
@@ -65,7 +87,8 @@ class SiswaPage extends Component
                     ->orderBy('nama')
                     ->pluck('nama')
                 : collect(),
-            'tahunAjarOptions' => TahunAjar::orderByDesc('id')->get(),
+            'tahunAjarOptions' => $tahunAjarOptions,
+            'uniqueYears' => $uniqueYears,
             'tahunAjarId' => $this->tahunAjarId,
             'filterKelasNama' => $this->filterKelasNama,
             'filterTahunAjarId' => $this->filterTahunAjarId,
@@ -88,45 +111,112 @@ class SiswaPage extends Component
             return;
         }
 
-        $validated = $this->validate([
-            'nama' => [
-                'required',
-                'string',
-                'max:100',
-                Rule::unique('siswa', 'nama')
-                    ->where('kelas_id', $this->kelasId)
-                    ->ignore($this->siswaId),
-            ],
-            'gender' => ['required', 'in:L,P'],
-            'tahunAjarId' => ['required', 'exists:tahun_ajar,id'],
-            'kelasId' => ['required', 'exists:kelas,id'],
-        ], [
-            'nama.unique' => 'Nama siswa dengan kelas tersebut sudah ada.',
-            'tahunAjarId.required' => 'Tahun ajaran wajib dipilih.',
-            'kelasId.required' => 'Kelas wajib dipilih.',
-            'gender.required' => 'Jenis kelamin wajib dipilih.',
-        ]);
+        if ($this->isEditing) {
+            $validated = $this->validate([
+                'nama' => [
+                    'required',
+                    'string',
+                    'max:100',
+                    Rule::unique('siswa', 'nama')
+                        ->where('kelas_id', $this->kelasId)
+                        ->ignore($this->siswaId),
+                ],
+                'gender' => ['required', 'in:L,P'],
+                'tahunAjarId' => ['required', 'exists:tahun_ajar,id'],
+                'kelasId' => ['required', 'exists:kelas,id'],
+            ], [
+                'nama.unique' => 'Nama siswa dengan kelas tersebut sudah ada.',
+                'tahunAjarId.required' => 'Tahun ajaran wajib dipilih.',
+                'kelasId.required' => 'Kelas wajib dipilih.',
+                'gender.required' => 'Jenis kelamin wajib dipilih.',
+            ]);
 
-        $kelasExistsForTahunAjar = $sekolah->kelas()
-            ->whereKey($validated['kelasId'])
-            ->where('tahun_ajar_id', $validated['tahunAjarId'])
-            ->exists();
+            $kelasExistsForTahunAjar = $sekolah->kelas()
+                ->whereKey($validated['kelasId'])
+                ->where('tahun_ajar_id', $validated['tahunAjarId'])
+                ->exists();
 
-        if (! $kelasExistsForTahunAjar) {
-            $this->addError('kelasId', 'Kelas yang dipilih tidak sesuai dengan tahun ajaran.');
+            if (! $kelasExistsForTahunAjar) {
+                $this->addError('kelasId', 'Kelas yang dipilih tidak sesuai dengan tahun ajaran.');
 
-            return;
-        }
+                return;
+            }
 
-        Siswa::updateOrCreate(
-            ['id' => $this->siswaId],
-            [
-                'kelas_id' => $validated['kelasId'],
+            Siswa::updateOrCreate(
+                ['id' => $this->siswaId],
+                [
+                    'kelas_id' => $validated['kelasId'],
+                    'nama' => $validated['nama'],
+                    'gender' => $validated['gender'],
+                    'rata_poin' => 0,
+                ],
+            );
+        } else {
+            $validated = $this->validate([
+                'nama' => ['required', 'string', 'max:100'],
+                'gender' => ['required', 'in:L,P'],
+                'tahunAjarYear' => ['required', 'string'],
+                'kelasNama' => ['required', 'string'],
+            ], [
+                'nama.required' => 'Nama siswa wajib diisi.',
+                'tahunAjarYear.required' => 'Tahun ajaran wajib dipilih.',
+                'kelasNama.required' => 'Kelas wajib dipilih.',
+                'gender.required' => 'Jenis kelamin wajib dipilih.',
+            ]);
+
+            $year = $validated['tahunAjarYear'];
+            $ganjil = TahunAjar::where('nama', $year . ' Ganjil')->first();
+            $genap = TahunAjar::where('nama', $year . ' Genap')->first();
+
+            if (! $ganjil || ! $genap) {
+                $this->addError('tahunAjarYear', 'Tahun ajaran ganjil dan genap untuk ' . $year . ' tidak lengkap di database.');
+                return;
+            }
+
+            $ganjilKelas = $sekolah->kelas()
+                ->where('nama', $validated['kelasNama'])
+                ->where('tahun_ajar_id', $ganjil->id)
+                ->first();
+
+            $genapKelas = $sekolah->kelas()
+                ->where('nama', $validated['kelasNama'])
+                ->where('tahun_ajar_id', $genap->id)
+                ->first();
+
+            if (! $ganjilKelas || ! $genapKelas) {
+                $this->addError('kelasNama', 'Kelas ' . $validated['kelasNama'] . ' tidak lengkap untuk semester ganjil dan genap.');
+                return;
+            }
+
+            // Check duplicate in both semesters
+            $existsGanjil = Siswa::where('kelas_id', $ganjilKelas->id)
+                ->where('nama', $validated['nama'])
+                ->exists();
+
+            $existsGenap = Siswa::where('kelas_id', $genapKelas->id)
+                ->where('nama', $validated['nama'])
+                ->exists();
+
+            if ($existsGanjil || $existsGenap) {
+                $this->addError('nama', 'Nama siswa dengan kelas tersebut sudah ada.');
+                return;
+            }
+
+            // Create both
+            Siswa::create([
+                'kelas_id' => $ganjilKelas->id,
                 'nama' => $validated['nama'],
                 'gender' => $validated['gender'],
                 'rata_poin' => 0,
-            ],
-        );
+            ]);
+
+            Siswa::create([
+                'kelas_id' => $genapKelas->id,
+                'nama' => $validated['nama'],
+                'gender' => $validated['gender'],
+                'rata_poin' => 0,
+            ]);
+        }
 
         session()->flash('success', $this->isEditing ? 'Data siswa berhasil diperbarui.' : 'Data siswa berhasil ditambahkan.');
 
@@ -174,16 +264,31 @@ class SiswaPage extends Component
         $this->kelasId = null;
     }
 
+    public function updatedTahunAjarYear(): void
+    {
+        $this->kelasNama = null;
+    }
+
     public function toggleForm(): void
     {
         $this->showForm = ! $this->showForm;
         $this->showImportForm = false;
+        if ($this->showForm) {
+            $this->reset(['siswaId', 'kelasId', 'tahunAjarId', 'nama', 'gender', 'isEditing']);
+            $this->resetValidation();
+            $this->tahunAjarYear = null;
+            $this->kelasNama = null;
+        }
     }
 
     public function toggleImportForm(): void
     {
         $this->showImportForm = ! $this->showImportForm;
         $this->showForm = false;
+        if ($this->showImportForm) {
+            $this->tahunAjarYear = null;
+            $this->fileImport = null;
+        }
     }
 
     public function import(): void
@@ -197,12 +302,22 @@ class SiswaPage extends Component
         }
 
         $this->validate([
+            'tahunAjarYear' => ['required', 'string'],
             'fileImport' => ['required', 'file', 'mimes:xlsx,xls,csv'],
         ], [
+            'tahunAjarYear.required' => 'Pilih tahun ajaran sebelum import.',
             'fileImport.required' => 'Pilih file Excel yang akan diimport.',
         ]);
 
-        $import = new SiswaImport($sekolah);
+        $ganjil = TahunAjar::where('nama', $this->tahunAjarYear . ' Ganjil')->first();
+        $genap = TahunAjar::where('nama', $this->tahunAjarYear . ' Genap')->first();
+
+        if (! $ganjil || ! $genap) {
+            $this->addError('tahunAjarYear', 'Tahun ajaran ganjil dan genap untuk ' . $this->tahunAjarYear . ' tidak lengkap di database.');
+            return;
+        }
+
+        $import = new SiswaImport($sekolah, $this->tahunAjarYear, $ganjil, $genap);
         Excel::import($import, $this->fileImport);
 
         $this->importFailures = $import->failures();

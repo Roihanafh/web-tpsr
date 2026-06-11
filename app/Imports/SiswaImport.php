@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Kelas;
 use App\Models\Sekolah;
 use App\Models\Siswa;
+use App\Models\TahunAjar;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -17,7 +18,9 @@ class SiswaImport implements ToCollection, WithHeadingRow
 
     public function __construct(
         private readonly Sekolah $sekolah,
-        private readonly ?Kelas $selectedKelas = null,
+        private readonly string $selectedYear,
+        private readonly TahunAjar $ganjil,
+        private readonly TahunAjar $genap,
     ) {}
 
     public function collection(Collection $rows): void
@@ -53,26 +56,43 @@ class SiswaImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            $kelasModel = Kelas::where('nama', strtoupper($kelas))
+            $ganjilKelas = Kelas::where('nama', strtoupper($kelas))
                 ->where('sekolah_id', $this->sekolah->id)
+                ->where('tahun_ajar_id', $this->ganjil->id)
                 ->first();
 
-            if (! $kelasModel) {
-                $this->addFailure($line, $namaSiswa, 'Kelas tidak ada di database.');
+            $genapKelas = Kelas::where('nama', strtoupper($kelas))
+                ->where('sekolah_id', $this->sekolah->id)
+                ->where('tahun_ajar_id', $this->genap->id)
+                ->first();
+
+            if (! $ganjilKelas || ! $genapKelas) {
+                $this->addFailure($line, $namaSiswa, "Kelas {$kelas} tidak lengkap untuk semester ganjil dan genap pada tahun ajaran {$this->selectedYear}.");
                 continue;
             }
 
-            $exists = Siswa::where('kelas_id', $kelasModel->id)
+            $existsGanjil = Siswa::where('kelas_id', $ganjilKelas->id)
                 ->where('nama', $namaSiswa)
                 ->exists();
 
-            if ($exists) {
+            $existsGenap = Siswa::where('kelas_id', $genapKelas->id)
+                ->where('nama', $namaSiswa)
+                ->exists();
+
+            if ($existsGanjil || $existsGenap) {
                 $this->addFailure($line, $namaSiswa, 'Data siswa sudah ada untuk kelas tersebut.');
                 continue;
             }
 
             Siswa::create([
-                'kelas_id' => $kelasModel->id,
+                'kelas_id' => $ganjilKelas->id,
+                'nama' => $namaSiswa,
+                'gender' => $jenisKelamin,
+                'rata_poin' => 0,
+            ]);
+
+            Siswa::create([
+                'kelas_id' => $genapKelas->id,
                 'nama' => $namaSiswa,
                 'gender' => $jenisKelamin,
                 'rata_poin' => 0,

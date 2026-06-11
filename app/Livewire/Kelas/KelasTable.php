@@ -79,7 +79,7 @@ class KelasTable extends DataTableComponent
                         return '-';
                     }
 
-                    return ($this->getPage() - 1) * $this->getPerPage() + $index + 1;
+                    return ($rows->firstItem() ?? 1) + $index;
                 }),
             Column::make('Kelas', 'nama')
                 ->sortable()

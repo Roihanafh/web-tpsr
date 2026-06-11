@@ -83,7 +83,18 @@ class SiswaTable extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make('No', 'id')->sortable(),
+            Column::make('No')
+                ->label(function ($row) {
+                    $rows = $this->getRows();
+                    $collection = $rows->getCollection();
+                    $index = $collection->search(fn ($item) => $item->id === $row->id);
+
+                    if ($index === false) {
+                        return '-';
+                    }
+
+                    return ($rows->firstItem() ?? 1) + $index;
+                }),
             Column::make('Nama', 'nama')
                 ->sortable()
                 ->searchable(),

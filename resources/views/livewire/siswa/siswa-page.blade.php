@@ -83,25 +83,47 @@
                 <form wire:submit="save" class="siswa-form">
                     <div class="form-row">
                         <div class="col-md-3 mb-2">
-                            <label for="tahunAjarId">Tahun Ajaran</label>
-                            <select id="tahunAjarId" class="form-control @error('tahunAjarId') is-invalid @enderror" wire:model.live="tahunAjarId" wire:loading.attr="disabled" wire:target="save,edit">
-                                <option value="">Pilih tahun ajaran</option>
-                                @foreach ($tahunAjarOptions as $tahunAjar)
-                                    <option value="{{ $tahunAjar->id }}">{{ $tahunAjar->nama }}</option>
-                                @endforeach
-                            </select>
-                            @error('tahunAjarId') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @if ($isEditing)
+                                <label for="tahunAjarId">Tahun Ajaran</label>
+                                <select id="tahunAjarId" class="form-control @error('tahunAjarId') is-invalid @enderror" wire:model.live="tahunAjarId" wire:loading.attr="disabled" wire:target="save,edit">
+                                    <option value="">Pilih tahun ajaran</option>
+                                    @foreach ($tahunAjarOptions as $tahunAjar)
+                                        <option value="{{ $tahunAjar->id }}">{{ $tahunAjar->nama }}</option>
+                                    @endforeach
+                                </select>
+                                @error('tahunAjarId') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @else
+                                <label for="tahunAjarYear">Tahun Ajaran</label>
+                                <select id="tahunAjarYear" class="form-control @error('tahunAjarYear') is-invalid @enderror" wire:model.live="tahunAjarYear" wire:loading.attr="disabled" wire:target="save,edit">
+                                    <option value="">Pilih tahun ajaran</option>
+                                    @foreach ($uniqueYears as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                                @error('tahunAjarYear') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @endif
                         </div>
 
                         <div class="col-md-3 mb-2">
-                            <label for="kelasId">Kelas</label>
-                            <select id="kelasId" class="form-control @error('kelasId') is-invalid @enderror" wire:model="kelasId" wire:loading.attr="disabled" wire:target="save,edit,tahunAjarId" @disabled(! $tahunAjarId)>
-                                <option value="">Pilih kelas</option>
-                                @foreach ($kelasOptions as $kelas)
-                                    <option value="{{ data_get($kelas, 'id') }}">{{ data_get($kelas, 'nama') }}</option>
-                                @endforeach
-                            </select>
-                            @error('kelasId') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @if ($isEditing)
+                                <label for="kelasId">Kelas</label>
+                                <select id="kelasId" class="form-control @error('kelasId') is-invalid @enderror" wire:model="kelasId" wire:loading.attr="disabled" wire:target="save,edit,tahunAjarId" @disabled(! $tahunAjarId)>
+                                    <option value="">Pilih kelas</option>
+                                    @foreach ($kelasOptions as $kelas)
+                                        <option value="{{ data_get($kelas, 'id') }}">{{ data_get($kelas, 'nama') }}</option>
+                                    @endforeach
+                                </select>
+                                @error('kelasId') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @else
+                                <label for="kelasNama">Kelas</label>
+                                <select id="kelasNama" class="form-control @error('kelasNama') is-invalid @enderror" wire:model="kelasNama" wire:loading.attr="disabled" wire:target="save,edit,tahunAjarYear" @disabled(! $tahunAjarYear)>
+                                    <option value="">Pilih kelas</option>
+                                    @foreach ($uniqueKelasOptions as $namaK)
+                                        <option value="{{ $namaK }}">{{ $namaK }}</option>
+                                    @endforeach
+                                </select>
+                                @error('kelasNama') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @endif
                         </div>
 
                         <div class="col-md-2 mb-2">
@@ -168,21 +190,35 @@
                         </button>
                     </div>
 
-                    <div class="input-group">
-                        <input id="fileImport" type="file" class="form-control @error('fileImport') is-invalid @enderror" wire:model="fileImport" accept=".xlsx,.xls,.csv" wire:loading.attr="disabled" wire:target="fileImport,import">
-                        <div class="input-group-append">
-                            <button type="submit" class="btn btn-success" wire:loading.attr="disabled" wire:target="fileImport,import">
-                                <span wire:loading.remove wire:target="fileImport,import">
-                                    <i class="fas fa-file-import mr-1"></i>
-                                    Import Excel
-                                </span>
-                                <span wire:loading wire:target="fileImport,import">
-                                    <i class="fas fa-spinner fa-spin mr-1"></i>
-                                    Mengimport
-                                </span>
-                            </button>
+                    <div class="form-row">
+                        <div class="col-md-4 mb-2">
+                            <select id="tahunAjarYearImport" class="form-control @error('tahunAjarYear') is-invalid @enderror" wire:model="tahunAjarYear" wire:loading.attr="disabled" wire:target="fileImport,import">
+                                <option value="">Pilih tahun ajaran</option>
+                                @foreach ($uniqueYears as $year)
+                                    <option value="{{ $year }}">{{ $year }}</option>
+                                @endforeach
+                            </select>
+                            @error('tahunAjarYear') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
-                        @error('fileImport') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
+
+                        <div class="col-md-8 mb-2">
+                            <div class="input-group">
+                                <input id="fileImport" type="file" class="form-control @error('fileImport') is-invalid @enderror" wire:model="fileImport" accept=".xlsx,.xls,.csv" wire:loading.attr="disabled" wire:target="fileImport,import">
+                                <div class="input-group-append">
+                                    <button type="submit" class="btn btn-success" wire:loading.attr="disabled" wire:target="fileImport,import">
+                                        <span wire:loading.remove wire:target="fileImport,import">
+                                            <i class="fas fa-file-import mr-1"></i>
+                                            Import Excel
+                                        </span>
+                                        <span wire:loading wire:target="fileImport,import">
+                                            <i class="fas fa-spinner fa-spin mr-1"></i>
+                                            Mengimport
+                                        </span>
+                                    </button>
+                                </div>
+                                @error('fileImport') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>

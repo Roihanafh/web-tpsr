@@ -19,7 +19,7 @@ class SiswaExport implements FromCollection, WithHeadings
     public function collection(): Collection
     {
         return Siswa::query()
-            ->with('kelas')
+            ->with(['kelas.tahunAjar'])
             ->whereHas('kelas', function ($query) {
                 $query->where('sekolah_id', $this->sekolah->id)
                     ->when($this->tahunAjarId, fn ($query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
@@ -31,12 +31,15 @@ class SiswaExport implements FromCollection, WithHeadings
                 'nama_siswa' => $siswa->nama,
                 'jenis_kelamin' => $siswa->gender === 'L' ? 'Laki-laki' : 'Perempuan',
                 'kelas' => $siswa->kelas?->nama,
+                'tahun_ajaran' => trim(str_ireplace(['ganjil', 'genap'], '', $siswa->kelas?->tahunAjar?->nama ?? '')),
                 'rata_poin' => $siswa->rata_poin,
-            ]);
+            ])
+            ->unique(fn ($item) => $item['nama_siswa'] . '-' . $item['kelas'] . '-' . $item['tahun_ajaran'])
+            ->values();
     }
 
     public function headings(): array
     {
-        return ['nama_siswa', 'jenis_kelamin', 'kelas', 'rata_poin'];
+        return ['nama_siswa', 'jenis_kelamin', 'kelas', 'tahun_ajaran', 'rata_poin'];
     }
 }
