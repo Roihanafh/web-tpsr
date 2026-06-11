@@ -39,7 +39,7 @@ class SiswaImport implements ToCollection, WithHeadingRow
             }
 
             // Map jenis kelamin
-            if ($jenisKelamin === 'LAKI-LAKI' || $jenisKelamin === 'LAKI') {
+            if ($jenisKelamin === 'LAKI-LAKI' || $jenisKelamin === 'L') {
                 $jenisKelamin = 'L';
             } elseif ($jenisKelamin === 'PEREMPUAN' || $jenisKelamin === 'P') {
                 $jenisKelamin = 'P';

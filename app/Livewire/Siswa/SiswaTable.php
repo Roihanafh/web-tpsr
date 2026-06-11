@@ -23,7 +23,7 @@ class SiswaTable extends DataTableComponent
     {
         $this->setTableName('siswa-table');
         $this->setPrimaryKey('id');
-        $this->setDefaultSort('siswa.id', 'desc');
+        $this->setDefaultSort('siswa.id', 'asc');
         $this->setTheme('bootstrap-5');
         $this->setPaginationTheme('bootstrap');
         $this->setPerPageAccepted([10, 25, 50]);
@@ -50,7 +50,8 @@ class SiswaTable extends DataTableComponent
                 $query->where('sekolah_id', $sekolahId)
                     ->when($this->tahunAjarId, fn (Builder $query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
                     ->when($this->kelasNama !== '', fn (Builder $query) => $query->where('nama', $this->kelasNama));
-            });
+            })
+            ->orderBy('siswa.id', 'asc');
     }
 
     public function applySearch(): Builder
