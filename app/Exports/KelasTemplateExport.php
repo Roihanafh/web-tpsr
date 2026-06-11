@@ -11,8 +11,8 @@ class KelasTemplateExport implements FromCollection, WithHeadings
     public function collection(): Collection
     {
         return collect([
-            ['5-A', '2025/2026 Ganjil'],
-            ['5-B', '2025/2026 Genap'],
+            ['5-A', '2025/2026'],
+            ['5-B', '2025/2026'],
         ]);
     }
 

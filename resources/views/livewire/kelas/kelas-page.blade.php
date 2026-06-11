@@ -78,13 +78,23 @@
                     <div class="form-row">
                         <div class="col-md-4 mb-2">
                             <label for="tahunAjarId">Tahun Ajaran</label>
-                            <select id="tahunAjarId" class="form-control @error('tahunAjarId') is-invalid @enderror" wire:model="tahunAjarId" wire:loading.attr="disabled" wire:target="save,edit">
-                                <option value="">Pilih tahun ajaran</option>
-                                @foreach ($tahunAjarOptions as $tahunAjar)
-                                    <option value="{{ $tahunAjar->id }}">{{ $tahunAjar->nama }}</option>
-                                @endforeach
-                            </select>
-                            @error('tahunAjarId') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @if ($isEditing)
+                                <select id="tahunAjarId" class="form-control @error('tahunAjarId') is-invalid @enderror" wire:model="tahunAjarId" wire:loading.attr="disabled" wire:target="save,edit">
+                                    <option value="">Pilih tahun ajaran</option>
+                                    @foreach ($tahunAjarOptions as $tahunAjar)
+                                        <option value="{{ $tahunAjar->id }}">{{ $tahunAjar->nama }}</option>
+                                    @endforeach
+                                </select>
+                                @error('tahunAjarId') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @else
+                                <select id="tahunAjarYear" class="form-control @error('tahunAjarYear') is-invalid @enderror" wire:model="tahunAjarYear" wire:loading.attr="disabled" wire:target="save,edit">
+                                    <option value="">Pilih tahun ajaran</option>
+                                    @foreach ($uniqueYears as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                                @error('tahunAjarYear') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @endif
                         </div>
 
                         <div class="col-md-4 mb-2">
@@ -143,13 +153,13 @@
 
                     <div class="form-row">
                         <div class="col-md-4 mb-2">
-                            <select class="form-control @error('tahunAjarId') is-invalid @enderror" wire:model="tahunAjarId" wire:loading.attr="disabled" wire:target="fileImport,import">
+                            <select id="tahunAjarYearImport" class="form-control @error('tahunAjarYear') is-invalid @enderror" wire:model="tahunAjarYear" wire:loading.attr="disabled" wire:target="fileImport,import">
                                 <option value="">Pilih tahun ajaran</option>
-                                @foreach ($tahunAjarOptions as $tahunAjar)
-                                    <option value="{{ $tahunAjar->id }}">{{ $tahunAjar->nama }}</option>
+                                @foreach ($uniqueYears as $year)
+                                    <option value="{{ $year }}">{{ $year }}</option>
                                 @endforeach
                             </select>
-                            @error('tahunAjarId') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            @error('tahunAjarYear') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
                         <div class="col-md-8 mb-2">

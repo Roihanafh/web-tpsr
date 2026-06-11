@@ -25,8 +25,10 @@ class KelasExport implements FromCollection, WithHeadings
             ->get()
             ->map(fn (Kelas $kelas) => [
                 'nama_kelas' => $kelas->nama,
-                'tahun_ajaran' => $kelas->tahunAjar?->nama,
-            ]);
+                'tahun_ajaran' => trim(str_ireplace(['ganjil', 'genap'], '', $kelas->tahunAjar?->nama ?? '')),
+            ])
+            ->unique(fn ($item) => $item['nama_kelas'] . '-' . $item['tahun_ajaran'])
+            ->values();
     }
 
     public function headings(): array

@@ -17,7 +17,9 @@ class KelasImport implements ToCollection, WithHeadingRow
 
     public function __construct(
         private readonly Sekolah $sekolah,
-        private readonly TahunAjar $selectedTahunAjar,
+        private readonly string $selectedYear,
+        private readonly TahunAjar $ganjil,
+        private readonly TahunAjar $genap,
     ) {}
 
     public function collection(Collection $rows): void
@@ -42,31 +44,35 @@ class KelasImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            $tahunAjarModel = TahunAjar::where('nama', $tahunAjar)->first();
-
-            if (! $tahunAjarModel) {
-                $this->addFailure($line, $namaKelas, 'Tahun ajaran tidak ada di database.');
-                continue;
-            }
-
-            if ($tahunAjarModel->isNot($this->selectedTahunAjar)) {
+            if ($tahunAjar !== $this->selectedYear) {
                 $this->addFailure($line, $namaKelas, 'Tahun ajaran pada file tidak sesuai dengan tahun ajaran yang dipilih.');
                 continue;
             }
 
-            $exists = Kelas::where('sekolah_id', $this->sekolah->id)
-                ->where('tahun_ajar_id', $this->selectedTahunAjar->id)
+            $existsGanjil = Kelas::where('sekolah_id', $this->sekolah->id)
+                ->where('tahun_ajar_id', $this->ganjil->id)
                 ->where('nama', $namaKelas)
                 ->exists();
 
-            if ($exists) {
+            $existsGenap = Kelas::where('sekolah_id', $this->sekolah->id)
+                ->where('tahun_ajar_id', $this->genap->id)
+                ->where('nama', $namaKelas)
+                ->exists();
+
+            if ($existsGanjil || $existsGenap) {
                 $this->addFailure($line, $namaKelas, 'Data kelas sudah ada untuk sekolah dan tahun ajaran tersebut.');
                 continue;
             }
 
             Kelas::create([
                 'sekolah_id' => $this->sekolah->id,
-                'tahun_ajar_id' => $this->selectedTahunAjar->id,
+                'tahun_ajar_id' => $this->ganjil->id,
+                'nama' => $namaKelas,
+            ]);
+
+            Kelas::create([
+                'sekolah_id' => $this->sekolah->id,
+                'tahun_ajar_id' => $this->genap->id,
                 'nama' => $namaKelas,
             ]);
 

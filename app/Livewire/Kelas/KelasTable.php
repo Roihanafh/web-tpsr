@@ -69,7 +69,18 @@ class KelasTable extends DataTableComponent
     public function columns(): array
     {
         return [
-            Column::make('No', 'id')->sortable(),
+            Column::make('No')
+                ->label(function ($row) {
+                    $rows = $this->getRows();
+                    $collection = $rows->getCollection();
+                    $index = $collection->search(fn ($item) => $item->id === $row->id);
+
+                    if ($index === false) {
+                        return '-';
+                    }
+
+                    return ($this->getPage() - 1) * $this->getPerPage() + $index + 1;
+                }),
             Column::make('Kelas', 'nama')
                 ->sortable()
                 ->searchable(),
