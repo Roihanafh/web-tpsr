@@ -45,13 +45,18 @@ class SiswaTable extends DataTableComponent
         $sekolahId = Auth::user()?->sekolah?->id;
 
         return Siswa::query()
-            ->with('kelas')
+            ->with('kelas.tahunAjar')
             ->whereHas('kelas', function (Builder $query) use ($sekolahId) {
                 $query->where('sekolah_id', $sekolahId)
                     ->when($this->tahunAjarId, fn (Builder $query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
                     ->when($this->kelasNama !== '', fn (Builder $query) => $query->where('nama', $this->kelasNama));
             })
-            ->orderBy('siswa.id', 'asc');
+            ->addSelect([
+                'tahun_ajar_nama' => \App\Models\TahunAjar::selectRaw('tahun_ajar.nama')
+                    ->join('kelas as k_ta', 'k_ta.tahun_ajar_id', '=', 'tahun_ajar.id')
+                    ->whereColumn('k_ta.id', 'siswa.kelas_id')
+                    ->limit(1),
+            ]);
     }
 
     public function applySearch(): Builder
@@ -67,7 +72,8 @@ class SiswaTable extends DataTableComponent
                 $query
                     ->where('siswa.nama', 'like', '%'.$search.'%')
                     ->orWhere('siswa.gender', 'like', '%'.$search.'%')
-                    ->orWhereHas('kelas', fn (Builder $query) => $query->where('nama', 'like', '%'.$search.'%'));
+                    ->orWhereHas('kelas', fn (Builder $query) => $query->where('nama', 'like', '%'.$search.'%'))
+                    ->orWhereHas('kelas', fn (Builder $query) => $query->whereHas('tahunAjar', fn (Builder $q) => $q->where('nama', 'like', '%'.$search.'%')));
             })
         );
 
@@ -87,6 +93,15 @@ class SiswaTable extends DataTableComponent
             Column::make('Kelas', 'kelas.nama')
                 ->sortable()
                 ->searchable(),
+            Column::make('Tahun Ajar', 'tahun_ajar_nama')
+                ->label(fn ($row) => $row->tahun_ajar_nama ?? '-')
+                ->sortable(fn (Builder $query, string $direction) => $query->orderBy(
+                    \App\Models\TahunAjar::selectRaw('tahun_ajar.nama')
+                        ->join('kelas as k_ta', 'k_ta.tahun_ajar_id', '=', 'tahun_ajar.id')
+                        ->whereColumn('k_ta.id', 'siswa.kelas_id')
+                        ->limit(1),
+                    $direction
+                )),
             Column::make('Rata-rata Poin', 'rata_poin')
                 ->sortable(),
             Column::make('Aksi')
