@@ -340,20 +340,7 @@ return [
             'text' => 'Penilaian TPSR',
             'icon' => 'fas fa-fw fa-clipboard-list',
             'can' => 'view_assessment',
-            'label' => 'LIVE',
-            'label_color' => 'danger',
-            'submenu' => [
-                [
-                    'text' => 'Quick Assessment',
-                    'url' => 'assessment/quick',
-                    'icon' => 'fas fa-fw fa-bolt',
-                ],
-                [
-                    'text' => 'Checklist Observasi',
-                    'url' => 'assessment/checklist',
-                    'icon' => 'fas fa-fw fa-check-square',
-                ],
-            ],
+            'url' => 'assessment',
         ],
 
         [
