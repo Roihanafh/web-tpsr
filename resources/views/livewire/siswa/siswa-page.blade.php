@@ -82,7 +82,7 @@
 
                 <form wire:submit="save" class="siswa-form">
                     <div class="form-row">
-                        <div class="col-md-3 mb-2">
+                        <div class="col-md-2 mb-2">
                             @if ($isEditing)
                                 <label for="tahunAjarId">Tahun Ajaran</label>
                                 <select id="tahunAjarId" class="form-control @error('tahunAjarId') is-invalid @enderror" wire:model.live="tahunAjarId" wire:loading.attr="disabled" wire:target="save,edit">
@@ -104,7 +104,7 @@
                             @endif
                         </div>
 
-                        <div class="col-md-3 mb-2">
+                        <div class="col-md-2 mb-2">
                             @if ($isEditing)
                                 <label for="kelasId">Kelas</label>
                                 <select id="kelasId" class="form-control @error('kelasId') is-invalid @enderror" wire:model="kelasId" wire:loading.attr="disabled" wire:target="save,edit,tahunAjarId" @disabled(! $tahunAjarId)>
@@ -126,7 +126,7 @@
                             @endif
                         </div>
 
-                        <div class="col-md-2 mb-2">
+                        <div class="col-md-3 mb-2">
                             <label for="nama">Nama Siswa</label>
                             <input id="nama" type="text" maxlength="100" class="form-control @error('nama') is-invalid @enderror" wire:model="nama" placeholder="Nama Siswa" wire:loading.attr="disabled" wire:target="save,edit">
                             @error('nama') <span class="invalid-feedback">{{ $message }}</span> @enderror
@@ -142,7 +142,7 @@
                             @error('gender') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="col-md-2 mb-2 siswa-submit">
+                        <div class="col-md-3 mb-2 siswa-submit">
                             <button type="submit" class="btn btn-primary siswa-btn" wire:loading.attr="disabled" wire:target="save">
                                 <span wire:loading.remove wire:target="save">
                                     <i class="fas fa-plus mr-1"></i>
