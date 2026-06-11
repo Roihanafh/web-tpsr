@@ -31,11 +31,9 @@ class SiswaExport implements FromCollection, WithHeadings
                 'nama_siswa' => $siswa->nama,
                 'jenis_kelamin' => $siswa->gender === 'L' ? 'Laki-laki' : 'Perempuan',
                 'kelas' => $siswa->kelas?->nama,
-                'tahun_ajaran' => trim(str_ireplace(['ganjil', 'genap'], '', $siswa->kelas?->tahunAjar?->nama ?? '')),
+                'tahun_ajaran' => $siswa->kelas?->tahunAjar?->nama,
                 'rata_poin' => $siswa->rata_poin,
-            ])
-            ->unique(fn ($item) => $item['nama_siswa'] . '-' . $item['kelas'] . '-' . $item['tahun_ajaran'])
-            ->values();
+            ]);
     }
 
     public function headings(): array
