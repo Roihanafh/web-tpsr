@@ -380,15 +380,29 @@ return [
 
         // ===== MENU ADMIN =====
         [
-            'header' => 'SISTEM',
+            'header' => 'Manajemen',
             'can' => 'manage_users',
         ],
 
         [
-            'text' => 'Manajemen User',
+            'text' => 'User',
             'url' => 'users',
             'icon' => 'fas fa-fw fa-users',
             'can' => 'manage_users',
+        ],
+
+        [
+            'text' => 'Sekolah',
+            'url' => 'sekolah',
+            'icon' => 'fas fa-fw fa-school',
+            'can' => 'manage_settings',
+        ],
+
+        [
+            'text' => 'Tahun Ajar',
+            'url' => 'tahun-ajar',
+            'icon' => 'fas fa-fw fa-calendar-alt',
+            'can' => 'manage_settings',
         ],
 
         [
