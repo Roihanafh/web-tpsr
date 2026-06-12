@@ -242,7 +242,21 @@
 <body>
     @php
         $activePanel = $activePanel ?? 'login';
-        $registerErrors = $errors->has('name') || $errors->has('password_confirmation');
+        $registerErrors = $errors->has('name') || 
+                          $errors->has('password_confirmation') || 
+                          $errors->has('nama_sekolah') || 
+                          $errors->has('alamat_sekolah');
+
+        $sekolahOptions = \App\Models\Sekolah::query()
+            ->select('id', 'nama', 'alamat')
+            ->orderBy('nama')
+            ->get()
+            ->map(fn (\App\Models\Sekolah $sekolah): array => [
+                'id' => $sekolah->id,
+                'nama' => $sekolah->nama,
+                'alamat' => $sekolah->alamat,
+            ])
+            ->values();
     @endphp
 
     <div class="auth-container {{ $activePanel === 'register' || $registerErrors ? 'right-panel-active' : '' }}" id="container">
@@ -273,6 +287,16 @@
                 <div class="auth-row">
                     <input class="auth-input" type="password" name="password_confirmation" placeholder="Konfirmasi Password" required autocomplete="new-password">
                     @error('password_confirmation') <div class="auth-error">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="auth-row">
+                    <input class="auth-input" type="text" name="nama_sekolah" value="{{ old('nama_sekolah') }}" placeholder="Nama Sekolah" autocomplete="organization">
+                    @error('nama_sekolah') <div class="auth-error">{{ $message }}</div> @enderror
+                </div>
+
+                <div class="auth-row">
+                    <textarea class="auth-input" name="alamat_sekolah" placeholder="Alamat Sekolah" rows="2" autocomplete="street-address" style="resize: none; min-height: 50px;">{{ old('alamat_sekolah') }}</textarea>
+                    @error('alamat_sekolah') <div class="auth-error">{{ $message }}</div> @enderror
                 </div>
 
                 <button class="auth-button" type="submit">Daftar</button>
@@ -331,6 +355,65 @@
         </div>
     </div>
 
+    <!-- Custom Vanilla JS Modal -->
+    <div id="schoolConflictModal" style="
+        display: none;
+        position: fixed;
+        z-index: 10000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.5);
+        align-items: center;
+        justify-content: center;
+    ">
+        <div style="
+            background-color: #ffffff;
+            margin: auto;
+            padding: 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+            width: 450px;
+            max-width: 90%;
+            text-align: left;
+        ">
+            <h3 style="margin-top: 0; font-weight: 800; font-size: 18px; color: #1f2937;">Konfirmasi Sekolah</h3>
+            <p style="margin: 16px 0 8px 0; font-size: 14px; color: #4b5563;">
+                Sekolah <strong id="matchedSchoolName" style="color: #0b2f5b;"></strong> sudah terdaftar di sistem.
+            </p>
+            <p style="margin: 0 0 16px 0; font-size: 13px; color: #6b7280; line-height: 1.5;">
+                <strong>Alamat:</strong> <span id="matchedSchoolAddress"></span>
+            </p>
+            <p style="margin: 0 0 20px 0; font-size: 13px; color: #4b5563; line-height: 1.5;">
+                Apakah Anda yakin ingin mendaftar dan bergabung dengan sekolah tersebut?
+            </p>
+            <div style="display: flex; justify-content: flex-end; gap: 12px;">
+                <button type="button" id="cancelModalButton" style="
+                    border: 1px solid #d1d5db;
+                    background-color: #ffffff;
+                    color: #374151;
+                    font-size: 12px;
+                    font-weight: 800;
+                    padding: 10px 24px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                ">Batal</button>
+                <button type="button" id="confirmModalButton" style="
+                    border: none;
+                    background-color: #0b2f5b;
+                    color: #ffffff;
+                    font-size: 12px;
+                    font-weight: 800;
+                    padding: 10px 24px;
+                    border-radius: 20px;
+                    cursor: pointer;
+                ">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const signUpButton = document.getElementById('signUp');
         const signInButton = document.getElementById('signIn');
@@ -342,6 +425,65 @@
 
         signInButton.addEventListener('click', () => {
             container.classList.remove('right-panel-active');
+        });
+
+        // Konfirmasi Sekolah Eksis
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.querySelector('.sign-up-container form');
+            const schoolNameInput = document.getElementsByName('nama_sekolah')[0];
+            const matchedSchoolName = document.getElementById('matchedSchoolName');
+            const matchedSchoolAddress = document.getElementById('matchedSchoolAddress');
+            const confirmModalButton = document.getElementById('confirmModalButton');
+            const cancelModalButton = document.getElementById('cancelModalButton');
+            const modal = document.getElementById('schoolConflictModal');
+            
+            const schools = @json($sekolahOptions ?? []);
+            let confirmedSchool = false;
+
+            const normalizeSchoolName = function (value) {
+                return value.trim().toLowerCase();
+            };
+
+            if (form && schoolNameInput) {
+                form.addEventListener('submit', function (event) {
+                    if (confirmedSchool) {
+                        return;
+                    }
+
+                    const schoolName = normalizeSchoolName(schoolNameInput.value);
+                    if (schoolName === '') {
+                        return;
+                    }
+
+                    const matchedSchool = schools.find(function (school) {
+                        return normalizeSchoolName(school.nama) === schoolName;
+                    });
+
+                    if (!matchedSchool) {
+                        return;
+                    }
+
+                    // Sekolah ditemukan di DB, munculkan modal konfirmasi
+                    event.preventDefault();
+                    matchedSchoolName.textContent = matchedSchool.nama;
+                    matchedSchoolAddress.textContent = matchedSchool.alamat || 'Alamat belum diisi.';
+                    modal.style.display = 'flex';
+                });
+            }
+
+            if (confirmModalButton) {
+                confirmModalButton.addEventListener('click', function () {
+                    confirmedSchool = true;
+                    modal.style.display = 'none';
+                    form.submit();
+                });
+            }
+
+            if (cancelModalButton) {
+                cancelModalButton.addEventListener('click', function () {
+                    modal.style.display = 'none';
+                });
+            }
         });
     </script>
 </body>
