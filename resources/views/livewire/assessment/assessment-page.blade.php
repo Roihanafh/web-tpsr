@@ -17,28 +17,23 @@
     @endif
 
     <div class="assessment-panel">
-        <div class="form-row">
-            <div class="col-md-4 mb-3">
-                <label for="tahunAjarId">Tahun Ajaran</label>
-                <select id="tahunAjarId" class="form-control" wire:model.live="tahunAjarId">
+        <div class="assessment-toolbar">
+            <div class="assessment-toolbar-filters">
+                <select id="tahunAjarId" class="form-control assessment-select" wire:model.live="tahunAjarId">
                     <option value="">Pilih Tahun Ajaran</option>
                     @foreach ($tahunAjarOptions as $ta)
                         <option value="{{ $ta->id }}">{{ $ta->nama }}</option>
                     @endforeach
                 </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="kelasId">Kelas</label>
-                <select id="kelasId" class="form-control" wire:model.live="kelasId" @disabled(!$tahunAjarId)>
+
+                <select id="kelasId" class="form-control assessment-select" wire:model.live="kelasId" @disabled(!$tahunAjarId)>
                     <option value="">Pilih Kelas</option>
                     @foreach ($kelasOptions as $kelas)
                         <option value="{{ $kelas->id }}">{{ $kelas->nama }}</option>
                     @endforeach
                 </select>
-            </div>
-            <div class="col-md-4 mb-3">
-                <label for="pertemuan">Pertemuan</label>
-                <select id="pertemuan" class="form-control" wire:model.live="pertemuan" @disabled(!$kelasId)>
+
+                <select id="pertemuan" class="form-control assessment-select" wire:model.live="pertemuan" @disabled(!$kelasId)>
                     <option value="">Pilih Pertemuan</option>
                     @for ($i = 1; $i <= 16; $i++)
                         <option value="{{ $i }}">Pertemuan {{ $i }}</option>
