@@ -14,7 +14,7 @@ class LaporanIndividuPage extends Component
     // Filter — sama persis pola Assessment: tahun ajar dulu, baru kelas
     public ?int $tahunAjarId = null;
 
-    public ?int $kelasId = null;
+    public mixed $kelasId = null;
 
     public string $search = '';
 
@@ -53,14 +53,6 @@ class LaporanIndividuPage extends Component
         $this->showChart = false;
     }
 
-    /**
-     * Tentukan status berdasarkan rata-rata (5 status):
-     * 0.00–1.00 → Perlu Perhatian
-     * 1.01–2.00 → Cukup
-     * 2.01–3.00 → Cukup Baik
-     * 3.01–4.00 → Baik
-     * 4.01–5.00 → Sangat Baik
-     */
     public static function getStatus(?float $rata): string
     {
         if ($rata === null) return '-';
@@ -92,7 +84,14 @@ class LaporanIndividuPage extends Component
         $siswaList = collect();
         if ($sekolah && $this->kelasId) {
             $siswaList = Siswa::with('kelas.tahunAjar')
-                ->where('kelas_id', $this->kelasId)
+                ->when($this->kelasId === 'all', function ($q) use ($sekolah) {
+                    $q->whereHas('kelas', function ($qk) use ($sekolah) {
+                        $qk->where('sekolah_id', $sekolah->id)
+                           ->where('tahun_ajar_id', $this->tahunAjarId);
+                    });
+                }, function ($q) {
+                    $q->where('kelas_id', $this->kelasId);
+                })
                 ->when(trim($this->search) !== '', function ($q) {
                     $search = trim($this->search);
                     $q->where('nama', 'like', '%' . $search . '%');

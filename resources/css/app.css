@@ -2,9 +2,13 @@
 @import './kelas.css';
 @import './assessment.css';
 @import './laporan.css';
+<<<<<<< HEAD
 @import './users.css';
 @import './sekolah.css';
 @import './tahun-ajar.css';
+=======
+@import './dashboard.css';
+>>>>>>> b40497f216f337c892637a2cf0ec59675910c949
 @tailwind base;
 @tailwind components;
 @tailwind utilities;

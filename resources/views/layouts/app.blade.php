@@ -58,6 +58,7 @@
                         }]
                     },
                     options: {
+                        devicePixelRatio: 3,
                         animation: {
                             duration: 600,
                             onComplete: function() {
@@ -81,8 +82,14 @@
                         scales: {
                             x: { title: { display: true, text: 'Pertemuan' } },
                             y: {
-                                min: 0, max: 5,
-                                ticks: { stepSize: 1, callback: function (v) { return 'L' + v; } },
+                                min: 0, max: 5.5,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function (v) {
+                                        if (v % 1 !== 0) return null;
+                                        return 'L' + v;
+                                    }
+                                },
                                 title: { display: true, text: 'Level' }
                             }
                         }
@@ -157,18 +164,24 @@
                         if (canvas) {
                             try {
                                 var chartImgData = canvas.toDataURL('image/png');
-                                // A4 lebar 210mm. Margin kiri-kanan 20mm -> printable 170mm.
-                                // Lebar chart diperbesar menjadi 160mm, tinggi menjadi 80mm agar skala lebih terlihat.
-                                // Center X: (210 - 160) / 2 = 25mm
-                                doc.addImage(chartImgData, 'PNG', 25, currentY, 160, 80);
+                                var pdfWidth = 160;
+                                var pdfHeight = 80; // default
+                                if (canvas.width && canvas.height) {
+                                    // Hitung aspect ratio agar tidak terdistorsi/lonjong
+                                    var canvasRatio = canvas.width / canvas.height;
+                                    pdfHeight = pdfWidth / canvasRatio;
+                                    if (pdfHeight > 90) pdfHeight = 90;
+                                    if (pdfHeight < 50) pdfHeight = 50;
+                                }
+                                doc.addImage(chartImgData, 'PNG', 25, currentY, pdfWidth, pdfHeight);
                                 
                                 // Label grafik
                                 doc.setFont('helvetica', 'italic');
                                 doc.setFontSize(9);
                                 doc.setTextColor(80, 80, 80);
-                                doc.text('Grafik Penilaian', 105, currentY + 85, { align: 'center' });
+                                doc.text('Grafik Penilaian', 105, currentY + pdfHeight + 5, { align: 'center' });
                                 
-                                currentY += 93;
+                                currentY += pdfHeight + 13;
                             } catch (e) {
                                 console.error('Gagal mengambil data chart:', e);
                                 currentY += 5;
@@ -246,5 +259,219 @@
 
             doInit();
         });
+
+        window.addEventListener('init-kelas-chart', function (e) {
+            var labels = e.detail.labels;
+            var values = e.detail.values;
+            var kelas  = e.detail.kelas;
+            var slug   = e.detail.slug;
+
+            function doInitKelas() {
+                var canvas = document.getElementById('kelasChart');
+                if (!canvas) { setTimeout(doInitKelas, 50); return; }
+
+                if (window._kelasChartInstance) {
+                    window._kelasChartInstance.destroy();
+                    window._kelasChartInstance = null;
+                }
+
+                window._kelasChartInstance = new Chart(canvas, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Rata-rata Kelas ' + kelas,
+                            data: values,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59,130,246,0.08)',
+                            pointBackgroundColor: '#3b82f6',
+                            pointRadius: 5,
+                            pointHoverRadius: 7,
+                            borderWidth: 2.5,
+                            tension: 0.3,
+                            spanGaps: true,
+                        }]
+                    },
+                    options: {
+                        devicePixelRatio: 3,
+                        animation: {
+                            duration: 600,
+                            onComplete: function() {
+                                var imgEl = document.getElementById('laporan-kelas-pdf-chart-img');
+                                if (imgEl && canvas) {
+                                    imgEl.src = canvas.toDataURL('image/png');
+                                }
+                            }
+                        },
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top' },
+                            tooltip: {
+                                callbacks: {
+                                    label: function (c) { return 'Rata-rata: ' + (c.parsed.y !== null ? c.parsed.y.toFixed(2) : '-'); }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: { title: { display: true, text: 'Pertemuan' } },
+                            y: {
+                                min: 0, max: 5.5,
+                                ticks: {
+                                    stepSize: 1,
+                                    callback: function (v) {
+                                        if (v % 1 !== 0) return null;
+                                        return 'L' + v;
+                                    }
+                                },
+                                title: { display: true, text: 'Level' }
+                            }
+                        }
+                    }
+                });
+
+                // Tombol Download PDF Kelas
+                var btn = document.getElementById('btnDownloadKelasChart');
+                if (btn) {
+                    btn.replaceWith(btn.cloneNode(true));
+                    btn = document.getElementById('btnDownloadKelasChart');
+
+                    btn.addEventListener('click', function () {
+                        if (!window.jspdf || !window.jspdf.jsPDF) {
+                            alert('Library PDF tidak termuat dengan benar.');
+                            return;
+                        }
+
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF({
+                            orientation: 'portrait',
+                            unit: 'mm',
+                            format: 'a4'
+                        });
+
+                        // 1. Judul Laporan
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(18);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('Laporan Analisis Kelas', 105, 22, { align: 'center' });
+
+                        // Subtitle
+                        doc.setFont('helvetica', 'normal');
+                        doc.setFontSize(14);
+                        doc.text('Kelas ' + kelas, 105, 28, { align: 'center' });
+
+                        // Garis pemisah
+                        doc.setDrawColor(0, 0, 0);
+                        doc.setLineWidth(0.6);
+                        doc.line(20, 32, 190, 32);
+
+                        // 2. Info Kelas
+                        var sekolah = (document.getElementById('pdf-kelas-sekolah')?.textContent || '-').trim();
+                        var pengajar = (document.getElementById('pdf-kelas-pengajar')?.textContent || '-').trim();
+                        var tahunAjar = (document.getElementById('pdf-kelas-tahun-ajar')?.textContent || '-').trim();
+
+                        doc.autoTable({
+                            startY: 37,
+                            margin: { left: 20, right: 20 },
+                            theme: 'plain',
+                            styles: {
+                                fontSize: 10,
+                                cellPadding: 1.5,
+                                font: 'helvetica',
+                                textColor: [0, 0, 0]
+                            },
+                            columnStyles: {
+                                0: { fontStyle: 'bold', width: 30 },
+                                1: { width: 5 },
+                                2: { fontStyle: 'normal' }
+                            },
+                            body: [
+                                ['Sekolah', ':', sekolah],
+                                ['Pengajar', ':', pengajar],
+                                ['Tahun Ajar', ':', tahunAjar]
+                            ]
+                        });
+
+                        var currentY = doc.lastAutoTable.finalY + 8;
+
+                        // 3. Tambahkan Grafik
+                        if (canvas) {
+                            try {
+                                var chartImgData = canvas.toDataURL('image/png');
+                                var pdfWidth = 160;
+                                var pdfHeight = 80; // default
+                                if (canvas.width && canvas.height) {
+                                    // Hitung aspect ratio agar tidak terdistorsi/lonjong
+                                    var canvasRatio = canvas.width / canvas.height;
+                                    pdfHeight = pdfWidth / canvasRatio;
+                                    if (pdfHeight > 90) pdfHeight = 90;
+                                    if (pdfHeight < 50) pdfHeight = 50;
+                                }
+                                doc.addImage(chartImgData, 'PNG', 25, currentY, pdfWidth, pdfHeight);
+
+                                doc.setFont('helvetica', 'italic');
+                                doc.setFontSize(9);
+                                doc.setTextColor(80, 80, 80);
+                                doc.text('Grafik Perkembangan Kelas', 105, currentY + pdfHeight + 5, { align: 'center' });
+
+                                currentY += pdfHeight + 13;
+                            } catch (e) {
+                                console.error('Gagal mengambil data chart:', e);
+                                currentY += 5;
+                            }
+                        }
+
+                        // 4. Tabel Ranking Siswa
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('Tabel Ranking Siswa', 20, currentY);
+
+                        doc.autoTable({
+                            html: '#pdf-kelas-ranking-table',
+                            startY: currentY + 3,
+                            margin: { left: 20, right: 20 },
+                            theme: 'grid',
+                            headStyles: {
+                                fillColor: [243, 244, 246],
+                                textColor: [0, 0, 0],
+                                lineColor: [100, 100, 100],
+                                lineWidth: 0.15,
+                                fontStyle: 'bold',
+                                halign: 'center'
+                            },
+                            bodyStyles: {
+                                textColor: [0, 0, 0],
+                                lineColor: [100, 100, 100],
+                                lineWidth: 0.15
+                            },
+                            columnStyles: {
+                                0: { halign: 'center', width: 12 },
+                                1: { halign: 'left' },
+                                2: { halign: 'center', width: 35 },
+                                3: { halign: 'center', width: 40 }
+                            },
+                            styles: {
+                                fontSize: 9,
+                                font: 'helvetica',
+                                cellPadding: 3
+                            }
+                        });
+
+                        // 5. Rata-rata Point Kelas
+                        var classAvg = (document.getElementById('pdf-kelas-avg')?.textContent || '0.00').trim();
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(10);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('Rata-rata Point Kelas : ' + classAvg, 20, doc.lastAutoTable.finalY + 8);
+
+                        doc.save('laporan-kelas-' + slug + '.pdf');
+                    });
+                }
+            }
+
+            doInitKelas();
+        });
+
     </script>
 @stop

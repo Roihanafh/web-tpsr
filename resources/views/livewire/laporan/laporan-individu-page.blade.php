@@ -36,6 +36,7 @@
 
                 <select class="form-control laporan-select" wire:model.live="kelasId" @disabled(! $tahunAjarId)>
                     <option value="">Pilih Kelas</option>
+                    <option value="all">Semua Kelas</option>
                     @foreach ($kelasOptions as $kelas)
                         <option value="{{ $kelas->id }}">{{ $kelas->nama }}</option>
                     @endforeach
