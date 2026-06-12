@@ -1,0 +1,289 @@
+/* ===== Dashboard Styles (TPSR Layout) ===== */
+
+/* Banner Card */
+.tpsr-banner {
+    background: linear-gradient(135deg, #101c38 0%, #1e294b 100%);
+    border-radius: 12px;
+    padding: 2.25rem 2.5rem;
+    color: #ffffff;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+}
+
+.tpsr-banner-content {
+    flex: 1;
+    z-index: 2;
+    max-width: 65%;
+}
+
+.tpsr-banner-badge {
+    display: inline-block;
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    font-size: 1.15rem;
+    font-weight: 700;
+    padding: 0.6rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.25rem;
+    text-transform: uppercase;
+    letter-spacing: 0.75px;
+}
+
+.tpsr-banner-title {
+    font-size: 2.2rem;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 0.75rem;
+    color: #ffffff;
+}
+
+.tpsr-banner-subtitle {
+    font-size: 1rem;
+    color: #94a3b8;
+    line-height: 1.5;
+    margin-bottom: 2rem;
+}
+
+.tpsr-banner-actions {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.tpsr-banner-btn-primary {
+    background: #22c55e;
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.25s ease;
+    border: none;
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+}
+
+.tpsr-banner-btn-primary:hover {
+    background: #16a34a;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(34, 197, 94, 0.4);
+    text-decoration: none;
+}
+
+.tpsr-banner-btn-secondary {
+    background: rgba(255, 255, 255, 0.06);
+    color: #ffffff !important;
+    font-weight: 600;
+    padding: 0.75rem 1.25rem;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.tpsr-banner-btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.tpsr-banner-graphic {
+    position: absolute;
+    right: 6%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 200px;
+    height: 200px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.tpsr-banner-icon {
+    font-size: 9.5rem;
+    color: rgba(255, 255, 255, 0.15);
+    filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.05));
+}
+
+/* Stat Cards Grid */
+.tpsr-stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.25rem;
+    margin-bottom: 2rem;
+}
+
+/* Stat Card */
+.tpsr-stat-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.tpsr-stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+    border-color: #cbd5e1;
+}
+
+.tpsr-stat-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 80px;
+}
+
+.tpsr-stat-title {
+    font-size: 0.85rem;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 0.35rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tpsr-stat-value {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+    margin-bottom: 0.5rem;
+}
+
+.tpsr-stat-footer {
+    font-size: 0.8rem;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.tpsr-stat-footer-success {
+    color: #22c55e;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tpsr-stat-footer-warning {
+    color: #f59e0b;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+.tpsr-stat-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.35rem;
+    box-shadow: inset 0 -2px 4px rgba(0, 0, 0, 0.03);
+}
+
+/* Icon Colors and Backgrounds */
+.bg-blue-light {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+.bg-green-light {
+    background-color: #f0fdf4;
+    color: #16a34a;
+}
+
+.bg-orange-light {
+    background-color: #fff7ed;
+    color: #ea580c;
+}
+
+.bg-purple-light {
+    background-color: #faf5ff;
+    color: #7c3aed;
+}
+
+/* Responsive Scaling */
+@media (max-width: 1200px) {
+    .tpsr-stat-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 768px) {
+    .tpsr-banner {
+        flex-direction: column-reverse;
+        align-items: stretch;
+        padding: 1.75rem 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .tpsr-banner-content {
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .tpsr-banner-title {
+        font-size: 1.75rem;
+    }
+
+    .tpsr-banner-subtitle {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .tpsr-banner-actions {
+        justify-content: center;
+        flex-direction: column;
+    }
+
+    .tpsr-banner-btn-primary,
+    .tpsr-banner-btn-secondary {
+        justify-content: center;
+        width: 100%;
+    }
+
+    .tpsr-banner-graphic {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        height: 120px;
+        margin-bottom: 1rem;
+    }
+
+    .tpsr-banner-icon {
+        font-size: 6rem;
+        color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+@media (max-width: 576px) {
+    .tpsr-stat-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tpsr-stat-card {
+        padding: 1.25rem;
+    }
+}
