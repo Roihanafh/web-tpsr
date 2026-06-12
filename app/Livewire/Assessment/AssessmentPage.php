@@ -158,16 +158,16 @@ class AssessmentPage extends Component
             );
 
             // Recalculate average (L0 = 0 to L5 = 5)
+            // Formula: total level / jumlah pertemuan yang sudah dinilai
             $allPenilaians = Penilaian::where('siswa_id', $student->id)->get();
             if ($allPenilaians->isNotEmpty()) {
-                $average = $allPenilaians->map(fn($p) => (int) $p->level)->average();
+                $totalLevel       = $allPenilaians->sum(fn ($p) => (int) $p->level);
+                $pertemuanDinilai = $allPenilaians->count();
                 $student->update([
-                    'rata_poin' => round($average, 2)
+                    'rata_poin' => round($totalLevel / $pertemuanDinilai, 2),
                 ]);
             } else {
-                $student->update([
-                    'rata_poin' => 0
-                ]);
+                $student->update(['rata_poin' => 0]);
             }
         }
 

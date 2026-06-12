@@ -76,6 +76,11 @@
                             </div>
                             <div class="laporan-chart-subtitle">
                                 {{ $chartData['kelas'] }} &mdash; {{ $chartData['tahun_ajar'] }}
+                                &bull; {{ $chartData['pertemuan_dinilai'] }} pertemuan dinilai
+                                @if ($chartData['rata_laporan'] !== null)
+                                    &bull; Rata-rata:
+                                    <strong>{{ number_format($chartData['rata_laporan'], 2) }}</strong>
+                                @endif
                             </div>
                         </div>
                         <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="closeChart">
@@ -153,9 +158,16 @@
                                     <td>{{ $siswa->kelas?->nama ?? '-' }}</td>
                                     <td>{{ $siswa->kelas?->tahunAjar?->nama ?? '-' }}</td>
                                     <td>
-                                        <span class="laporan-level-badge">
-                                            L{{ number_format($siswa->rata_poin, 1) }}
-                                        </span>
+                                        @if ($siswa->rata_laporan !== null)
+                                            <span class="laporan-level-badge">
+                                                {{ number_format($siswa->rata_laporan, 2) }}
+                                            </span>
+                                            <span class="laporan-pertemuan-info">
+                                                / {{ $siswa->pertemuan_dinilai }} pertemuan
+                                            </span>
+                                        @else
+                                            <span class="text-muted" style="font-size:.82rem;">Belum dinilai</span>
+                                        @endif
                                     </td>
                                     <td class="text-center">
                                         <button

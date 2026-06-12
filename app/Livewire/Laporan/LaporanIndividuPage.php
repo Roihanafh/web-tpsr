@@ -69,7 +69,6 @@ class LaporanIndividuPage extends Component
         }
 
         // Data tabel hanya muncul setelah kelas dipilih
-        // Search bisa dipakai kapan saja, tapi hanya aktif menyaring saat kelas sudah dipilih
         $siswaList = collect();
         if ($sekolah && $this->kelasId) {
             $siswaList = Siswa::with('kelas.tahunAjar')
@@ -79,7 +78,24 @@ class LaporanIndividuPage extends Component
                     $q->where('nama', 'like', '%' . $search . '%');
                 })
                 ->orderBy('id')
-                ->get();
+                ->get()
+                ->map(function ($siswa) {
+                    // Hitung rata-rata fresh dari penilaian siswa ini:
+                    // total level dibagi jumlah pertemuan yang sudah dinilai
+                    $penilaianList = Penilaian::where('siswa_id', $siswa->id)->get();
+
+                    if ($penilaianList->isEmpty()) {
+                        $siswa->rata_laporan = null;
+                        $siswa->pertemuan_dinilai = 0;
+                    } else {
+                        $totalLevel       = $penilaianList->sum(fn ($p) => (int) $p->level);
+                        $pertemuanDinilai = $penilaianList->count();
+                        $siswa->rata_laporan      = round($totalLevel / $pertemuanDinilai, 2);
+                        $siswa->pertemuan_dinilai = $pertemuanDinilai;
+                    }
+
+                    return $siswa;
+                });
         }
 
         // Chart data
@@ -102,12 +118,20 @@ class LaporanIndividuPage extends Component
                     $values[] = isset($penilaianData[$i]) ? (int) $penilaianData[$i]->level : null;
                 }
 
+                $pertemuanDinilai = $penilaianData->count();
+                $totalLevel       = $penilaianData->sum(fn ($p) => (int) $p->level);
+                $rataLaporan      = $pertemuanDinilai > 0
+                    ? round($totalLevel / $pertemuanDinilai, 2)
+                    : null;
+
                 $chartData = [
-                    'labels'     => $labels,
-                    'values'     => $values,
-                    'nama'       => $selectedSiswa->nama,
-                    'kelas'      => $selectedSiswa->kelas?->nama,
-                    'tahun_ajar' => $selectedSiswa->kelas?->tahunAjar?->nama,
+                    'labels'           => $labels,
+                    'values'           => $values,
+                    'nama'             => $selectedSiswa->nama,
+                    'kelas'            => $selectedSiswa->kelas?->nama,
+                    'tahun_ajar'       => $selectedSiswa->kelas?->tahunAjar?->nama,
+                    'rata_laporan'     => $rataLaporan,
+                    'pertemuan_dinilai'=> $pertemuanDinilai,
                 ];
             }
         }
