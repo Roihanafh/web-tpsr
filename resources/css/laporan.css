@@ -1,0 +1,272 @@
+/* ===== Laporan (Individu & Kelas) ===== */
+
+.laporan-individu-page { color: #111827; }
+
+.laporan-panel {
+    background: #fff;
+    border: 1px solid #111827;
+    border-radius: 4px;
+    padding: 1.25rem;
+}
+
+/* Toolbar */
+.laporan-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+}
+
+.laporan-toolbar-filters {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+}
+
+.laporan-select {
+    width: 190px !important;
+    min-height: 38px;
+}
+
+/* Search */
+.laporan-search-wrap {
+    position: relative;
+    width: 200px;
+}
+
+.laporan-search-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6b7280;
+    font-size: .9rem;
+    pointer-events: none;
+}
+
+.laporan-search {
+    min-height: 38px;
+    padding-left: 34px;
+    border-radius: 5px !important;
+}
+
+/* Empty state */
+.laporan-empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem 1rem;
+    color: #9ca3af;
+}
+
+.laporan-empty-icon {
+    font-size: 2.5rem;
+    margin-bottom: .75rem;
+    color: #d1d5db;
+}
+
+.laporan-empty-text {
+    font-size: .9rem;
+    margin: 0;
+}
+
+/* Loading overlay */
+.laporan-loading-layer {
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, .72);
+    border-radius: 6px;
+}
+
+.laporan-loading-box {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    padding: .65rem .9rem;
+    color: #111827;
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(15, 23, 42, .12);
+    font-weight: 600;
+}
+
+/* Chart */
+.laporan-chart-shell {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .07);
+}
+
+.laporan-chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: .85rem 1rem;
+    background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+    border-bottom: 1px solid #e5e7eb;
+    gap: 1rem;
+}
+
+.laporan-chart-title {
+    font-size: .95rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.laporan-chart-subtitle {
+    font-size: .8rem;
+    color: #6b7280;
+    margin-top: .1rem;
+}
+
+.laporan-chart-body {
+    padding: 1rem 1.25rem;
+    background: #fff;
+}
+
+.laporan-chart-footer {
+    display: flex;
+    justify-content: center;
+    padding: .75rem 1rem 1rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.laporan-download-btn {
+    min-width: 130px;
+    border-radius: 5px !important;
+}
+
+/* Table shell */
+.laporan-table-shell {
+    background: #fff;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 12px rgba(15, 23, 42, .06);
+}
+
+.laporan-table-head {
+    padding: .85rem 1rem;
+    background: linear-gradient(180deg, #f9fafb 0%, #f3f4f6 100%);
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.laporan-table-title {
+    font-size: .95rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+.laporan-table-subtitle {
+    font-size: .8rem;
+    color: #6b7280;
+    margin-top: .15rem;
+}
+
+.laporan-table-wrap {
+    position: relative;
+}
+
+.laporan-table-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    align-items: center;
+    justify-content: center;
+    min-height: 80px;
+    background: rgba(255, 255, 255, .75);
+    font-weight: 600;
+    color: #111827;
+}
+
+.laporan-no-data {
+    padding: 2rem;
+    text-align: center;
+    color: #9ca3af;
+    font-size: .9rem;
+}
+
+/* Table */
+.laporan-table {
+    margin-bottom: 0;
+    width: 100%;
+}
+
+.laporan-table thead th {
+    background: #f8fafc;
+    color: #374151;
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .02em;
+    border-bottom: 1px solid #e5e7eb !important;
+    padding: .65rem .85rem;
+    vertical-align: middle;
+}
+
+.laporan-table tbody td {
+    font-size: .91rem;
+    color: #111827;
+    border-top: 1px solid #eef2f7;
+    padding: .6rem .85rem;
+    vertical-align: middle;
+}
+
+.laporan-table tbody tr:nth-child(even) { background: #fafafa; }
+.laporan-table tbody tr:hover { background: #eff6ff; }
+.laporan-row-active { background: #dbeafe !important; }
+
+.laporan-table tbody td:first-child,
+.laporan-table thead th:first-child {
+    width: 56px;
+    text-align: center;
+}
+
+.laporan-table tbody td:last-child,
+.laporan-table thead th:last-child {
+    width: 100px;
+    text-align: center;
+}
+
+/* Badges & buttons */
+.laporan-level-badge {
+    display: inline-block;
+    padding: .2rem .55rem;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+}
+
+.laporan-detail-btn {
+    border-radius: 5px !important;
+    font-size: .8rem;
+    min-width: 80px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .laporan-toolbar,
+    .laporan-toolbar-filters {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .laporan-select,
+    .laporan-search-wrap {
+        width: 100% !important;
+    }
+}

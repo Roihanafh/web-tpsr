@@ -1,6 +1,7 @@
 @import './siswa.css';
 @import './kelas.css';
 @import './assessment.css';
+@import './laporan.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
