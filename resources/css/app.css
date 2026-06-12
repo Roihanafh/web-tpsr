@@ -2,13 +2,10 @@
 @import './kelas.css';
 @import './assessment.css';
 @import './laporan.css';
-<<<<<<< HEAD
 @import './users.css';
 @import './sekolah.css';
 @import './tahun-ajar.css';
-=======
 @import './dashboard.css';
->>>>>>> b40497f216f337c892637a2cf0ec59675910c949
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -156,8 +153,8 @@ body.sidebar-collapse .brand-image-wrapper {
 }
 
 /* Keep menu items compact and centered when sidebar is minimized */
-body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link,
-body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.nav-link-dashboard {
+body.sidebar-collapse .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link,
+body.sidebar-collapse .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.nav-link-dashboard {
     width: 3.25rem !important;
     height: 3.25rem !important;
     min-height: 3.25rem !important;
@@ -171,20 +168,20 @@ body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link
     overflow: hidden !important;
 }
 
-body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link .nav-icon {
+body.sidebar-collapse .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link .nav-icon {
     width: auto !important;
     margin: 0 !important;
     font-size: 1.25rem !important;
     text-align: center !important;
 }
 
-body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link p,
-body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link i.right,
-body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-header {
+body.sidebar-collapse .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link p,
+body.sidebar-collapse .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link i.right,
+body.sidebar-collapse .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-header {
     display: none !important;
 }
 
-body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-treeview {
+body.sidebar-collapse .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-treeview {
     display: none !important;
     margin: 0 !important;
     padding: 0 !important;
@@ -195,12 +192,12 @@ body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-tree
     padding-top: 0.5rem !important;
 }
 
-.sidebar-dark-primary .nav-sidebar > .nav-item {
+.sidebar-dark-primary .nav-sidebar>.nav-item {
     margin-bottom: 0 !important;
 }
 
 /* Menu Headers */
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-header {
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-header {
     color: #6b7a8f !important;
     text-transform: uppercase !important;
     font-size: 0.75rem !important;
@@ -211,7 +208,7 @@ body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-tree
 }
 
 /* Regular Menu Links */
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link {
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link {
     border-left: 3px solid transparent !important;
     padding: 0.75rem 1rem !important;
     color: #8fa3b8 !important;
@@ -221,14 +218,14 @@ body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-tree
     border-radius: 0.375rem !important;
 }
 
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link:hover {
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link:hover {
     background-color: rgba(255, 255, 255, 0.05) !important;
     color: #fff !important;
     border-left-color: rgba(34, 197, 94, 0.5) !important;
 }
 
-.sidebar-dark-primary .nav-sidebar > .nav-item.menu-open > .nav-link,
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active {
+.sidebar-dark-primary .nav-sidebar>.nav-item.menu-open>.nav-link,
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.active {
     background-color: rgba(34, 197, 94, 0.1) !important;
     color: #22c55e !important;
     border-left-color: #22c55e !important;
@@ -272,7 +269,7 @@ body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-tree
 }
 
 /* Submenu styling */
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-treeview {
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-treeview {
     background-color: rgba(0, 0, 0, 0.1) !important;
     border-left: none !important;
     padding: 0 !important;
@@ -283,7 +280,7 @@ body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-tree
     overflow: hidden !important;
 }
 
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-treeview > .nav-item > .nav-link {
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-treeview>.nav-item>.nav-link {
     color: #8fa3b8 !important;
     padding: 0.6rem 1rem 0.6rem 1.5rem !important;
     border-left: 3px solid transparent !important;
@@ -292,25 +289,25 @@ body.sidebar-collapse .sidebar-dark-primary .nav-sidebar > .nav-item > .nav-tree
     border-radius: 0 !important;
 }
 
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-treeview > .nav-item > .nav-link:hover {
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-treeview>.nav-item>.nav-link:hover {
     color: #fff !important;
     background-color: rgba(255, 255, 255, 0.02) !important;
     border-left-color: rgba(34, 197, 94, 0.5) !important;
 }
 
-.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-treeview > .nav-item > .nav-link.active {
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-treeview>.nav-item>.nav-link.active {
     background-color: rgba(34, 197, 94, 0.1) !important;
     color: #22c55e !important;
     border-left-color: #22c55e !important;
 }
 
 /* Treeview Toggle Arrow */
-.sidebar-dark-primary .nav-item.has-treeview > .nav-link i.right {
+.sidebar-dark-primary .nav-item.has-treeview>.nav-link i.right {
     color: #6b7a8f !important;
     transition: transform 0.3s ease !important;
 }
 
-.sidebar-dark-primary .nav-item.has-treeview.menu-open > .nav-link i.right {
+.sidebar-dark-primary .nav-item.has-treeview.menu-open>.nav-link i.right {
     transform: rotate(-90deg) !important;
     color: #22c55e !important;
 }
