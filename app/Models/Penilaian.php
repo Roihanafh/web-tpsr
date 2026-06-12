@@ -16,15 +16,7 @@ class Penilaian extends Model
         'siswa_id',
         'pertemuan',
         'level',
-        'presensi',
     ];
-
-    protected function casts(): array
-    {
-        return [
-            'presensi' => 'boolean',
-        ];
-    }
 
     public function siswa(): BelongsTo
     {

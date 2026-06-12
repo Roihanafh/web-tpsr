@@ -153,7 +153,6 @@ class AssessmentPage extends Component
                 ],
                 [
                     'level' => $level,
-                    'presensi' => true,
                 ]
             );
 

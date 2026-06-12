@@ -16,7 +16,6 @@ return new class extends Migration
             $table->foreignId('siswa_id')->constrained('siswa')->cascadeOnDelete();
             $table->enum('pertemuan', array_map('strval', range(1, 16)));
             $table->enum('level', array_map('strval', range(0, 5)));
-            $table->boolean('presensi')->default(false);
             $table->timestamps();
         });
     }

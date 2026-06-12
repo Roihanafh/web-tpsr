@@ -208,7 +208,6 @@ Menyimpan data penilaian siswa per pertemuan.
 - `siswa_id`: foreign key ke `siswa`.
 - `pertemuan`: enum `1` sampai `16`.
 - `level`: enum `0` sampai `5`.
-- `presensi`: boolean untuk status kehadiran.
 - `created_at`, `updated_at`: timestamp Laravel.
 
 Relasi:
