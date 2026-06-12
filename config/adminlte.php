@@ -344,29 +344,6 @@ return [
         ],
 
         [
-            'header' => 'ANALISIS',
-            'can' => 'view_analysis',
-        ],
-
-        [
-            'text' => 'Analisis',
-            'icon' => 'fas fa-fw fa-chart-bar',
-            'can' => 'view_analysis',
-            'submenu' => [
-                [
-                    'text' => 'Per Siswa',
-                    'url' => 'analysis/student',
-                    'icon' => 'fas fa-fw fa-user',
-                ],
-                [
-                    'text' => 'Per Kelas',
-                    'url' => 'analysis/class',
-                    'icon' => 'fas fa-fw fa-book',
-                ],
-            ],
-        ],
-
-        [
             'header' => 'LAPORAN',
             'can' => 'view_reports',
         ],
