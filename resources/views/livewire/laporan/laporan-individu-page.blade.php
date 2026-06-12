@@ -151,56 +151,58 @@
                         <i class="fas fa-inbox mr-2"></i> Tidak ada data siswa ditemukan.
                     </div>
                 @else
-                    <table class="table laporan-table">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama</th>
-                                <th>Kelas</th>
-                                <th>Tahun Ajaran</th>
-                                <th>Rata-rata</th>
-                                <th class="text-center">Grafik</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach ($siswaList as $index => $siswa)
-                                <tr class="{{ $selectedSiswaId === $siswa->id ? 'laporan-row-active' : '' }}">
-                                    <td>{{ $index + 1 }}</td>
-                                    <td>{{ $siswa->nama }}</td>
-                                    <td>{{ $siswa->kelas?->nama ?? '-' }}</td>
-                                    <td>{{ $siswa->kelas?->tahunAjar?->nama ?? '-' }}</td>
-                                    <td>
-                                        @if ($siswa->rata_laporan !== null)
-                                            <span class="laporan-level-badge">
-                                                {{ number_format($siswa->rata_laporan, 2) }}
-                                            </span>
-                                            <span class="laporan-pertemuan-info">
-                                                / {{ $siswa->pertemuan_dinilai }} pertemuan
-                                            </span>
-                                        @else
-                                            <span class="text-muted" style="font-size:.82rem;">Belum dinilai</span>
-                                        @endif
-                                    </td>
-                                    <td class="text-center">
-                                        <button
-                                            type="button"
-                                            class="btn btn-sm {{ $selectedSiswaId === $siswa->id ? 'btn-primary' : 'btn-outline-primary' }} laporan-detail-btn"
-                                            wire:click="showDetail({{ $siswa->id }})"
-                                            wire:loading.attr="disabled"
-                                            wire:target="showDetail({{ $siswa->id }})"
-                                        >
-                                            <span wire:loading.remove wire:target="showDetail({{ $siswa->id }})">
-                                                <i class="fas fa-chart-line mr-1"></i> Detail
-                                            </span>
-                                            <span wire:loading wire:target="showDetail({{ $siswa->id }})">
-                                                <i class="fas fa-spinner fa-spin"></i>
-                                            </span>
-                                        </button>
-                                    </td>
+                    <div class="table-responsive">
+                        <table class="table laporan-table">
+                            <thead>
+                                <tr>
+                                    <th>No</th>
+                                    <th>Nama</th>
+                                    <th>Kelas</th>
+                                    <th>Tahun Ajaran</th>
+                                    <th>Rata-rata</th>
+                                    <th class="text-center">Grafik</th>
                                 </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
+                            </thead>
+                            <tbody>
+                                @foreach ($siswaList as $index => $siswa)
+                                    <tr class="{{ $selectedSiswaId === $siswa->id ? 'laporan-row-active' : '' }}">
+                                        <td>{{ $index + 1 }}</td>
+                                        <td>{{ $siswa->nama }}</td>
+                                        <td>{{ $siswa->kelas?->nama ?? '-' }}</td>
+                                        <td>{{ $siswa->kelas?->tahunAjar?->nama ?? '-' }}</td>
+                                        <td>
+                                            @if ($siswa->rata_laporan !== null)
+                                                <span class="laporan-level-badge">
+                                                    {{ number_format($siswa->rata_laporan, 2) }}
+                                                </span>
+                                                <span class="laporan-pertemuan-info">
+                                                    / {{ $siswa->pertemuan_dinilai }} pertemuan
+                                                </span>
+                                            @else
+                                                <span class="text-muted" style="font-size:.82rem;">Belum dinilai</span>
+                                            @endif
+                                        </td>
+                                        <td class="text-center">
+                                            <button
+                                                type="button"
+                                                class="btn btn-sm {{ $selectedSiswaId === $siswa->id ? 'btn-primary' : 'btn-outline-primary' }} laporan-detail-btn"
+                                                wire:click="showDetail({{ $siswa->id }})"
+                                                wire:loading.attr="disabled"
+                                                wire:target="showDetail({{ $siswa->id }})"
+                                            >
+                                                <span wire:loading.remove wire:target="showDetail({{ $siswa->id }})">
+                                                    <i class="fas fa-chart-line mr-1"></i> Detail
+                                                </span>
+                                                <span wire:loading wire:target="showDetail({{ $siswa->id }})">
+                                                    <i class="fas fa-spinner fa-spin"></i>
+                                                </span>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 @endif
             </div>
 

@@ -24,27 +24,27 @@
         <tr>
             <td style="width:90px; font-weight:bold; vertical-align:top;">Nama</td>
             <td style="vertical-align:top; width:10px;">:</td>
-            <td style="vertical-align:top;">{{ $siswa->nama }}</td>
+            <td id="pdf-siswa-nama" style="vertical-align:top;">{{ $siswa->nama }}</td>
         </tr>
         <tr>
             <td style="font-weight:bold; vertical-align:top;">Kelas</td>
             <td style="vertical-align:top;">:</td>
-            <td style="vertical-align:top;">{{ $siswa->kelas?->nama ?? '-' }}</td>
+            <td id="pdf-siswa-kelas" style="vertical-align:top;">{{ $siswa->kelas?->nama ?? '-' }}</td>
         </tr>
         <tr>
             <td style="font-weight:bold; vertical-align:top;">Pengajar</td>
             <td style="vertical-align:top;">:</td>
-            <td style="vertical-align:top;">{{ $pengajar }}</td>
+            <td id="pdf-siswa-pengajar" style="vertical-align:top;">{{ $pengajar }}</td>
         </tr>
         <tr>
             <td style="font-weight:bold; vertical-align:top;">Sekolah</td>
             <td style="vertical-align:top;">:</td>
-            <td style="vertical-align:top;">{{ $sekolahNama }}</td>
+            <td id="pdf-siswa-sekolah" style="vertical-align:top;">{{ $sekolahNama }}</td>
         </tr>
         <tr>
             <td style="font-weight:bold; vertical-align:top;">Tahun Ajar</td>
             <td style="vertical-align:top;">:</td>
-            <td style="vertical-align:top;">{{ $siswa->kelas?->tahunAjar?->nama ?? '-' }}</td>
+            <td id="pdf-siswa-tahun-ajar" style="vertical-align:top;">{{ $siswa->kelas?->tahunAjar?->nama ?? '-' }}</td>
         </tr>
     </table>
 
@@ -78,7 +78,7 @@
         <tbody>
             <tr>
                 @for ($lvl = 0; $lvl <= 5; $lvl++)
-                    <td style="
+                    <td id="pdf-siswa-lvl-{{ $lvl }}" style="
                         border: 1px solid #333;
                         text-align: center;
                         padding: 6px 4px;
@@ -93,12 +93,12 @@
         <tr>
             <td style="font-weight:bold; width:130px;">Rata-rata Point</td>
             <td style="width:10px;">:</td>
-            <td>{{ number_format($rataLaporan, 2) }}</td>
+            <td id="pdf-siswa-rata">{{ number_format($rataLaporan, 2) }}</td>
         </tr>
         <tr>
             <td style="font-weight:bold;">Status</td>
             <td>:</td>
-            <td style="font-weight:bold;">{{ $status }}</td>
+            <td id="pdf-siswa-status" style="font-weight:bold;">{{ $status }}</td>
         </tr>
     </table>
 </div>

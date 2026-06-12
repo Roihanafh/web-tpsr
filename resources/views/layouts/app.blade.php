@@ -17,7 +17,8 @@
 
 @section('js')
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     @vite('resources/js/app.js')
     @livewireScripts
     @stack('scripts')
@@ -67,6 +68,7 @@
                             }
                         },
                         responsive: true,
+                        maintainAspectRatio: false,
                         plugins: {
                             legend: { display: true, position: 'top' },
                             tooltip: {
@@ -94,46 +96,149 @@
                     btn = document.getElementById('btnDownloadChart');
 
                     btn.addEventListener('click', function () {
-                        var pdfContent = document.getElementById('laporan-pdf-content');
-                        if (!pdfContent) { alert('Template PDF tidak ditemukan.'); return; }
-
-                        // Pastikan gambar chart sudah ter-set
-                        var imgEl = document.getElementById('laporan-pdf-chart-img');
-                        if (imgEl && canvas) {
-                            imgEl.src = canvas.toDataURL('image/png');
+                        if (!window.jspdf || !window.jspdf.jsPDF) {
+                            alert('Library PDF tidak termuat dengan benar.');
+                            return;
                         }
 
-                        // Tampilkan wrapper sementara
-                        var wrapper = pdfContent.parentElement;
-                        var prevStyle = wrapper.getAttribute('style') || '';
-                        wrapper.style.cssText = 'position:fixed; left:0; top:0; z-index:-1; visibility:hidden;';
+                        const { jsPDF } = window.jspdf;
+                        const doc = new jsPDF({
+                            orientation: 'portrait',
+                            unit: 'mm',
+                            format: 'a4'
+                        });
 
-                        var opt = {
-                            margin:      [10, 20, 10, 20],
-                            filename:    'laporan-' + slug + '.pdf',
-                            image:       { type: 'png', quality: 1 },
-                            html2canvas: {
-                                scale: 2,
-                                useCORS: true,
-                                logging: false,
-                                allowTaint: true,
-                                backgroundColor: '#ffffff'
-                            },
-                            jsPDF: {
-                                unit: 'mm',
-                                format: 'a4',
-                                orientation: 'portrait'
-                            },
-                            pagebreak: { mode: 'avoid-all' }
-                        };
+                        // 1. Judul Laporan
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(18);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('Laporan Analisis Individu', 105, 22, { align: 'center' });
 
-                        html2pdf()
-                            .set(opt)
-                            .from(pdfContent)
-                            .save()
-                            .then(function () {
-                                wrapper.setAttribute('style', prevStyle);
-                            });
+                        // Garis pemisah
+                        doc.setDrawColor(0, 0, 0);
+                        doc.setLineWidth(0.6);
+                        doc.line(20, 27, 190, 27);
+
+                        // 2. Info Siswa (menggunakan autotable tanpa border)
+                        var name = (document.getElementById('pdf-siswa-nama')?.textContent || '-').trim();
+                        var kelasVal = (document.getElementById('pdf-siswa-kelas')?.textContent || '-').trim();
+                        var pengajar = (document.getElementById('pdf-siswa-pengajar')?.textContent || '-').trim();
+                        var sekolah = (document.getElementById('pdf-siswa-sekolah')?.textContent || '-').trim();
+                        var tahunAjar = (document.getElementById('pdf-siswa-tahun-ajar')?.textContent || '-').trim();
+
+                        doc.autoTable({
+                            startY: 32,
+                            margin: { left: 20, right: 20 },
+                            theme: 'plain',
+                            styles: {
+                                fontSize: 10,
+                                cellPadding: 1.5,
+                                font: 'helvetica',
+                                textColor: [0, 0, 0]
+                            },
+                            columnStyles: {
+                                0: { fontStyle: 'bold', width: 30 },
+                                1: { width: 5 },
+                                2: { fontStyle: 'normal' }
+                            },
+                            body: [
+                                ['Nama', ':', name],
+                                ['Kelas', ':', kelasVal],
+                                ['Pengajar', ':', pengajar],
+                                ['Sekolah', ':', sekolah],
+                                ['Tahun Ajar', ':', tahunAjar]
+                            ]
+                        });
+
+                        var currentY = doc.lastAutoTable.finalY + 8;
+
+                        // 3. Tambahkan Grafik
+                        if (canvas) {
+                            try {
+                                var chartImgData = canvas.toDataURL('image/png');
+                                // A4 lebar 210mm. Margin kiri-kanan 20mm -> printable 170mm.
+                                // Lebar chart diperbesar menjadi 160mm, tinggi menjadi 80mm agar skala lebih terlihat.
+                                // Center X: (210 - 160) / 2 = 25mm
+                                doc.addImage(chartImgData, 'PNG', 25, currentY, 160, 80);
+                                
+                                // Label grafik
+                                doc.setFont('helvetica', 'italic');
+                                doc.setFontSize(9);
+                                doc.setTextColor(80, 80, 80);
+                                doc.text('Grafik Penilaian', 105, currentY + 85, { align: 'center' });
+                                
+                                currentY += 93;
+                            } catch (e) {
+                                console.error('Gagal mengambil data chart:', e);
+                                currentY += 5;
+                            }
+                        }
+
+                        // 4. Tabel Jumlah Perolehan
+                        doc.setFont('helvetica', 'bold');
+                        doc.setFontSize(11);
+                        doc.setTextColor(0, 0, 0);
+                        doc.text('Jumlah Perolehan', 20, currentY);
+
+                        var levelCounts = [];
+                        for (var i = 0; i <= 5; i++) {
+                            var el = document.getElementById('pdf-siswa-lvl-' + i);
+                            levelCounts.push(el ? el.textContent.trim() : '0');
+                        }
+
+                        doc.autoTable({
+                            startY: currentY + 3,
+                            margin: { left: 20, right: 20 },
+                            theme: 'grid',
+                            headStyles: {
+                                fillColor: [243, 244, 246],
+                                textColor: [0, 0, 0],
+                                lineColor: [100, 100, 100],
+                                lineWidth: 0.15,
+                                fontStyle: 'bold',
+                                halign: 'center'
+                            },
+                            bodyStyles: {
+                                textColor: [0, 0, 0],
+                                lineColor: [100, 100, 100],
+                                lineWidth: 0.15,
+                                halign: 'center'
+                            },
+                            styles: {
+                                fontSize: 9,
+                                font: 'helvetica',
+                                cellPadding: 3
+                            },
+                            head: [['L0', 'L1', 'L2', 'L3', 'L4', 'L5']],
+                            body: [levelCounts]
+                        });
+
+                        // 5. Rata-rata dan Status
+                        var rata = (document.getElementById('pdf-siswa-rata')?.textContent || '0.00').trim();
+                        var statusVal = (document.getElementById('pdf-siswa-status')?.textContent || '-').trim();
+
+                        doc.autoTable({
+                            startY: doc.lastAutoTable.finalY + 8,
+                            margin: { left: 20, right: 20 },
+                            theme: 'plain',
+                            styles: {
+                                fontSize: 10,
+                                cellPadding: 1.5,
+                                font: 'helvetica',
+                                textColor: [0, 0, 0]
+                            },
+                            columnStyles: {
+                                0: { fontStyle: 'bold', width: 35 },
+                                1: { width: 5 },
+                                2: { fontStyle: 'normal' }
+                            },
+                            body: [
+                                ['Rata-rata Point', ':', rata],
+                                ['Status', ':', statusVal]
+                            ]
+                        });
+
+                        doc.save('laporan-' + slug + '.pdf');
                     });
                 }
             }

@@ -133,6 +133,8 @@
 .laporan-chart-body {
     padding: 1rem 1.25rem;
     background: #fff;
+    position: relative;
+    height: 350px;
 }
 
 .laporan-chart-footer {
@@ -268,6 +270,22 @@
     .laporan-select,
     .laporan-search-wrap {
         width: 100% !important;
+    }
+
+    .laporan-chart-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .laporan-chart-header button {
+        align-self: flex-end;
+    }
+}
+
+@media (max-width: 576px) {
+    .laporan-chart-body {
+        height: 260px;
     }
 }
 
