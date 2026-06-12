@@ -1,11 +1,17 @@
 <p class="text-muted">
-    Perbarui informasi nama, email, dan sekolah akun Anda.
+    @if ($user->hasRole('admin'))
+        Perbarui informasi nama dan email akun Anda.
+    @else
+        Perbarui informasi nama, email, dan sekolah akun Anda.
+    @endif
 </p>
 
 <form id="profileInformationForm" method="post" action="{{ route('profile.update') }}">
     @csrf
     @method('patch')
-    <input id="sekolah_action" name="sekolah_action" type="hidden" value="move">
+    @if (! $user->hasRole('admin'))
+        <input id="sekolah_action" name="sekolah_action" type="hidden" value="move">
+    @endif
 
     <div class="form-group">
         <label for="name">Nama</label>
@@ -40,6 +46,7 @@
         @enderror
     </div>
 
+    @if (! $user->hasRole('admin'))
     <div class="form-group">
         <label for="nama_sekolah">Nama Sekolah</label>
         <input
@@ -68,6 +75,7 @@
             <span class="invalid-feedback">{{ $message }}</span>
         @enderror
     </div>
+    @endif
 
     @if (session('status') === 'profile-updated')
         <div class="alert alert-success py-2">
@@ -80,6 +88,7 @@
     </button>
 </form>
 
+@if (! $user->hasRole('admin'))
 <div class="modal fade" id="schoolConflictModal" tabindex="-1" role="dialog" aria-labelledby="schoolConflictModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -157,3 +166,4 @@
         });
     });
 </script>
+@endif

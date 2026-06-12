@@ -43,19 +43,28 @@ Profil
 
                 <hr>
 
-                <strong>
-                    <i class="fas fa-school mr-1"></i>Sekolah
-                </strong>
-                <p class="text-muted mb-1">
-                    {{ $user->sekolah?->nama ?? 'Belum terhubung dengan sekolah' }}
-                </p>
+                @if ($user->hasRole('admin'))
+                    <strong>
+                        <i class="fas fa-user-shield mr-1"></i>Role
+                    </strong>
+                    <p class="text-muted mb-0">
+                        ADMINISTRATOR
+                    </p>
+                @else
+                    <strong>
+                        <i class="fas fa-school mr-1"></i>Sekolah
+                    </strong>
+                    <p class="text-muted mb-1">
+                        {{ $user->sekolah?->nama ?? 'Belum terhubung dengan sekolah' }}
+                    </p>
 
-                <strong>
-                    <i class="fas fa-map-marker-alt mr-1"></i>Alamat
-                </strong>
-                <p class="text-muted mb-0">
-                    {{ $user->sekolah?->alamat ?? '-' }}
-                </p>
+                    <strong>
+                        <i class="fas fa-map-marker-alt mr-1"></i>Alamat
+                    </strong>
+                    <p class="text-muted mb-0">
+                        {{ $user->sekolah?->alamat ?? '-' }}
+                    </p>
+                @endif
             </div>
         </div>
 

@@ -406,10 +406,10 @@ return [
         ],
 
         [
-            'text' => 'Pengaturan',
-            'url' => 'settings',
-            'icon' => 'fas fa-fw fa-cogs',
-            'can' => 'manage_settings',
+            'text' => 'Profil',
+            'url' => 'profile',
+            'icon' => 'fas fa-fw fa-user-circle',
+            'can' => 'manage_users',
         ],
     ],
     /*
