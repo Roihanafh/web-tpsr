@@ -246,12 +246,14 @@ class SiswaPage extends Component
 
     public function updatedFilterKelasNama(): void
     {
-        $this->dispatch('siswa-filter-changed', kelasNama: $this->filterKelasNama, tahunAjarId: $this->filterTahunAjarId);
+        $kelasNama = ($this->filterKelasNama === '0' || $this->filterKelasNama === '') ? '' : $this->filterKelasNama;
+        $this->dispatch('siswa-filter-changed', kelasNama: $kelasNama, tahunAjarId: $this->filterTahunAjarId);
     }
 
     public function updatedFilterTahunAjarId(): void
     {
-        $this->dispatch('siswa-filter-changed', kelasNama: $this->filterKelasNama, tahunAjarId: $this->filterTahunAjarId);
+        $kelasNama = ($this->filterKelasNama === '0' || $this->filterKelasNama === '') ? '' : $this->filterKelasNama;
+        $this->dispatch('siswa-filter-changed', kelasNama: $kelasNama, tahunAjarId: $this->filterTahunAjarId);
     }
 
     public function updatedSearch(): void

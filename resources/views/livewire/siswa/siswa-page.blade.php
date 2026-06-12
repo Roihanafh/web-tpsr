@@ -21,13 +21,15 @@
         <div class="siswa-toolbar">
             <div class="siswa-toolbar-filters">
                 <select class="form-control siswa-select" wire:model.live="filterKelasNama">
-                    <option value="">Semua Kelas</option>
-                    @foreach ($filterKelasOptions as $kelasNama)
-                        <option value="{{ $kelasNama }}">{{ $kelasNama }}</option>
+                    <option value="">Pilih Kelas</option>
+                    <option value="0">Semua Kelas</option>
+                    @foreach ($filterKelasOptions as $kNama)
+                        <option value="{{ $kNama }}">{{ $kNama }}</option>
                     @endforeach
                 </select>
 
                 <select class="form-control siswa-select" wire:model.live="filterTahunAjarId">
+                    <option value="">Pilih Tahun Ajaran</option>
                     <option value="0">Semua Tahun Ajaran</option>
                     @foreach ($tahunAjarOptions as $tahunAjar)
                         <option value="{{ $tahunAjar->id }}">{{ $tahunAjar->nama }}</option>
