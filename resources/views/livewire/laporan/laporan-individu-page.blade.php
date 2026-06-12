@@ -99,6 +99,18 @@
                     </div>
                 </div>
 
+                {{-- Hidden PDF template --}}
+                <div style="position:absolute; left:-9999px; top:0; visibility:hidden;">
+                    @include('livewire.laporan.pdf-preview', [
+                        'siswa'       => $pdfData['siswa'],
+                        'pengajar'    => $pdfData['pengajar'],
+                        'sekolahNama' => $pdfData['sekolahNama'],
+                        'levelCount'  => $pdfData['levelCount'],
+                        'rataLaporan' => $pdfData['rataLaporan'],
+                        'status'      => $pdfData['status'],
+                    ])
+                </div>
+
                 {{-- Kirim data chart ke browser via custom event --}}
                 <div
                     x-data

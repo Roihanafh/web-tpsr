@@ -38,7 +38,7 @@ class LaporanIndividuPage extends Component
 
     public function updatedSearch(): void
     {
-        // Search tidak mereset chart — user tetap bisa lihat grafik sambil mencari
+        // Search tidak mereset chart
     }
 
     public function showDetail(int $siswaId): void
@@ -53,13 +53,33 @@ class LaporanIndividuPage extends Component
         $this->showChart = false;
     }
 
+    /**
+     * Tentukan status berdasarkan rata-rata (5 status):
+     * 0.00–1.00 → Perlu Perhatian
+     * 1.01–2.00 → Cukup
+     * 2.01–3.00 → Cukup Baik
+     * 3.01–4.00 → Baik
+     * 4.01–5.00 → Sangat Baik
+     */
+    public static function getStatus(?float $rata): string
+    {
+        if ($rata === null) return '-';
+        return match (true) {
+            $rata <= 1.00 => 'Perlu Perhatian',
+            $rata <= 2.00 => 'Cukup',
+            $rata <= 3.00 => 'Cukup Baik',
+            $rata <= 4.00 => 'Baik',
+            default       => 'Sangat Baik',
+        };
+    }
+
     public function render(): View
     {
         $sekolah = Auth::user()?->sekolah;
 
         $tahunAjarOptions = TahunAjar::orderByDesc('id')->get();
 
-        // Kelas hanya muncul setelah tahun ajar dipilih — sama persis Assessment
+        // Kelas hanya muncul setelah tahun ajar dipilih
         $kelasOptions = collect();
         if ($sekolah && $this->tahunAjarId) {
             $kelasOptions = $sekolah->kelas()
@@ -80,33 +100,32 @@ class LaporanIndividuPage extends Component
                 ->orderBy('id')
                 ->get()
                 ->map(function ($siswa) {
-                    // Hitung rata-rata fresh dari penilaian siswa ini:
-                    // total level dibagi jumlah pertemuan yang sudah dinilai
                     $penilaianList = Penilaian::where('siswa_id', $siswa->id)->get();
-
                     if ($penilaianList->isEmpty()) {
-                        $siswa->rata_laporan = null;
+                        $siswa->rata_laporan      = null;
                         $siswa->pertemuan_dinilai = 0;
+                        $siswa->status_laporan    = '-';
                     } else {
-                        $totalLevel       = $penilaianList->sum(fn ($p) => (int) $p->level);
-                        $pertemuanDinilai = $penilaianList->count();
+                        $totalLevel               = $penilaianList->sum(fn ($p) => (int) $p->level);
+                        $pertemuanDinilai         = $penilaianList->count();
                         $siswa->rata_laporan      = round($totalLevel / $pertemuanDinilai, 2);
                         $siswa->pertemuan_dinilai = $pertemuanDinilai;
+                        $siswa->status_laporan    = self::getStatus($siswa->rata_laporan);
                     }
-
                     return $siswa;
                 });
         }
 
-        // Chart data
-        $chartData = null;
+        // Chart + PDF data
+        $chartData   = null;
+        $pdfData     = null;
         $selectedSiswa = null;
 
         if ($this->selectedSiswaId && $this->showChart) {
             $selectedSiswa = Siswa::with('kelas.tahunAjar')->find($this->selectedSiswaId);
 
             if ($selectedSiswa) {
-                $penilaianData = Penilaian::where('siswa_id', $this->selectedSiswaId)
+                $penilaianList = Penilaian::where('siswa_id', $this->selectedSiswaId)
                     ->orderBy('pertemuan')
                     ->get()
                     ->keyBy(fn ($p) => (int) $p->pertemuan);
@@ -115,23 +134,39 @@ class LaporanIndividuPage extends Component
                 $values = [];
                 for ($i = 1; $i <= 16; $i++) {
                     $labels[] = 'P' . $i;
-                    $values[] = isset($penilaianData[$i]) ? (int) $penilaianData[$i]->level : null;
+                    $values[] = isset($penilaianList[$i]) ? (int) $penilaianList[$i]->level : null;
                 }
 
-                $pertemuanDinilai = $penilaianData->count();
-                $totalLevel       = $penilaianData->sum(fn ($p) => (int) $p->level);
+                $pertemuanDinilai = $penilaianList->count();
+                $totalLevel       = $penilaianList->sum(fn ($p) => (int) $p->level);
                 $rataLaporan      = $pertemuanDinilai > 0
                     ? round($totalLevel / $pertemuanDinilai, 2)
                     : null;
 
+                // Hitung jumlah perolehan per level (L0–L5)
+                $levelCount = [];
+                for ($lvl = 0; $lvl <= 5; $lvl++) {
+                    $levelCount[$lvl] = $penilaianList->filter(fn ($p) => (int) $p->level === $lvl)->count();
+                }
+
                 $chartData = [
-                    'labels'           => $labels,
-                    'values'           => $values,
-                    'nama'             => $selectedSiswa->nama,
-                    'kelas'            => $selectedSiswa->kelas?->nama,
-                    'tahun_ajar'       => $selectedSiswa->kelas?->tahunAjar?->nama,
-                    'rata_laporan'     => $rataLaporan,
-                    'pertemuan_dinilai'=> $pertemuanDinilai,
+                    'labels'            => $labels,
+                    'values'            => $values,
+                    'nama'              => $selectedSiswa->nama,
+                    'kelas'             => $selectedSiswa->kelas?->nama,
+                    'tahun_ajar'        => $selectedSiswa->kelas?->tahunAjar?->nama,
+                    'rata_laporan'      => $rataLaporan,
+                    'pertemuan_dinilai' => $pertemuanDinilai,
+                ];
+
+                // Data untuk PDF template
+                $pdfData = [
+                    'siswa'       => $selectedSiswa,
+                    'pengajar'    => Auth::user()?->name ?? '-',
+                    'sekolahNama' => Auth::user()?->sekolah?->nama ?? '-',
+                    'levelCount'  => $levelCount,
+                    'rataLaporan' => $rataLaporan ?? 0,
+                    'status'      => self::getStatus($rataLaporan),
                 ];
             }
         }
@@ -141,6 +176,7 @@ class LaporanIndividuPage extends Component
             'kelasOptions'     => $kelasOptions,
             'siswaList'        => $siswaList,
             'chartData'        => $chartData,
+            'pdfData'          => $pdfData,
             'selectedSiswa'    => $selectedSiswa,
             'sekolah'          => $sekolah,
         ]);
