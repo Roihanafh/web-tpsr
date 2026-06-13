@@ -7,15 +7,31 @@ echo "Starting container startup script..."
 if [ -n "$AIVEN_CA_CERT" ]; then
     echo "Aiven CA Certificate detected, writing to file..."
     mkdir -p /var/www/html/certs
-    # Use PHP to decode base64 or replace literal \n with actual newlines to prevent OpenSSL parsing errors
+    # Ensure the certificate is written as valid PEM format (required by OpenSSL/MySQL)
     php -r '
         $cert = getenv("AIVEN_CA_CERT");
-        if (strpos($cert, "BEGIN CERTIFICATE") === false) {
-            $cert = base64_decode($cert);
-        } else {
+        $cert = trim(str_replace("\r", "", $cert));
+        
+        if (strpos($cert, "BEGIN CERTIFICATE") !== false) {
+            // It is already PEM, handle escaped newlines if any
             $cert = str_replace("\\n", "\n", $cert);
+            file_put_contents("/var/www/html/certs/ca.pem", $cert . "\n");
+        } else {
+            // It could be base64-encoded PEM, base64-encoded binary DER, or raw binary DER
+            $decoded = base64_decode($cert);
+            if ($decoded !== false && preg_match("//u", $decoded) === false) {
+                // If it is base64-encoded binary DER, wrap it in PEM headers
+                $pem = "-----BEGIN CERTIFICATE-----\n" . chunk_split(base64_encode($decoded), 64, "\n") . "-----END CERTIFICATE-----\n";
+                file_put_contents("/var/www/html/certs/ca.pem", $pem);
+            } elseif ($decoded !== false && strpos($decoded, "BEGIN CERTIFICATE") !== false) {
+                // If it is base64-encoded PEM
+                file_put_contents("/var/www/html/certs/ca.pem", trim($decoded) . "\n");
+            } else {
+                // It is raw binary DER, wrap it in PEM headers
+                $pem = "-----BEGIN CERTIFICATE-----\n" . chunk_split(base64_encode($cert), 64, "\n") . "-----END CERTIFICATE-----\n";
+                file_put_contents("/var/www/html/certs/ca.pem", $pem);
+            }
         }
-        file_put_contents("/var/www/html/certs/ca.pem", trim($cert) . "\n");
     '
     chmod 644 /var/www/html/certs/ca.pem
     # Diagnostics
