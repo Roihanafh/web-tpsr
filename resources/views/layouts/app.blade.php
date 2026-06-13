@@ -29,6 +29,8 @@
             var labels = e.detail.labels;
             var values = e.detail.values;
             var nama   = e.detail.nama;
+            var kelas  = e.detail.kelas;
+            var tahunAjar = e.detail.tahunAjar;
             var slug   = e.detail.slug;
 
             function doInit() {
@@ -252,7 +254,12 @@
                             ]
                         });
 
-                        doc.save('laporan-' + slug + '.pdf');
+                        var yearClean = (tahunAjar || '').replace(/\//g, '-').toLowerCase();
+                        var kelasPart = (kelas || '').toLowerCase();
+                        var filename = 'laporan analisis individu ' + nama.toLowerCase() + 
+                                       (kelasPart ? ' kelas ' + kelasPart : '') + 
+                                       (yearClean ? ' tahun ajar ' + yearClean : '') + '.pdf';
+                        doc.save(filename);
                     });
                 }
             }
@@ -264,6 +271,7 @@
             var labels = e.detail.labels;
             var values = e.detail.values;
             var kelas  = e.detail.kelas;
+            var tahunAjar = e.detail.tahunAjar;
             var slug   = e.detail.slug;
 
             function doInitKelas() {
@@ -465,7 +473,10 @@
                         doc.setTextColor(0, 0, 0);
                         doc.text('Rata-rata Point Kelas : ' + classAvg, 20, doc.lastAutoTable.finalY + 8);
 
-                        doc.save('laporan-kelas-' + slug + '.pdf');
+                        var yearClean = (tahunAjar || '').replace(/\//g, '-').toLowerCase();
+                        var filename = 'laporan analisis kelas ' + (kelas || '').toLowerCase() + 
+                                       (yearClean ? ' tahun ajar ' + yearClean : '') + '.pdf';
+                        doc.save(filename);
                     });
                 }
             }

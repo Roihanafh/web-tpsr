@@ -56,7 +56,7 @@ class LaporanKelasPage extends Component
     {
         $sekolah = Auth::user()?->sekolah;
 
-        $tahunAjarOptions = TahunAjar::orderByDesc('id')->get();
+        $tahunAjarOptions = TahunAjar::getSorted();
 
         // Data list kelas di tabel utama
         $kelasList = collect();

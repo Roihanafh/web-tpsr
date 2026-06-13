@@ -45,7 +45,7 @@ class KelasPage extends Component
 
     public function render(): View
     {
-        $tahunAjarOptions = TahunAjar::orderByDesc('id')->get();
+        $tahunAjarOptions = TahunAjar::getSorted();
 
         $uniqueYears = $tahunAjarOptions->map(function ($ta) {
             return trim(str_ireplace(['ganjil', 'genap'], '', $ta->nama));
@@ -254,9 +254,19 @@ class KelasPage extends Component
             $this->skipRender();
         }
 
+        $tahunAjarPart = 'semua tahun ajar';
+        if ($this->filterTahunAjarId) {
+            $ta = TahunAjar::find($this->filterTahunAjarId);
+            if ($ta) {
+                $tahunAjarPart = 'tahun ajar ' . str_replace('/', '-', $ta->nama);
+            }
+        }
+
+        $filename = "data kelas {$tahunAjarPart}.xlsx";
+
         return Excel::download(
             new KelasExport($sekolah, $this->filterTahunAjarId ?: null),
-            'data-kelas.xlsx',
+            $filename,
         );
     }
 

@@ -49,7 +49,7 @@ class AssessmentPage extends Component
         }
 
         return view('livewire.assessment.assessment-page', [
-            'tahunAjarOptions' => TahunAjar::orderByDesc('id')->get(),
+            'tahunAjarOptions' => TahunAjar::getSorted(),
             'kelasOptions' => $kelasOptions,
             'students' => $students,
             'sekolah' => $sekolah,
@@ -58,9 +58,32 @@ class AssessmentPage extends Component
 
     public function updatedTahunAjarId(): void
     {
-        $this->kelasId = null;
+        $sekolah = Auth::user()?->sekolah;
+        $currentKelas = null;
+
+        if ($this->kelasId) {
+            $currentKelas = Kelas::find($this->kelasId);
+        }
+
         $this->ratings = [];
         $this->resetValidation();
+
+        if ($currentKelas && $sekolah && $this->tahunAjarId) {
+            $newKelas = $sekolah->kelas()
+                ->where('tahun_ajar_id', $this->tahunAjarId)
+                ->where('nama', $currentKelas->nama)
+                ->first();
+
+            if ($newKelas) {
+                $this->kelasId = $newKelas->id;
+                if ($this->pertemuan) {
+                    $this->loadPenilaian();
+                }
+                return;
+            }
+        }
+
+        $this->kelasId = null;
     }
 
     public function updatedKelasId(): void

@@ -164,6 +164,7 @@
                                     labels: {{ Js::from($chartData['labels']) }},
                                     values: {{ Js::from($chartData['values']) }},
                                     kelas:  {{ Js::from($chartData['kelas']) }},
+                                    tahunAjar: {{ Js::from($chartData['tahun_ajar']) }},
                                     slug:   {{ Js::from(\Illuminate\Support\Str::slug('laporan-kelas-' . $chartData['kelas'] ?? 'kelas')) }}
                                 }
                             }));

@@ -25,9 +25,33 @@ class LaporanIndividuPage extends Component
     // Reset kelas setiap kali tahun ajar berubah — sama persis Assessment
     public function updatedTahunAjarId(): void
     {
-        $this->kelasId = null;
+        $sekolah = Auth::user()?->sekolah;
+        $currentKelas = null;
+
+        if ($this->kelasId && $this->kelasId !== 'all') {
+            $currentKelas = \App\Models\Kelas::find($this->kelasId);
+        }
+
         $this->selectedSiswaId = null;
         $this->showChart = false;
+
+        if ($this->kelasId === 'all') {
+            return;
+        }
+
+        if ($currentKelas && $sekolah && $this->tahunAjarId) {
+            $newKelas = $sekolah->kelas()
+                ->where('tahun_ajar_id', $this->tahunAjarId)
+                ->where('nama', $currentKelas->nama)
+                ->first();
+
+            if ($newKelas) {
+                $this->kelasId = $newKelas->id;
+                return;
+            }
+        }
+
+        $this->kelasId = null;
     }
 
     public function updatedKelasId(): void
@@ -69,7 +93,7 @@ class LaporanIndividuPage extends Component
     {
         $sekolah = Auth::user()?->sekolah;
 
-        $tahunAjarOptions = TahunAjar::orderByDesc('id')->get();
+        $tahunAjarOptions = TahunAjar::getSorted();
 
         // Kelas hanya muncul setelah tahun ajar dipilih
         $kelasOptions = collect();

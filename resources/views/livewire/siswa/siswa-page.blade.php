@@ -84,8 +84,8 @@
 
                 <form wire:submit="save" class="siswa-form">
                     <div class="form-row">
-                        <div class="col-md-2 mb-2">
-                            @if ($isEditing)
+                        @if ($isEditing)
+                            <div class="col-md-2 mb-2">
                                 <label for="tahunAjarId">Tahun Ajaran</label>
                                 <select id="tahunAjarId" class="form-control @error('tahunAjarId') is-invalid @enderror" wire:model.live="tahunAjarId" wire:loading.attr="disabled" wire:target="save,edit">
                                     <option value="">Pilih tahun ajaran</option>
@@ -94,20 +94,9 @@
                                     @endforeach
                                 </select>
                                 @error('tahunAjarId') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                            @else
-                                <label for="tahunAjarYear">Tahun Ajaran</label>
-                                <select id="tahunAjarYear" class="form-control @error('tahunAjarYear') is-invalid @enderror" wire:model.live="tahunAjarYear" wire:loading.attr="disabled" wire:target="save,edit">
-                                    <option value="">Pilih tahun ajaran</option>
-                                    @foreach ($uniqueYears as $year)
-                                        <option value="{{ $year }}">{{ $year }}</option>
-                                    @endforeach
-                                </select>
-                                @error('tahunAjarYear') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                            @endif
-                        </div>
+                            </div>
 
-                        <div class="col-md-2 mb-2">
-                            @if ($isEditing)
+                            <div class="col-md-2 mb-2">
                                 <label for="kelasId">Kelas</label>
                                 <select id="kelasId" class="form-control @error('kelasId') is-invalid @enderror" wire:model="kelasId" wire:loading.attr="disabled" wire:target="save,edit,tahunAjarId" @disabled(! $tahunAjarId)>
                                     <option value="">Pilih kelas</option>
@@ -116,47 +105,36 @@
                                     @endforeach
                                 </select>
                                 @error('kelasId') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                            @else
-                                <label for="kelasNama">Kelas</label>
-                                <select id="kelasNama" class="form-control @error('kelasNama') is-invalid @enderror" wire:model="kelasNama" wire:loading.attr="disabled" wire:target="save,edit,tahunAjarYear" @disabled(! $tahunAjarYear)>
-                                    <option value="">Pilih kelas</option>
-                                    @foreach ($uniqueKelasOptions as $namaK)
-                                        <option value="{{ $namaK }}">{{ $namaK }}</option>
-                                    @endforeach
+                            </div>
+
+                            <div class="col-md-3 mb-2">
+                                <label for="nama">Nama Siswa</label>
+                                <input id="nama" type="text" maxlength="100" class="form-control @error('nama') is-invalid @enderror" wire:model="nama" placeholder="Nama Siswa" wire:loading.attr="disabled" wire:target="save,edit">
+                                @error('nama') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-md-2 mb-2">
+                                <label for="gender">Jenis Kelamin</label>
+                                <select id="gender" wire:key="gender-{{ $siswaId ?? 'new' }}" class="form-control @error('gender') is-invalid @enderror" wire:model="gender" wire:loading.attr="disabled" wire:target="save,edit">
+                                    <option value="">Pilih jenis kelamin</option>
+                                    <option value="L">Laki-laki</option>
+                                    <option value="P">Perempuan</option>
                                 </select>
-                                @error('kelasNama') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                            @endif
-                        </div>
+                                @error('gender') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            </div>
 
-                        <div class="col-md-3 mb-2">
-                            <label for="nama">Nama Siswa</label>
-                            <input id="nama" type="text" maxlength="100" class="form-control @error('nama') is-invalid @enderror" wire:model="nama" placeholder="Nama Siswa" wire:loading.attr="disabled" wire:target="save,edit">
-                            @error('nama') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                        </div>
+                            <div class="col-md-3 mb-2 siswa-submit">
+                                <button type="submit" class="btn btn-primary siswa-btn" wire:loading.attr="disabled" wire:target="save">
+                                    <span wire:loading.remove wire:target="save">
+                                        <i class="fas fa-save mr-1"></i>
+                                        Simpan Edit
+                                    </span>
+                                    <span wire:loading wire:target="save">
+                                        <i class="fas fa-spinner fa-spin mr-1"></i>
+                                        Menyimpan
+                                    </span>
+                                </button>
 
-                        <div class="col-md-2 mb-2">
-                            <label for="gender">Jenis Kelamin</label>
-                            <select id="gender" wire:key="gender-{{ $siswaId ?? 'new' }}" class="form-control @error('gender') is-invalid @enderror" wire:model="gender" wire:loading.attr="disabled" wire:target="save,edit">
-                                <option value="">Pilih jenis kelamin</option>
-                                <option value="L">Laki-laki</option>
-                                <option value="P">Perempuan</option>
-                            </select>
-                            @error('gender') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="col-md-3 mb-2 siswa-submit">
-                            <button type="submit" class="btn btn-primary siswa-btn" wire:loading.attr="disabled" wire:target="save">
-                                <span wire:loading.remove wire:target="save">
-                                    <i class="fas fa-plus mr-1"></i>
-                                    {{ $isEditing ? 'Simpan Edit' : 'Tambah Siswa' }}
-                                </span>
-                                <span wire:loading wire:target="save">
-                                    <i class="fas fa-spinner fa-spin mr-1"></i>
-                                    Menyimpan
-                                </span>
-                            </button>
-
-                            @if ($isEditing)
                                 <button type="button" class="btn btn-outline-secondary siswa-btn" wire:click="cancelEdit" wire:loading.attr="disabled" wire:target="cancelEdit,save">
                                     <span wire:loading.remove wire:target="cancelEdit">Batal</span>
                                     <span wire:loading wire:target="cancelEdit">
@@ -164,8 +142,79 @@
                                         Batal
                                     </span>
                                 </button>
+                            </div>
+                        @else
+                            <div class="col-md-4 mb-2">
+                                <label for="nama">Nama Siswa</label>
+                                <input id="nama" type="text" maxlength="100" class="form-control @error('nama') is-invalid @enderror" wire:model="nama" placeholder="Nama Siswa" wire:loading.attr="disabled" wire:target="save">
+                                @error('nama') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-md-2 mb-2">
+                                <label for="gender">Jenis Kelamin</label>
+                                <select id="gender" wire:key="gender-new" class="form-control @error('gender') is-invalid @enderror" wire:model="gender" wire:loading.attr="disabled" wire:target="save">
+                                    <option value="">Pilih jenis kelamin</option>
+                                    <option value="L">Laki-laki</option>
+                                    <option value="P">Perempuan</option>
+                                </select>
+                                @error('gender') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-md-3 mb-2">
+                                <label for="tambahMode">Jumlah Semester</label>
+                                <select id="tambahMode" class="form-control @error('tambahMode') is-invalid @enderror" wire:model.live="tambahMode" wire:loading.attr="disabled" wire:target="save">
+                                    <option value="2">2 Semester (Ganjil & Genap)</option>
+                                    <option value="1">1 Semester</option>
+                                </select>
+                                @error('tambahMode') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            </div>
+
+                            @if ($tambahMode === '1')
+                                <div class="col-md-3 mb-2">
+                                    <label for="selectedSemester">Semester</label>
+                                    <select id="selectedSemester" class="form-control @error('selectedSemester') is-invalid @enderror" wire:model="selectedSemester" wire:loading.attr="disabled" wire:target="save">
+                                        <option value="ganjil">Ganjil</option>
+                                        <option value="genap">Genap</option>
+                                    </select>
+                                    @error('selectedSemester') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                                </div>
                             @endif
-                        </div>
+
+                            <div class="col-md-3 mb-2">
+                                <label for="tahunAjarYear">Tahun Ajaran</label>
+                                <select id="tahunAjarYear" class="form-control @error('tahunAjarYear') is-invalid @enderror" wire:model.live="tahunAjarYear" wire:loading.attr="disabled" wire:target="save">
+                                    <option value="">Pilih tahun ajaran</option>
+                                    @foreach ($uniqueYears as $year)
+                                        <option value="{{ $year }}">{{ $year }}</option>
+                                    @endforeach
+                                </select>
+                                @error('tahunAjarYear') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-md-3 mb-2">
+                                <label for="kelasNama">Kelas</label>
+                                <select id="kelasNama" class="form-control @error('kelasNama') is-invalid @enderror" wire:model="kelasNama" wire:loading.attr="disabled" wire:target="save,tahunAjarYear" @disabled(! $tahunAjarYear)>
+                                    <option value="">Pilih kelas</option>
+                                    @foreach ($uniqueKelasOptions as $namaK)
+                                        <option value="{{ $namaK }}">{{ $namaK }}</option>
+                                    @endforeach
+                                </select>
+                                @error('kelasNama') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                            </div>
+
+                            <div class="col-md-3 mb-2 d-flex align-items-end pb-1">
+                                <button type="submit" class="btn btn-primary siswa-btn w-100" wire:loading.attr="disabled" wire:target="save">
+                                    <span wire:loading.remove wire:target="save">
+                                        <i class="fas fa-plus mr-1"></i>
+                                        Tambah Siswa
+                                    </span>
+                                    <span wire:loading wire:target="save">
+                                        <i class="fas fa-spinner fa-spin mr-1"></i>
+                                        Menyimpan
+                                    </span>
+                                </button>
+                            </div>
+                        @endif
                     </div>
                 </form>
             </div>

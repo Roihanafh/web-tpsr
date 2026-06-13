@@ -49,7 +49,7 @@ class SiswaTable extends DataTableComponent
             ->whereHas('kelas', function (Builder $query) use ($sekolahId) {
                 $query->where('sekolah_id', $sekolahId)
                     ->when($this->tahunAjarId, fn (Builder $query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
-                    ->when($this->kelasNama !== '', fn (Builder $query) => $query->where('nama', $this->kelasNama));
+                    ->when($this->kelasNama !== '' && $this->kelasNama !== '0', fn (Builder $query) => $query->where('nama', $this->kelasNama));
             })
             ->addSelect([
                 'tahun_ajar_nama' => \App\Models\TahunAjar::selectRaw('tahun_ajar.nama')
@@ -132,6 +132,12 @@ class SiswaTable extends DataTableComponent
     public function updateSearch(string $search = ''): void
     {
         $this->search = $search;
+        $this->resetPage();
+    }
+
+    #[On('siswa-deleted')]
+    public function onSiswaDeleted(): void
+    {
         $this->resetPage();
     }
 }
