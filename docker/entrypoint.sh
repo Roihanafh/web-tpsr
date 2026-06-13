@@ -18,6 +18,12 @@ if [ -n "$AIVEN_CA_CERT" ]; then
         file_put_contents("/var/www/html/certs/ca.pem", trim($cert) . "\n");
     '
     chmod 644 /var/www/html/certs/ca.pem
+    # Diagnostics
+    echo "Diagnostic: Certificate file size is $(wc -c < /var/www/html/certs/ca.pem) bytes."
+    echo "Diagnostic: Certificate file contents:"
+    echo "----------------------------------------"
+    cat /var/www/html/certs/ca.pem
+    echo "----------------------------------------"
     # Export it so Laravel config/database.php picks it up via env('MYSQL_ATTR_SSL_CA')
     export MYSQL_ATTR_SSL_CA="/var/www/html/certs/ca.pem"
     echo "CA Certificate successfully written to /var/www/html/certs/ca.pem"
