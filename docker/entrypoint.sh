@@ -7,7 +7,16 @@ echo "Starting container startup script..."
 if [ -n "$AIVEN_CA_CERT" ]; then
     echo "Aiven CA Certificate detected, writing to file..."
     mkdir -p /var/www/html/certs
-    echo "$AIVEN_CA_CERT" > /var/www/html/certs/ca.pem
+    # Use PHP to decode base64 or replace literal \n with actual newlines to prevent OpenSSL parsing errors
+    php -r '
+        $cert = getenv("AIVEN_CA_CERT");
+        if (strpos($cert, "BEGIN CERTIFICATE") === false) {
+            $cert = base64_decode($cert);
+        } else {
+            $cert = str_replace("\\n", "\n", $cert);
+        }
+        file_put_contents("/var/www/html/certs/ca.pem", trim($cert) . "\n");
+    '
     chmod 644 /var/www/html/certs/ca.pem
     # Export it so Laravel config/database.php picks it up via env('MYSQL_ATTR_SSL_CA')
     export MYSQL_ATTR_SSL_CA="/var/www/html/certs/ca.pem"
