@@ -46,7 +46,7 @@ RUN apk add --no-cache \
     tzdata
 
 # Install helper script to easily install PHP extensions
-ADD https://github.com/mlocati/php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
+ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 RUN chmod +x /usr/local/bin/install-php-extensions
 
 # Install necessary PHP extensions for Laravel and Maatwebsite Excel
