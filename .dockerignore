@@ -1,0 +1,34 @@
+.git
+.github
+.editorconfig
+.gitignore
+.gitattributes
+.phpunit.result.cache
+phpunit.xml
+tests
+
+# Laravel specific
+.env
+.env.backup
+.env.production
+vendor
+node_modules
+npm-debug.log
+yarn-debug.log
+yarn-error.log
+
+# Storage & Cache files
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/testing/*
+storage/framework/views/*
+storage/logs/*
+bootstrap/cache/*
+public/build
+
+# Exclude documentation files
+INSTALLATION.md
+README-PROJECT.md
+README.md
+tabel.md
+panduan
