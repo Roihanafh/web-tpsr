@@ -13,7 +13,8 @@ RUN composer install \
     --no-plugins \
     --no-scripts \
     --no-dev \
-    --prefer-dist
+    --prefer-dist \
+    --ignore-platform-reqs
 
 # ==========================================
 # Stage 2: Compile frontend assets (JS/CSS)
