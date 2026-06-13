@@ -87,9 +87,9 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 # Prepare directories for Nginx/Supervisor and set permissions
-RUN mkdir -p /var/log/supervisor /var/run/nginx /var/log/nginx && \
+RUN mkdir -p /var/log/supervisor /var/run/nginx /var/log/nginx /var/lib/nginx && \
     touch /var/run/nginx.pid && \
-    chown -R www-data:www-data /var/run/nginx.pid /var/cache/nginx /var/log/nginx /var/run/nginx
+    chown -R www-data:www-data /var/run/nginx.pid /var/lib/nginx /var/log/nginx /var/run/nginx
 
 # Copy and set execution permissions for the entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
