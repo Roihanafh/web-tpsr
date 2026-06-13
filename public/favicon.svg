@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Green circle background (matches sidebar .brand-icon-circle gradient) -->
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#16a34a"/>
+    </linearGradient>
+  </defs>
+  <circle cx="32" cy="32" r="32" fill="url(#g)"/>
+  <!--
+    FontAwesome 6 "person-running" (fa-solid fa-person-running)
+    Original viewBox: 0 0 448 512
+    Scaled to fit inside 64x64 circle with padding ~10px each side
+    Target area: 12,12 to 52,52 → 40x40px
+    Scale: 40/448 = 0.0893 (x), 40/512 = 0.0781 (y)
+    Translate: 12, 12
+  -->
+  <g transform="translate(12,12) scale(0.0893, 0.0781)">
+    <path fill="white" d="M320 48a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zM125.7 175.5c9.9-9.9 23.4-15.5 37.5-15.5c1.9 0 3.8 .1 5.6 .3L137.6 254c-9.3 28 1.7 58.8 26.8 74.5l86.2 51.7-27.4 87.4c-5.6 17.9 4.4 36.9 22.3 42.5s36.9-4.4 42.5-22.3l31.2-99.4c5.4-17.1-.1-35.8-13.9-47.2L282 299l30.8-77.3 10.1 20.1c5.1 10.2 14.3 17.8 25.2 21.1l29.3 8.9c18.2 5.5 37.4-4.8 42.9-23s-4.8-37.4-23-42.9l-19.7-6L337 163c-11.7-23.4-36.3-38.5-62.6-38.7c-.6 0-1.2 0-1.8 0c-17.2 0-33.7 6.4-46.2 18L178 191.7c-5.7 5.7-6.5 14.7-1.8 21.4l7.2 10.2 6-17.1c3.1-8.8 7.3-16.9 12.3-24.2l-76 76c-6.2 6.2-6.2 16.4 0 22.6s16.4 6.2 22.6 0L186.7 242l-61 61z"/>
+  </g>
+</svg>

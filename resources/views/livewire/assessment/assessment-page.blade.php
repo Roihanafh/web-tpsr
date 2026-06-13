@@ -118,8 +118,8 @@
                         </table>
                     </div>
 
-                    <div class="assessment-table-foot p-3 bg-light text-right">
-                        <button type="button" class="btn btn-outline-danger px-4 py-2 font-weight-bold mr-2 me-2" wire:click="kosongkanPenilaian" wire:loading.attr="disabled" wire:target="kosongkanPenilaian">
+                    <div class="assessment-table-foot p-3 bg-light d-flex flex-wrap justify-content-end" style="gap: 0.5rem;">
+                        <button type="button" class="btn btn-outline-danger px-4 py-2 font-weight-bold" wire:click="kosongkanPenilaian" wire:loading.attr="disabled" wire:target="kosongkanPenilaian">
                             <span wire:loading.remove wire:target="kosongkanPenilaian">
                                 <i class="fas fa-eraser mr-2"></i>Kosongkan Penilaian
                             </span>

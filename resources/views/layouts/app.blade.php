@@ -3,6 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('css')
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
     @livewireStyles
     @vite('resources/css/app.css')
 @stop
