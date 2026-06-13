@@ -64,11 +64,17 @@ php artisan config:cache
 php artisan route:cache
 php artisan view:cache
 
-# 5. Run Database Migrations
+# 5. Run Database Migrations & Seeders
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
     echo "Running database migrations..."
     # --force is required in production
     php artisan migrate --force
+fi
+
+if [ "${RUN_SEEDER:-false}" = "true" ]; then
+    echo "Running database seeders..."
+    # --force is required in production
+    php artisan db:seed --force
 fi
 
 # 6. Start Supervisor to manage PHP-FPM and Nginx
