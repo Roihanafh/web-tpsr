@@ -78,7 +78,6 @@
                             <div class="col-md-8 mb-2">
                                 <label for="tahun">Tahun Ajaran baru</label>
                                 <input id="tahun" type="text" class="form-control @error('tahun') is-invalid @enderror" wire:model="tahun" placeholder="Contoh: 2025/2026" wire:loading.attr="disabled" wire:target="save">
-                                <small class="text-muted">Membuat 2 record sekaligus untuk semester Ganjil dan Genap.</small>
                                 @error('tahun') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
                             </div>
                         @endif
@@ -100,6 +99,13 @@
                             </button>
                         </div>
                     </div>
+                    @if (!$isEditing)
+                        <div class="form-row mt-n1">
+                            <div class="col-md-8">
+                                <small class="text-muted d-block mb-2">Membuat 2 record sekaligus untuk semester Ganjil dan Genap.</small>
+                            </div>
+                        </div>
+                    @endif
                 </form>
             </div>
         @endif

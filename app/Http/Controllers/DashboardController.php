@@ -12,7 +12,43 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
-        $sekolah = Auth::user()?->sekolah;
+        $user = Auth::user();
+
+        if ($user && $user->hasRole('admin')) {
+            $totalSekolah = \App\Models\Sekolah::count();
+            $totalGuru = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'guru'))->count();
+            $totalAdmin = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'admin'))->count();
+            $totalTahunAjar = \App\Models\TahunAjar::count();
+            $totalKelas = \App\Models\Kelas::count();
+            $totalSiswa = \App\Models\Siswa::count();
+            $totalPenilaian = \App\Models\Penilaian::count();
+
+            // Fetch list of schools and users for the tables
+            $recentSekolah = \App\Models\Sekolah::orderBy('id', 'desc')->take(5)->get();
+            $recentGuru = \App\Models\User::whereHas('roles', fn($q) => $q->where('name', 'guru'))
+                ->with('sekolah')
+                ->orderBy('id', 'desc')
+                ->take(5)
+                ->get();
+            $recentTahunAjar = \App\Models\TahunAjar::getSorted()->take(5);
+
+            return view('dashboard', [
+                'isAdmin' => true,
+                'totalSekolah' => $totalSekolah,
+                'totalGuru' => $totalGuru,
+                'totalAdmin' => $totalAdmin,
+                'totalTahunAjar' => $totalTahunAjar,
+                'totalKelas' => $totalKelas,
+                'totalSiswa' => $totalSiswa,
+                'totalPenilaian' => $totalPenilaian,
+                'recentSekolah' => $recentSekolah,
+                'recentGuru' => $recentGuru,
+                'recentTahunAjar' => $recentTahunAjar,
+            ]);
+        }
+
+        // Guru Dashboard Data (same as before)
+        $sekolah = $user?->sekolah;
 
         $totalKelas = 0;
         $kelasNames = '-';
@@ -54,6 +90,7 @@ class DashboardController extends Controller
         }
 
         return view('dashboard', [
+            'isAdmin' => false,
             'sekolah' => $sekolah,
             'totalKelas' => $totalKelas,
             'kelasNames' => $kelasNames,
