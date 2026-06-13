@@ -15,6 +15,14 @@
             </button>
         </div>
     @endif
+    @if (session('info'))
+        <div class="alert alert-info alert-dismissible fade show" role="alert">
+            <i class="fas fa-info-circle mr-2"></i>{{ session('info') }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    @endif
 
     <div class="assessment-panel">
         <div class="assessment-toolbar">
@@ -111,6 +119,15 @@
                     </div>
 
                     <div class="assessment-table-foot p-3 bg-light text-right">
+                        <button type="button" class="btn btn-outline-danger px-4 py-2 font-weight-bold mr-2 me-2" wire:click="kosongkanPenilaian" wire:loading.attr="disabled" wire:target="kosongkanPenilaian">
+                            <span wire:loading.remove wire:target="kosongkanPenilaian">
+                                <i class="fas fa-eraser mr-2"></i>Kosongkan Penilaian
+                            </span>
+                            <span wire:loading wire:target="kosongkanPenilaian">
+                                <i class="fas fa-spinner fa-spin mr-2"></i>Mengosongkan...
+                            </span>
+                        </button>
+
                         <button type="button" class="btn btn-primary px-4 py-2 font-weight-bold" wire:click="save" wire:loading.attr="disabled" wire:target="save">
                             <span wire:loading.remove wire:target="save">
                                 <i class="fas fa-save mr-2"></i>Simpan Penilaian

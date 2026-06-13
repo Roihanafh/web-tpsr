@@ -170,6 +170,44 @@ class KelasPage extends Component
         $this->resetForm();
     }
 
+    #[On('delete-kelas')]
+    public function delete(int $id): void
+    {
+        $sekolah = $this->currentSekolah();
+        if (! $sekolah) {
+            session()->flash('error', 'Akun login saat ini belum terhubung dengan data sekolah.');
+            return;
+        }
+
+        $kelas = $this->baseKelasQuery()->with('tahunAjar')->find($id);
+        if (! $kelas) {
+            session()->flash('error', 'Data kelas tidak ditemukan.');
+            return;
+        }
+
+        $year = trim(str_ireplace(['ganjil', 'genap'], '', $kelas->tahunAjar->nama));
+        $ganjilTa = TahunAjar::where('nama', $year . ' Ganjil')->first();
+        $genapTa = TahunAjar::where('nama', $year . ' Genap')->first();
+
+        $tahunAjarIds = [];
+        if ($ganjilTa) $tahunAjarIds[] = $ganjilTa->id;
+        if ($genapTa) $tahunAjarIds[] = $genapTa->id;
+
+        $kelasToDelete = Kelas::where('sekolah_id', $sekolah->id)
+            ->where('nama', $kelas->nama)
+            ->whereIn('tahun_ajar_id', $tahunAjarIds)
+            ->get();
+
+        $count = 0;
+        foreach ($kelasToDelete as $k) {
+            $k->delete();
+            $count++;
+        }
+
+        session()->flash('success', "Data kelas {$kelas->nama} berhasil dihapus dari {$count} semester.");
+        $this->dispatch('refreshDatatable');
+    }
+
     public function updatedFilterTahunAjarId(): void
     {
         $this->dispatch('kelas-filter-changed', tahunAjarId: $this->filterTahunAjarId);

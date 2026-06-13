@@ -127,6 +127,46 @@ class AssessmentPage extends Component
         }
     }
 
+    public function kosongkanPenilaian(): void
+    {
+        if (! $this->kelasId || ! $this->pertemuan) {
+            return;
+        }
+
+        $students = Siswa::where('kelas_id', $this->kelasId)->get();
+        $studentIds = $students->pluck('id');
+
+        // Delete all penilaian records for these students at this meeting
+        Penilaian::whereIn('siswa_id', $studentIds)
+            ->where('pertemuan', $this->pertemuan)
+            ->delete();
+
+        // Recalculate average (rata_poin) for each student in the class
+        foreach ($students as $student) {
+            $allPenilaians = Penilaian::where('siswa_id', $student->id)->get();
+            if ($allPenilaians->isNotEmpty()) {
+                $totalLevel       = $allPenilaians->sum(fn ($p) => (int) $p->level);
+                $pertemuanDinilai = $allPenilaians->count();
+                $student->update([
+                    'rata_poin' => round($totalLevel / $pertemuanDinilai, 2),
+                ]);
+            } else {
+                $student->update(['rata_poin' => 0]);
+            }
+        }
+
+        // Reset ratings form in UI
+        foreach ($students as $student) {
+            $this->ratings[$student->id] = null;
+        }
+
+        // Set isAssessed to false
+        $this->isAssessed = false;
+
+        session()->flash('success', 'Penilaian pertemuan ' . $this->pertemuan . ' berhasil dikosongkan.');
+        $this->resetValidation();
+    }
+
     public function save(): void
     {
         if (! Auth::user()?->can('view_assessment')) {
@@ -151,33 +191,25 @@ class AssessmentPage extends Component
 
         $students = Siswa::where('kelas_id', $this->kelasId)->get();
 
-        // Custom validation to check if all students have been graded
-        $missingGrade = false;
+        // Save/delete records and recalculate average
         foreach ($students as $student) {
-            if (! isset($this->ratings[$student->id]) || $this->ratings[$student->id] === '' || $this->ratings[$student->id] === null) {
-                $this->addError('ratings.' . $student->id, 'Wajib dinilai');
-                $missingGrade = true;
+            $level = $this->ratings[$student->id] ?? null;
+
+            if ($level === null || $level === '') {
+                Penilaian::where('siswa_id', $student->id)
+                    ->where('pertemuan', $this->pertemuan)
+                    ->delete();
+            } else {
+                Penilaian::updateOrCreate(
+                    [
+                        'siswa_id' => $student->id,
+                        'pertemuan' => $this->pertemuan,
+                    ],
+                    [
+                        'level' => $level,
+                    ]
+                );
             }
-        }
-
-        if ($missingGrade) {
-            session()->flash('error', 'Penilaian gagal disimpan. Pastikan semua siswa telah dinilai.');
-            return;
-        }
-
-        // Save records and recalculate average
-        foreach ($students as $student) {
-            $level = $this->ratings[$student->id];
-
-            Penilaian::updateOrCreate(
-                [
-                    'siswa_id' => $student->id,
-                    'pertemuan' => $this->pertemuan,
-                ],
-                [
-                    'level' => $level,
-                ]
-            );
 
             // Recalculate average (L0 = 0 to L5 = 5)
             // Formula: total level / jumlah pertemuan yang sudah dinilai
@@ -193,7 +225,12 @@ class AssessmentPage extends Component
             }
         }
 
-        $this->isAssessed = true;
+        $siswaIds = $students->pluck('id');
+        $existingPenilaian = Penilaian::whereIn('siswa_id', $siswaIds)
+            ->where('pertemuan', $this->pertemuan)
+            ->exists();
+
+        $this->isAssessed = $existingPenilaian;
         session()->flash('success', 'Penilaian pertemuan ' . $this->pertemuan . ' berhasil disimpan.');
         $this->resetValidation();
     }
