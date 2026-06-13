@@ -157,7 +157,7 @@ class AssessmentPage extends Component
 
         // Reset ratings form in UI
         foreach ($students as $student) {
-            $this->ratings[$student->id] = null;
+            $this->ratings[$student->id] = '5';
         }
 
         // Set isAssessed to false
