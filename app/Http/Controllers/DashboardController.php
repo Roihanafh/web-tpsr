@@ -67,25 +67,39 @@ class DashboardController extends Controller
                     : implode(', ', $kelasList);
             }
 
-            // 2. Total Siswa
+            // 2. Total Siswa (Distinct physical students by name and gender in the school)
             $siswaIds = Siswa::whereHas('kelas', fn($q) => $q->where('sekolah_id', $sekolah->id))->pluck('id');
-            $totalSiswa = $siswaIds->count();
+            $totalSiswa = Siswa::whereIn('id', $siswaIds)
+                ->select('nama', 'gender')
+                ->groupBy('nama', 'gender')
+                ->get()
+                ->count();
 
             // 3. Rata-rata TPSR Kelas
-            if ($totalSiswa > 0) {
+            $totalSiswaRecords = $siswaIds->count();
+            if ($totalSiswaRecords > 0) {
                 $totalPenilaian = Penilaian::whereIn('siswa_id', $siswaIds)->count();
                 if ($totalPenilaian > 0) {
                     $rataRataTPSR = round(Penilaian::whereIn('siswa_id', $siswaIds)->avg('level'), 1);
                 }
             }
 
-            // 4. Refleksi Mandiri / Penilaian Selesai
-            if ($totalSiswa > 0) {
+            // 4. Refleksi Mandiri / Penilaian Selesai (dihitung berdasarkan keseluruhan pertemuan untuk seluruh semester)
+            if ($totalSiswaRecords > 0) {
+                // Total expected evaluations across all semesters (16 meetings per student record)
+                $totalExpectedEvaluations = $totalSiswaRecords * 16;
+                $totalActualEvaluations = Penilaian::whereIn('siswa_id', $siswaIds)->count();
+                $persenSelesai = $totalExpectedEvaluations > 0 
+                    ? (int) round(($totalActualEvaluations / $totalExpectedEvaluations) * 100) 
+                    : 0;
+
+                // Distinct physical students who have not completed all 16 evaluations in all semesters they are registered in
                 $siswaBelumMengisi = Siswa::whereIn('id', $siswaIds)
-                    ->whereDoesntHave('penilaian')
+                    ->withCount('penilaian')
+                    ->get()
+                    ->filter(fn($s) => $s->penilaian_count < 16)
+                    ->groupBy(fn($s) => $s->nama . '|' . $s->gender)
                     ->count();
-                $siswaSudahMengisi = $totalSiswa - $siswaBelumMengisi;
-                $persenSelesai = (int) round(($siswaSudahMengisi / $totalSiswa) * 100);
             }
         }
 
