@@ -1,0 +1,571 @@
+/* ===== Buku Panduan Stylesheet ===== */
+
+/* Base Container */
+.panduan-container {
+    background: #f8fafc;
+    border-radius: 16px;
+    padding: 2rem;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.02);
+    border: 1px solid #e2e8f0;
+}
+
+/* Page Header Banner */
+.panduan-header {
+    background: linear-gradient(135deg, #101c38 0%, #1e294b 100%);
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    color: #ffffff;
+    margin-bottom: 2rem;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+}
+
+.panduan-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(34, 197, 94, 0.15) 0%, transparent 60%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.panduan-header-badge {
+    display: inline-block;
+    background: rgba(34, 197, 94, 0.15);
+    color: #22c55e;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.4rem 1rem;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.panduan-header-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+}
+
+.panduan-header-subtitle {
+    font-size: 0.95rem;
+    color: #94a3b8;
+    margin-bottom: 0;
+}
+
+/* Layout Grid: Sidebar Nav + Content */
+.panduan-layout {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1.5rem;
+}
+
+.panduan-sidebar {
+    width: 280px;
+    flex-shrink: 0;
+}
+
+.panduan-content {
+    flex-grow: 1;
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 2.25rem;
+    min-height: 500px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.01);
+}
+
+/* Navigation Links / Tabs */
+.panduan-nav-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: sticky;
+    top: 20px;
+}
+
+.panduan-nav-item {
+    margin-bottom: 0.5rem;
+}
+
+.panduan-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.25s ease;
+    text-decoration: none !important;
+    cursor: pointer;
+}
+
+.panduan-nav-link:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+    transform: translateX(4px);
+    border-color: #cbd5e1;
+}
+
+.panduan-nav-link.active {
+    background: rgba(34, 197, 94, 0.08);
+    color: #16a34a;
+    border-color: #22c55e;
+    box-shadow: 0 4px 12px rgba(34, 197, 94, 0.05);
+}
+
+.panduan-nav-link.active .panduan-nav-icon {
+    color: #22c55e;
+    background: rgba(34, 197, 94, 0.12);
+}
+
+.panduan-nav-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    background: #f1f5f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #64748b;
+    transition: all 0.25s ease;
+}
+
+/* Step Card and Content Styling */
+.panduan-section-title {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 2px solid #f1f5f9;
+    padding-bottom: 0.75rem;
+}
+
+.panduan-section-title i {
+    color: #22c55e;
+}
+
+.panduan-description {
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+/* Step Checklist Cards */
+.panduan-step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    margin-top: 1.5rem;
+}
+
+.panduan-step-card {
+    display: flex;
+    gap: 1.25rem;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 1.25rem 1.5rem;
+    transition: all 0.25s ease;
+}
+
+.panduan-step-card:hover {
+    transform: translateY(-2px);
+    border-color: #cbd5e1;
+    background: #ffffff;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.02);
+}
+
+.panduan-step-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1rem;
+    flex-shrink: 0;
+    box-shadow: 0 3px 8px rgba(34, 197, 94, 0.2);
+}
+
+.panduan-step-content {
+    flex-grow: 1;
+}
+
+.panduan-step-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.35rem;
+}
+
+.panduan-step-text {
+    font-size: 0.9rem;
+    color: #475569;
+    line-height: 1.5;
+    margin-bottom: 0;
+}
+
+/* Informative Highlights / Badges */
+.panduan-alert {
+    background: rgba(59, 130, 246, 0.05);
+    border: 1px dashed rgba(59, 130, 246, 0.3);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+}
+
+.panduan-alert-icon {
+    color: #3b82f6;
+    font-size: 1.15rem;
+    margin-top: 2px;
+}
+
+.panduan-alert-content {
+    font-size: 0.85rem;
+    color: #1e3a8a;
+    line-height: 1.5;
+}
+
+.panduan-badge-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.panduan-badge-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    padding: 0.35rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: #475569;
+    font-weight: 600;
+}
+
+.panduan-badge-item i {
+    color: #16a34a;
+}
+
+/* Printable helper */
+.btn-print-panduan {
+    background: #0f172a;
+    color: #ffffff !important;
+    border: none;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.btn-print-panduan:hover {
+    background: #1e293b;
+    transform: translateY(-1px);
+}
+
+/* Modal Popup customization */
+.panduan-modal-content {
+    border-radius: 16px;
+    overflow: hidden;
+    border: none;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.panduan-modal-header {
+    background: linear-gradient(135deg, #101c38 0%, #1e294b 100%);
+    color: #ffffff;
+    padding: 1.25rem 1.75rem;
+    border-bottom: none;
+}
+
+.panduan-modal-header .close {
+    color: #ffffff;
+    opacity: 0.8;
+    transition: all 0.2s ease;
+    text-shadow: none;
+    font-size: 1.5rem;
+    padding: 1.25rem;
+    margin: -1.25rem -1.25rem -1.25rem auto;
+}
+
+.panduan-modal-header .close:hover {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.panduan-modal-body {
+    padding: 0;
+    background: #f8fafc;
+}
+
+.panduan-modal-footer {
+    border-top: 1px solid #e2e8f0;
+    padding: 1rem 1.75rem;
+    background: #ffffff;
+}
+
+/* Modal Tab layout */
+.panduan-modal-layout {
+    display: flex;
+    height: 550px;
+}
+
+.panduan-modal-sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    background: #ffffff;
+    border-right: 1px solid #e2e8f0;
+    padding: 1.25rem 0.75rem;
+    overflow-y: auto;
+}
+
+.panduan-modal-main {
+    flex-grow: 1;
+    padding: 1.75rem 2rem;
+    overflow-y: auto;
+    background: #f8fafc;
+}
+
+.panduan-modal-nav-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 0.85rem;
+    border-radius: 8px;
+    color: #475569;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+    margin-bottom: 0.35rem;
+    cursor: pointer;
+    text-decoration: none !important;
+    white-space: nowrap;
+    outline: none !important;
+}
+
+.panduan-modal-nav-link:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.panduan-modal-nav-link i {
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.panduan-modal-nav-link:hover {
+    background: #f1f5f9;
+    color: #1e293b;
+}
+
+.panduan-modal-nav-link.active {
+    background: rgba(34, 197, 94, 0.08);
+    color: #16a34a;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .panduan-layout {
+        flex-direction: column;
+    }
+
+    .panduan-sidebar {
+        width: 100%;
+    }
+
+    .panduan-nav-list {
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        gap: 0.75rem;
+        padding-bottom: 0.5rem;
+        position: static;
+    }
+
+    .panduan-nav-item {
+        margin-bottom: 0;
+        flex-shrink: 0;
+    }
+
+    .panduan-nav-link {
+        padding: 0.75rem 1rem;
+        white-space: nowrap;
+    }
+
+    .panduan-modal-layout {
+        flex-direction: column;
+        height: auto;
+        max-height: 75vh;
+    }
+
+    .panduan-modal-sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        padding: 0.75rem;
+    }
+
+    .panduan-modal-nav-link {
+        margin-bottom: 0;
+        margin-right: 0.5rem;
+        white-space: nowrap;
+        padding: 0.5rem 0.75rem;
+    }
+
+    .panduan-modal-main {
+        height: 380px;
+    }
+}
+
+@media (max-width: 576px) {
+    .panduan-container {
+        padding: 1rem;
+    }
+
+    .panduan-header {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .panduan-header-title {
+        font-size: 1.4rem;
+    }
+
+    .panduan-content {
+        padding: 1.5rem 1.25rem;
+    }
+
+    .panduan-step-card {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .panduan-step-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.9rem;
+    }
+}
+
+/* Tab Navigation Footer (Sebelumnya/Selanjutnya) */
+.panduan-navigation-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+}
+
+.btn-panduan-prev {
+    background: #ffffff;
+    color: #475569 !important;
+    border: 1px solid #cbd5e1;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.btn-panduan-prev:hover {
+    background: #f8fafc;
+    border-color: #94a3b8;
+    color: #0f172a !important;
+    transform: translateX(-2px);
+    text-decoration: none !important;
+}
+
+.btn-panduan-next {
+    background: #22c55e;
+    color: #ffffff !important;
+    border: none;
+    font-weight: 600;
+    padding: 0.6rem 1.25rem;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.15);
+    font-size: 0.85rem;
+}
+
+.btn-panduan-next:hover {
+    background: #16a34a;
+    transform: translateX(2px);
+    box-shadow: 0 6px 15px rgba(34, 197, 94, 0.25);
+    text-decoration: none !important;
+}
+
+/* Printing styles overrides */
+@media print {
+    .main-sidebar,
+    .main-header,
+    .btn-print-panduan,
+    .panduan-sidebar,
+    .panduan-modal-sidebar,
+    .modal-footer {
+        display: none !important;
+    }
+
+    .content-wrapper {
+        margin-left: 0 !important;
+        padding: 0 !important;
+    }
+
+    .panduan-container,
+    .panduan-content {
+        border: none !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        background: transparent !important;
+    }
+
+    .panduan-layout {
+        display: block !important;
+    }
+
+    .tab-pane {
+        display: block !important;
+        opacity: 1 !important;
+        margin-bottom: 3rem;
+        page-break-after: always;
+    }
+}

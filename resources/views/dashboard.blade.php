@@ -19,4 +19,7 @@
     @else
         @include('guru.dashboard')
     @endif
+
+    {{-- Modal Buku Panduan --}}
+    @include('panduan.modal')
 @endsection

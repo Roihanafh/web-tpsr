@@ -18,6 +18,9 @@
                 <a href="{{ route('admin.tahun-ajar') }}" class="btn tpsr-banner-btn-secondary">
                     <i class="fas fa-calendar-alt mr-1"></i> Kelola Tahun Ajar
                 </a>
+                <a href="#" data-toggle="modal" data-target="#panduanModal" class="btn tpsr-banner-btn-secondary">
+                    <i class="fas fa-book-open mr-1"></i> Buku Panduan
+                </a>
             </div>
         </div>
         <div class="tpsr-banner-graphic d-none d-md-flex">

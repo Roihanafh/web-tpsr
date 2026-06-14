@@ -12,7 +12,7 @@
                 <a href="{{ route('assessment.index') }}" class="btn tpsr-banner-btn-primary">
                     <i class="fas fa-running mr-1"></i> Mulai Penilaian Lapangan
                 </a>
-                <a href="https://docs.google.com/document/d/1WyBACqCJiBuYa45lEYq6f6vu3rfsGccA8OXm8n9NCKI/edit?usp=sharing" class="btn tpsr-banner-btn-secondary">
+                <a href="#" data-toggle="modal" data-target="#panduanModal" class="btn tpsr-banner-btn-secondary">
                     <i class="fas fa-book-open mr-1"></i> Buku Panduan
                 </a>
             </div>
