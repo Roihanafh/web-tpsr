@@ -15,7 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('sekolah_id')->constrained('sekolah')->cascadeOnDelete();
             $table->string('nama', 20);
+            $table->boolean('is_ganjil')->default(true)->comment('true = semester ganjil, false = semester genap');
             $table->timestamps();
+
+            // Satu sekolah tidak boleh punya kelas dengan nama + semester yang sama
+            $table->unique(['sekolah_id', 'nama', 'is_ganjil']);
         });
     }
 

@@ -16,7 +16,15 @@ class Kelas extends Model
     protected $fillable = [
         'sekolah_id',
         'nama',
+        'is_ganjil',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_ganjil' => 'boolean',
+        ];
+    }
 
     public function sekolah(): BelongsTo
     {

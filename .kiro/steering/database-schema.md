@@ -33,13 +33,14 @@ Relasi: `belongsTo(Sekolah)`
 ---
 
 ### `kelas`
-| Kolom      | Tipe      | Keterangan           |
-|------------|-----------|----------------------|
-| id         | bigint PK |                      |
-| sekolah_id | FK        | → sekolah.id cascade |
-| nama       | varchar   | contoh: "5-A"        |
+| Kolom      | Tipe      | Keterangan                                    |
+|------------|-----------|-----------------------------------------------|
+| id         | bigint PK |                                               |
+| sekolah_id | FK        | → sekolah.id cascade                          |
+| nama       | varchar   | contoh: "5-A"                                 |
+| is_ganjil  | boolean   | true = semester ganjil, false = semester genap |
 
-> Tidak ada tahun ajar / semester. Satu kelas = satu record permanen milik sekolah.
+> Unique constraint: `(sekolah_id, nama, is_ganjil)` — satu sekolah boleh punya kelas `5-A` dua kali, tapi tidak boleh dua-duanya di semester yang sama.
 
 Relasi: `belongsTo(Sekolah)`, `hasMany(Siswa)`
 
