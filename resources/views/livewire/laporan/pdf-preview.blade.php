@@ -42,9 +42,9 @@
             <td id="pdf-siswa-sekolah" style="vertical-align:top;">{{ $sekolahNama }}</td>
         </tr>
         <tr>
-            <td style="font-weight:bold; vertical-align:top;">Tahun Ajar</td>
+            <td style="font-weight:bold; vertical-align:top;">Semester</td>
             <td style="vertical-align:top;">:</td>
-            <td id="pdf-siswa-tahun-ajar" style="vertical-align:top;">{{ $siswa->kelas?->tahunAjar?->nama ?? '-' }}</td>
+            <td id="pdf-siswa-tahun-ajar" style="vertical-align:top;">{{ $semester ?? ($siswa->kelas?->is_ganjil ? 'Ganjil' : 'Genap') }}</td>
         </tr>
     </table>
 

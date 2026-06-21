@@ -12,27 +12,24 @@ class KelasExport implements FromCollection, WithHeadings
 {
     public function __construct(
         private readonly Sekolah $sekolah,
-        private readonly ?int $tahunAjarId = null,
+        private readonly ?bool $isGanjil = null,
     ) {}
 
     public function collection(): Collection
     {
         return Kelas::query()
-            ->with('tahunAjar')
             ->where('sekolah_id', $this->sekolah->id)
-            ->when($this->tahunAjarId, fn ($query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
+            ->when($this->isGanjil !== null, fn ($q) => $q->where('is_ganjil', $this->isGanjil))
             ->orderBy('nama')
             ->get()
             ->map(fn (Kelas $kelas) => [
                 'nama_kelas' => $kelas->nama,
-                'tahun_ajaran' => trim(str_ireplace(['ganjil', 'genap'], '', $kelas->tahunAjar?->nama ?? '')),
-            ])
-            ->unique(fn ($item) => $item['nama_kelas'] . '-' . $item['tahun_ajaran'])
-            ->values();
+                'semester'   => $kelas->is_ganjil ? 'Ganjil' : 'Genap',
+            ]);
     }
 
     public function headings(): array
     {
-        return ['nama_kelas', 'tahun_ajaran'];
+        return ['nama_kelas', 'semester'];
     }
 }

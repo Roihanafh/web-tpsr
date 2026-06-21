@@ -4,7 +4,6 @@ namespace App\Imports;
 
 use App\Models\Kelas;
 use App\Models\Sekolah;
-use App\Models\TahunAjar;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
@@ -12,90 +11,61 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class KelasImport implements ToCollection, WithHeadingRow
 {
     private array $failures = [];
-
-    private int $inserted = 0;
+    private int $inserted   = 0;
 
     public function __construct(
         private readonly Sekolah $sekolah,
-        private readonly string $selectedYear,
-        private readonly TahunAjar $ganjil,
-        private readonly TahunAjar $genap,
     ) {}
 
     public function collection(Collection $rows): void
     {
         foreach ($rows as $index => $row) {
-            $line = $index + 2;
+            $line      = $index + 2;
             $namaKelas = strtoupper(trim((string) ($row['nama_kelas'] ?? $row['kelas'] ?? '')));
-            $tahunAjar = trim((string) ($row['tahun_ajaran'] ?? $row['tahun_ajar'] ?? ''));
+            $semester  = strtolower(trim((string) ($row['semester'] ?? '')));
 
             if ($namaKelas === '') {
                 $this->addFailure($line, '-', 'Nama kelas wajib diisi.');
                 continue;
             }
 
-            if (mb_strlen($namaKelas) > 5) {
-                $this->addFailure($line, $namaKelas, 'Nama kelas maksimal 5 karakter.');
+            if (mb_strlen($namaKelas) > 20) {
+                $this->addFailure($line, $namaKelas, 'Nama kelas maksimal 20 karakter.');
                 continue;
             }
 
-            if ($tahunAjar === '') {
-                $this->addFailure($line, $namaKelas, 'Tahun ajaran wajib diisi.');
+            if (! in_array($semester, ['ganjil', 'genap'])) {
+                $this->addFailure($line, $namaKelas, 'Semester harus "ganjil" atau "genap".');
                 continue;
             }
 
-            if ($tahunAjar !== $this->selectedYear) {
-                $this->addFailure($line, $namaKelas, 'Tahun ajaran pada file tidak sesuai dengan tahun ajaran yang dipilih.');
-                continue;
-            }
+            $isGanjil = $semester === 'ganjil';
 
-            $existsGanjil = Kelas::where('sekolah_id', $this->sekolah->id)
-                ->where('tahun_ajar_id', $this->ganjil->id)
+            $exists = Kelas::where('sekolah_id', $this->sekolah->id)
                 ->where('nama', $namaKelas)
+                ->where('is_ganjil', $isGanjil)
                 ->exists();
 
-            $existsGenap = Kelas::where('sekolah_id', $this->sekolah->id)
-                ->where('tahun_ajar_id', $this->genap->id)
-                ->where('nama', $namaKelas)
-                ->exists();
-
-            if ($existsGanjil || $existsGenap) {
-                $this->addFailure($line, $namaKelas, 'Data kelas sudah ada untuk sekolah dan tahun ajaran tersebut.');
+            if ($exists) {
+                $this->addFailure($line, $namaKelas, 'Kelas sudah ada untuk semester tersebut.');
                 continue;
             }
 
             Kelas::create([
                 'sekolah_id' => $this->sekolah->id,
-                'tahun_ajar_id' => $this->ganjil->id,
-                'nama' => $namaKelas,
-            ]);
-
-            Kelas::create([
-                'sekolah_id' => $this->sekolah->id,
-                'tahun_ajar_id' => $this->genap->id,
-                'nama' => $namaKelas,
+                'nama'       => $namaKelas,
+                'is_ganjil'  => $isGanjil,
             ]);
 
             $this->inserted++;
         }
     }
 
-    public function failures(): array
-    {
-        return $this->failures;
-    }
-
-    public function insertedCount(): int
-    {
-        return $this->inserted;
-    }
+    public function failures(): array { return $this->failures; }
+    public function insertedCount(): int { return $this->inserted; }
 
     private function addFailure(int $line, string $nama, string $message): void
     {
-        $this->failures[] = [
-            'line' => $line,
-            'nama' => $nama,
-            'message' => $message,
-        ];
+        $this->failures[] = ['line' => $line, 'nama' => $nama, 'message' => $message];
     }
 }

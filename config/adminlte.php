@@ -399,13 +399,6 @@ return [
         ],
 
         [
-            'text' => 'Tahun Ajar',
-            'url' => 'tahun-ajar',
-            'icon' => 'fas fa-fw fa-calendar-alt',
-            'can' => 'manage_settings',
-        ],
-
-        [
             'text' => 'Profil',
             'url' => 'profile',
             'icon' => 'fas fa-fw fa-user-circle',

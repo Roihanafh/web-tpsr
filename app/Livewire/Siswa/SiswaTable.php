@@ -11,11 +11,9 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class SiswaTable extends DataTableComponent
 {
-    public string $kelasNama = '';
-
-    public ?int $tahunAjarId = null;
-
-    public string $search = '';
+    public string  $kelasNama  = '';
+    public ?string $isGanjil   = null;  // '1', '0', atau null
+    public string  $search     = '';
 
     protected $model = Siswa::class;
 
@@ -34,7 +32,6 @@ class SiswaTable extends DataTableComponent
         $this->setAdditionalSelects([
             'siswa.id as id',
             'siswa.nama as nama',
-            'siswa.gender as gender',
             'siswa.kelas_id as kelas_id',
             'siswa.rata_poin as rata_poin',
         ]);
@@ -45,18 +42,12 @@ class SiswaTable extends DataTableComponent
         $sekolahId = Auth::user()?->sekolah?->id;
 
         return Siswa::query()
-            ->with('kelas.tahunAjar')
+            ->with('kelas')
             ->whereHas('kelas', function (Builder $query) use ($sekolahId) {
                 $query->where('sekolah_id', $sekolahId)
-                    ->when($this->tahunAjarId, fn (Builder $query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
-                    ->when($this->kelasNama !== '' && $this->kelasNama !== '0', fn (Builder $query) => $query->where('nama', $this->kelasNama));
-            })
-            ->addSelect([
-                'tahun_ajar_nama' => \App\Models\TahunAjar::selectRaw('tahun_ajar.nama')
-                    ->join('kelas as k_ta', 'k_ta.tahun_ajar_id', '=', 'tahun_ajar.id')
-                    ->whereColumn('k_ta.id', 'siswa.kelas_id')
-                    ->limit(1),
-            ]);
+                    ->when($this->isGanjil !== null, fn (Builder $q) => $q->where('is_ganjil', (bool) $this->isGanjil))
+                    ->when($this->kelasNama !== '' && $this->kelasNama !== '0', fn (Builder $q) => $q->where('nama', $this->kelasNama));
+            });
     }
 
     public function applySearch(): Builder
@@ -69,11 +60,8 @@ class SiswaTable extends DataTableComponent
 
         $this->setBuilder(
             $this->getBuilder()->where(function (Builder $query) use ($search) {
-                $query
-                    ->where('siswa.nama', 'like', '%'.$search.'%')
-                    ->orWhere('siswa.gender', 'like', '%'.$search.'%')
-                    ->orWhereHas('kelas', fn (Builder $query) => $query->where('nama', 'like', '%'.$search.'%'))
-                    ->orWhereHas('kelas', fn (Builder $query) => $query->whereHas('tahunAjar', fn (Builder $q) => $q->where('nama', 'like', '%'.$search.'%')));
+                $query->where('siswa.nama', 'like', '%' . $search . '%')
+                    ->orWhereHas('kelas', fn (Builder $q) => $q->where('nama', 'like', '%' . $search . '%'));
             })
         );
 
@@ -85,34 +73,20 @@ class SiswaTable extends DataTableComponent
         return [
             Column::make('No')
                 ->label(function ($row) {
-                    $rows = $this->getRows();
+                    $rows       = $this->getRows();
                     $collection = $rows->getCollection();
-                    $index = $collection->search(fn ($item) => $item->id === $row->id);
+                    $index      = $collection->search(fn ($item) => $item->id === $row->id);
 
-                    if ($index === false) {
-                        return '-';
-                    }
-
-                    return ($rows->firstItem() ?? 1) + $index;
+                    return $index === false ? '-' : ($rows->firstItem() ?? 1) + $index;
                 }),
             Column::make('Nama', 'nama')
-                ->sortable()
-                ->searchable(),
-            Column::make('Jenis Kelamin', 'gender')
                 ->sortable()
                 ->searchable(),
             Column::make('Kelas', 'kelas.nama')
                 ->sortable()
                 ->searchable(),
-            Column::make('Tahun Ajar', 'tahun_ajar_nama')
-                ->label(fn ($row) => $row->tahun_ajar_nama ?? '-')
-                ->sortable(fn (Builder $query, string $direction) => $query->orderBy(
-                    \App\Models\TahunAjar::selectRaw('tahun_ajar.nama')
-                        ->join('kelas as k_ta', 'k_ta.tahun_ajar_id', '=', 'tahun_ajar.id')
-                        ->whereColumn('k_ta.id', 'siswa.kelas_id')
-                        ->limit(1),
-                    $direction
-                )),
+            Column::make('Semester')
+                ->label(fn ($row) => $row->kelas?->is_ganjil ? 'Ganjil' : 'Genap'),
             Column::make('Rata-rata Poin', 'rata_poin')
                 ->sortable(),
             Column::make('Aksi')
@@ -121,10 +95,10 @@ class SiswaTable extends DataTableComponent
     }
 
     #[On('siswa-filter-changed')]
-    public function updateKelasFilter(string $kelasNama = '', ?int $tahunAjarId = null): void
+    public function updateFilter(string $kelasNama = '', mixed $isGanjil = null): void
     {
         $this->kelasNama = $kelasNama;
-        $this->tahunAjarId = $tahunAjarId ?: null;
+        $this->isGanjil  = $isGanjil !== null ? (string) $isGanjil : null;
         $this->resetPage();
     }
 

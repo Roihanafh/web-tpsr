@@ -5,14 +5,13 @@ namespace App\Livewire\Assessment;
 use App\Models\Kelas;
 use App\Models\Penilaian;
 use App\Models\Siswa;
-use App\Models\TahunAjar;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
 class AssessmentPage extends Component
 {
-    public ?int $tahunAjarId = null;
+    public ?bool $isGanjil = null;   // null = belum pilih, true = Ganjil, false = Genap
 
     public ?int $kelasId = null;
 
@@ -34,68 +33,50 @@ class AssessmentPage extends Component
         $sekolah = Auth::user()?->sekolah;
 
         $kelasOptions = collect();
-        if ($sekolah && $this->tahunAjarId) {
+        if ($sekolah && $this->isGanjil !== null) {
             $kelasOptions = $sekolah->kelas()
-                ->where('tahun_ajar_id', $this->tahunAjarId)
+                ->where('is_ganjil', $this->isGanjil)
                 ->orderBy('nama')
                 ->get();
         }
 
         $students = collect();
-        if ($sekolah && $this->kelasId) {
+        if ($this->kelasId) {
             $students = Siswa::where('kelas_id', $this->kelasId)
                 ->orderBy('nama')
                 ->get();
         }
 
         return view('livewire.assessment.assessment-page', [
-            'tahunAjarOptions' => TahunAjar::getSorted(),
+            'semesterOptions' => [
+                ['value' => '1', 'label' => 'Semester Ganjil'],
+                ['value' => '0', 'label' => 'Semester Genap'],
+            ],
             'kelasOptions' => $kelasOptions,
-            'students' => $students,
-            'sekolah' => $sekolah,
+            'students'     => $students,
         ]);
     }
 
-    public function updatedTahunAjarId(): void
+    public function updatedIsGanjil(): void
     {
-        $sekolah = Auth::user()?->sekolah;
-        $currentKelas = null;
-
-        if ($this->kelasId) {
-            $currentKelas = Kelas::find($this->kelasId);
-        }
-
-        $this->ratings = [];
+        $this->kelasId  = null;
+        $this->ratings  = [];
+        $this->isAssessed = false;
         $this->resetValidation();
-
-        if ($currentKelas && $sekolah && $this->tahunAjarId) {
-            $newKelas = $sekolah->kelas()
-                ->where('tahun_ajar_id', $this->tahunAjarId)
-                ->where('nama', $currentKelas->nama)
-                ->first();
-
-            if ($newKelas) {
-                $this->kelasId = $newKelas->id;
-                if ($this->pertemuan) {
-                    $this->loadPenilaian();
-                }
-                return;
-            }
-        }
-
-        $this->kelasId = null;
     }
 
     public function updatedKelasId(): void
     {
-        $this->ratings = [];
+        $this->ratings  = [];
+        $this->isAssessed = false;
         $this->resetValidation();
         $this->loadPenilaian();
     }
 
     public function updatedPertemuan(): void
     {
-        $this->ratings = [];
+        $this->ratings  = [];
+        $this->isAssessed = false;
         $this->resetValidation();
         $this->loadPenilaian();
     }
@@ -110,8 +91,11 @@ class AssessmentPage extends Component
 
         $students = Siswa::where('kelas_id', $this->kelasId)->get();
 
+        // Default: semua 5
         foreach ($students as $student) {
-            $this->ratings[$student->id] = '5';
+            $this->ratings[$student->id] = [
+                'L0' => 5, 'L1' => 5, 'L2' => 5, 'L3' => 5, 'L4' => 5,
+            ];
         }
 
         $siswaIds = $students->pluck('id');
@@ -122,7 +106,13 @@ class AssessmentPage extends Component
         if ($existingPenilaian->isNotEmpty()) {
             $this->isAssessed = true;
             foreach ($existingPenilaian as $p) {
-                $this->ratings[$p->siswa_id] = (string) $p->level;
+                $this->ratings[$p->siswa_id] = [
+                    'L0' => $p->L0,
+                    'L1' => $p->L1,
+                    'L2' => $p->L2,
+                    'L3' => $p->L3,
+                    'L4' => $p->L4,
+                ];
             }
         }
     }
@@ -133,36 +123,21 @@ class AssessmentPage extends Component
             return;
         }
 
-        $students = Siswa::where('kelas_id', $this->kelasId)->get();
-        $studentIds = $students->pluck('id');
+        $students    = Siswa::where('kelas_id', $this->kelasId)->get();
+        $studentIds  = $students->pluck('id');
 
-        // Delete all penilaian records for these students at this meeting
         Penilaian::whereIn('siswa_id', $studentIds)
             ->where('pertemuan', $this->pertemuan)
             ->delete();
 
-        // Recalculate average (rata_poin) for each student in the class
         foreach ($students as $student) {
-            $allPenilaians = Penilaian::where('siswa_id', $student->id)->get();
-            if ($allPenilaians->isNotEmpty()) {
-                $totalLevel       = $allPenilaians->sum(fn ($p) => (int) $p->level);
-                $pertemuanDinilai = $allPenilaians->count();
-                $student->update([
-                    'rata_poin' => round($totalLevel / $pertemuanDinilai, 2),
-                ]);
-            } else {
-                $student->update(['rata_poin' => 0]);
-            }
+            $this->recalcRataPoin($student);
+            $this->ratings[$student->id] = [
+                'L0' => 5, 'L1' => 5, 'L2' => 5, 'L3' => 5, 'L4' => 5,
+            ];
         }
 
-        // Reset ratings form in UI
-        foreach ($students as $student) {
-            $this->ratings[$student->id] = '5';
-        }
-
-        // Set isAssessed to false
         $this->isAssessed = false;
-
         session()->flash('success', 'Penilaian pertemuan ' . $this->pertemuan . ' berhasil dikosongkan.');
         $this->resetValidation();
     }
@@ -180,58 +155,75 @@ class AssessmentPage extends Component
         }
 
         $this->validate([
-            'tahunAjarId' => ['required', 'exists:tahun_ajar,id'],
-            'kelasId' => ['required', 'exists:kelas,id'],
+            'isGanjil'  => ['required', 'boolean'],
+            'kelasId'   => ['required', 'exists:kelas,id'],
             'pertemuan' => ['required', 'integer', 'between:1,16'],
         ], [
-            'tahunAjarId.required' => 'Tahun ajaran wajib dipilih.',
-            'kelasId.required' => 'Kelas wajib dipilih.',
+            'isGanjil.required'  => 'Semester wajib dipilih.',
+            'kelasId.required'   => 'Kelas wajib dipilih.',
             'pertemuan.required' => 'Pertemuan wajib dipilih.',
         ]);
 
         $students = Siswa::where('kelas_id', $this->kelasId)->get();
 
-        // Save/delete records and recalculate average
         foreach ($students as $student) {
-            $level = $this->ratings[$student->id] ?? null;
+            $r = $this->ratings[$student->id] ?? [];
 
-            if ($level === null || $level === '') {
+            $hasValue = collect($r)->filter(fn($v) => $v !== null && $v !== '')->isNotEmpty();
+
+            if (! $hasValue) {
                 Penilaian::where('siswa_id', $student->id)
                     ->where('pertemuan', $this->pertemuan)
                     ->delete();
             } else {
                 Penilaian::updateOrCreate(
+                    ['siswa_id' => $student->id, 'pertemuan' => $this->pertemuan],
                     [
-                        'siswa_id' => $student->id,
-                        'pertemuan' => $this->pertemuan,
-                    ],
-                    [
-                        'level' => $level,
+                        'L0' => isset($r['L0']) && $r['L0'] !== '' ? (string) $r['L0'] : null,
+                        'L1' => isset($r['L1']) && $r['L1'] !== '' ? (string) $r['L1'] : null,
+                        'L2' => isset($r['L2']) && $r['L2'] !== '' ? (string) $r['L2'] : null,
+                        'L3' => isset($r['L3']) && $r['L3'] !== '' ? (string) $r['L3'] : null,
+                        'L4' => isset($r['L4']) && $r['L4'] !== '' ? (string) $r['L4'] : null,
                     ]
                 );
             }
 
-            // Recalculate average (L0 = 0 to L5 = 5)
-            // Formula: total level / jumlah pertemuan yang sudah dinilai
-            $allPenilaians = Penilaian::where('siswa_id', $student->id)->get();
-            if ($allPenilaians->isNotEmpty()) {
-                $totalLevel       = $allPenilaians->sum(fn ($p) => (int) $p->level);
-                $pertemuanDinilai = $allPenilaians->count();
-                $student->update([
-                    'rata_poin' => round($totalLevel / $pertemuanDinilai, 2),
-                ]);
-            } else {
-                $student->update(['rata_poin' => 0]);
-            }
+            $this->recalcRataPoin($student);
         }
 
         $siswaIds = $students->pluck('id');
-        $existingPenilaian = Penilaian::whereIn('siswa_id', $siswaIds)
+        $this->isAssessed = Penilaian::whereIn('siswa_id', $siswaIds)
             ->where('pertemuan', $this->pertemuan)
             ->exists();
 
-        $this->isAssessed = $existingPenilaian;
         session()->flash('success', 'Penilaian pertemuan ' . $this->pertemuan . ' berhasil disimpan.');
         $this->resetValidation();
+    }
+
+    private function recalcRataPoin(Siswa $student): void
+    {
+        $all = Penilaian::where('siswa_id', $student->id)->get();
+
+        if ($all->isEmpty()) {
+            $student->update(['rata_poin' => 0]);
+            return;
+        }
+
+        $total  = 0;
+        $count  = 0;
+        $levels = ['L0', 'L1', 'L2', 'L3', 'L4'];
+
+        foreach ($all as $p) {
+            foreach ($levels as $l) {
+                if ($p->{$l} !== null) {
+                    $total += (int) $p->{$l};
+                    $count++;
+                }
+            }
+        }
+
+        $student->update([
+            'rata_poin' => $count > 0 ? round($total / $count, 2) : 0,
+        ]);
     }
 }

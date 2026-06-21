@@ -23,33 +23,19 @@
                         <i class='fas fa-exclamation-triangle mr-2 me-2'></i>
                         <strong>Peringatan:</strong> Menghapus data siswa ini juga akan menghapus seluruh data penilaian yang terkait!
                     </div>
-                    <p class='mb-2' style='text-align: left;'>Pilih opsi penghapusan untuk siswa <strong>{{ addslashes($siswa->nama) }}</strong>:</p>
-                    <div class='form-check mb-2' style='text-align: left;'>
-                        <input class='form-check-input' type='radio' name='deleteOption' id='deleteSemester_{{ $siswa->id }}' value='semester' checked>
-                        <label class='form-check-label' for='deleteSemester_{{ $siswa->id }}'>
-                            Hapus hanya untuk 1 semester ini saja ({{ addslashes($siswa->kelas?->tahunAjar?->nama ?? '') }})
-                        </label>
-                    </div>
-                    <div class='form-check' style='text-align: left;'>
-                        <input class='form-check-input' type='radio' name='deleteOption' id='deleteAll_{{ $siswa->id }}' value='all'>
-                        <label class='form-check-label' for='deleteAll_{{ $siswa->id }}'>
-                            Hapus semua data siswa ini di semua semester & tahun ajaran
-                        </label>
-                    </div>
+                    <p style='text-align: left;'>Hapus siswa <strong>{{ addslashes($siswa->nama) }}</strong>
+                    dari kelas <strong>{{ addslashes($siswa->kelas?->nama ?? '-') }}</strong>
+                    ({{ $siswa->kelas?->is_ganjil ? 'Ganjil' : 'Genap' }})?</p>
                 </div>
             `,
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#6c757d',
             confirmButtonText: 'Ya, Hapus!',
-            cancelButtonText: 'Batal',
-            preConfirm: () => {
-                const el = document.querySelector('input[name=deleteOption]:checked');
-                return { option: el ? el.value : 'semester' };
-            }
+            cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                Livewire.dispatch('delete-siswa', { id: {{ $siswa->id }}, option: result.value.option });
+                Livewire.dispatch('delete-siswa', { id: {{ $siswa->id }} });
             }
         })"
         wire:loading.attr="disabled"

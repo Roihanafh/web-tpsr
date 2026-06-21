@@ -30,7 +30,6 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin')->group(function () {
         Route::get('/users', [App\Http\Controllers\Admin\UserController::class, 'index'])->name('admin.users');
         Route::get('/sekolah', [App\Http\Controllers\Admin\SekolahController::class, 'index'])->name('admin.sekolah');
-        Route::get('/tahun-ajar', [App\Http\Controllers\Admin\TahunAjarController::class, 'index'])->name('admin.tahun-ajar');
     });
 });
 

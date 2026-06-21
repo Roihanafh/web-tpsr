@@ -11,7 +11,7 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class KelasTable extends DataTableComponent
 {
-    public ?int $tahunAjarId = null;
+    public ?string $isGanjilFilter = null;  // '1', '0', atau null = semua
 
     public string $search = '';
 
@@ -33,7 +33,7 @@ class KelasTable extends DataTableComponent
             'kelas.id as id',
             'kelas.nama as nama',
             'kelas.sekolah_id as sekolah_id',
-            'kelas.tahun_ajar_id as tahun_ajar_id',
+            'kelas.is_ganjil as is_ganjil',
         ]);
     }
 
@@ -42,9 +42,10 @@ class KelasTable extends DataTableComponent
         $sekolahId = Auth::user()?->sekolah?->id;
 
         return Kelas::query()
-            ->with('tahunAjar')
             ->where('sekolah_id', $sekolahId)
-            ->when($this->tahunAjarId, fn (Builder $query) => $query->where('tahun_ajar_id', $this->tahunAjarId));
+            ->when($this->isGanjilFilter !== null, function (Builder $query) {
+                $query->where('is_ganjil', (bool) $this->isGanjilFilter);
+            });
     }
 
     public function applySearch(): Builder
@@ -56,11 +57,7 @@ class KelasTable extends DataTableComponent
         }
 
         $this->setBuilder(
-            $this->getBuilder()->where(function (Builder $query) use ($search) {
-                $query
-                    ->where('kelas.nama', 'like', '%'.$search.'%')
-                    ->orWhereHas('tahunAjar', fn (Builder $query) => $query->where('nama', 'like', '%'.$search.'%'));
-            })
+            $this->getBuilder()->where('kelas.nama', 'like', '%' . $search . '%')
         );
 
         return $this->getBuilder();
@@ -71,31 +68,26 @@ class KelasTable extends DataTableComponent
         return [
             Column::make('No')
                 ->label(function ($row) {
-                    $rows = $this->getRows();
+                    $rows       = $this->getRows();
                     $collection = $rows->getCollection();
-                    $index = $collection->search(fn ($item) => $item->id === $row->id);
+                    $index      = $collection->search(fn ($item) => $item->id === $row->id);
 
-                    if ($index === false) {
-                        return '-';
-                    }
-
-                    return ($rows->firstItem() ?? 1) + $index;
+                    return $index === false ? '-' : ($rows->firstItem() ?? 1) + $index;
                 }),
             Column::make('Kelas', 'nama')
                 ->sortable()
                 ->searchable(),
-            Column::make('Tahun Ajaran', 'tahunAjar.nama')
-                ->sortable()
-                ->searchable(),
+            Column::make('Semester')
+                ->label(fn ($row) => $row->is_ganjil ? 'Ganjil' : 'Genap'),
             Column::make('Aksi')
                 ->label(fn ($row) => view('kelas.partials.actions', ['kelas' => $row])),
         ];
     }
 
     #[On('kelas-filter-changed')]
-    public function updateTahunAjarFilter(?int $tahunAjarId = null): void
+    public function updateIsGanjilFilter(mixed $isGanjil = null): void
     {
-        $this->tahunAjarId = $tahunAjarId ?: null;
+        $this->isGanjilFilter = $isGanjil !== null ? (string) $isGanjil : null;
         $this->resetPage();
     }
 

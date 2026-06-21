@@ -5,9 +5,9 @@ namespace App\Livewire\Siswa;
 use App\Exports\SiswaExport;
 use App\Exports\SiswaTemplateExport;
 use App\Imports\SiswaImport;
+use App\Models\Kelas;
 use App\Models\Sekolah;
 use App\Models\Siswa;
-use App\Models\TahunAjar;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -21,87 +21,50 @@ class SiswaPage extends Component
 {
     use WithFileUploads;
 
-    public ?string $tahunAjarYear = null;
+    // Form fields
+    public ?int    $siswaId   = null;
+    public ?int    $kelasId   = null;
+    public string  $nama      = '';
 
-    public ?string $kelasNama = null;
+    // Filter
+    public string  $filterKelasNama  = '';
+    public ?string $filterIsGanjil   = null;   // '1', '0', atau null
+    public string  $search           = '';
 
-    public ?int $siswaId = null;
-
-    public ?int $kelasId = null;
-
-    public ?int $tahunAjarId = null;
-
-    public string $filterKelasNama = '';
-
-    public ?int $filterTahunAjarId = null;
-
-    public string $search = '';
-
-    public string $nama = '';
-
-    public string $gender = '';
-
-    public string $tambahMode = '2';
-
-    public string $selectedSemester = 'ganjil';
-
-    public mixed $fileImport = null;
-
-    public bool $isEditing = false;
-
-    public bool $showForm = false;
-
-    public bool $showImportForm = false;
-
+    // Import
+    public mixed $fileImport    = null;
     public array $importFailures = [];
+
+    // UI flags
+    public bool $isEditing      = false;
+    public bool $showForm       = false;
+    public bool $showImportForm = false;
 
     public function render(): View
     {
         $sekolah = $this->currentSekolah();
-        $tahunAjarOptions = TahunAjar::getSorted();
 
-        $uniqueYears = $tahunAjarOptions->map(function ($ta) {
-            return trim(str_ireplace(['ganjil', 'genap'], '', $ta->nama));
-        })->unique()->filter()->values()->toArray();
+        // Distinct kelas names for filter dropdown
+        $filterKelasOptions = $sekolah
+            ? $sekolah->kelas()->select('nama')->distinct()->orderBy('nama')->pluck('nama')
+            : collect();
 
-        $uniqueKelasOptions = collect();
-        if ($this->tahunAjarYear && $sekolah) {
-            $uniqueKelasOptions = $sekolah->kelas()
-                ->whereHas('tahunAjar', function ($query) {
-                    $query->where('nama', 'like', $this->tahunAjarYear . ' %');
-                })
-                ->select('nama')
-                ->distinct()
-                ->orderBy('nama')
-                ->pluck('nama');
+        // Kelas options for form (edit mode)
+        $kelasOptions = collect();
+        if ($sekolah && $this->isEditing) {
+            $kelasOptions = $sekolah->kelas()->orderBy('nama')->get();
         }
 
         return view('livewire.siswa.siswa-page', [
-            'kelasOptions' => $sekolah
-                ? $sekolah->kelas()
-                    ->when($this->tahunAjarId, fn ($query) => $query->where('tahun_ajar_id', $this->tahunAjarId))
-                    ->orderBy('nama')
-                    ->get()
-                : collect(),
-            'uniqueKelasOptions' => $uniqueKelasOptions,
-            'filterKelasOptions' => $sekolah
-                ? $sekolah->kelas()
-                    ->select('nama')
-                    ->distinct()
-                    ->orderBy('nama')
-                    ->pluck('nama')
-                : collect(),
-            'tahunAjarOptions' => $tahunAjarOptions,
-            'uniqueYears' => $uniqueYears,
-            'tahunAjarId' => $this->tahunAjarId,
-            'filterKelasNama' => $this->filterKelasNama,
-            'filterTahunAjarId' => $this->filterTahunAjarId,
-            'search' => $this->search,
-            'siswaId' => $this->siswaId,
-            'showForm' => $this->showForm,
-            'showImportForm' => $this->showImportForm,
-            'importFailures' => $this->importFailures,
-            'sekolah' => $sekolah,
+            'sekolah'           => $sekolah,
+            'filterKelasOptions' => $filterKelasOptions,
+            'kelasOptions'      => $kelasOptions,
+            'filterKelasNama'   => $this->filterKelasNama,
+            'filterIsGanjil'    => $this->filterIsGanjil,
+            'search'            => $this->search,
+            'showForm'          => $this->showForm,
+            'showImportForm'    => $this->showImportForm,
+            'importFailures'    => $this->importFailures,
         ]);
     }
 
@@ -111,159 +74,57 @@ class SiswaPage extends Component
 
         if (! $sekolah) {
             session()->flash('error', 'Akun login saat ini belum terhubung dengan data sekolah.');
-
             return;
         }
 
         if ($this->isEditing) {
             $validated = $this->validate([
-                'nama' => [
-                    'required',
-                    'string',
-                    'max:100',
-                    Rule::unique('siswa', 'nama')
-                        ->where('kelas_id', $this->kelasId)
-                        ->ignore($this->siswaId),
+                'nama'    => ['required', 'string', 'max:100',
+                    Rule::unique('siswa', 'nama')->where('kelas_id', $this->kelasId)->ignore($this->siswaId),
                 ],
-                'gender' => ['required', 'in:L,P'],
-                'tahunAjarId' => ['required', 'exists:tahun_ajar,id'],
                 'kelasId' => ['required', 'exists:kelas,id'],
             ], [
-                'nama.unique' => 'Nama siswa dengan kelas tersebut sudah ada.',
-                'tahunAjarId.required' => 'Tahun ajaran wajib dipilih.',
+                'nama.unique'    => 'Nama siswa dengan kelas tersebut sudah ada.',
                 'kelasId.required' => 'Kelas wajib dipilih.',
-                'gender.required' => 'Jenis kelamin wajib dipilih.',
             ]);
 
-            $kelasExistsForTahunAjar = $sekolah->kelas()
-                ->whereKey($validated['kelasId'])
-                ->where('tahun_ajar_id', $validated['tahunAjarId'])
-                ->exists();
+            Siswa::where('id', $this->siswaId)->update([
+                'kelas_id' => $validated['kelasId'],
+                'nama'     => $validated['nama'],
+            ]);
+        } else {
+            $validated = $this->validate([
+                'nama'    => ['required', 'string', 'max:100'],
+                'kelasId' => ['required', 'exists:kelas,id'],
+            ], [
+                'nama.required'    => 'Nama siswa wajib diisi.',
+                'kelasId.required' => 'Kelas wajib dipilih.',
+            ]);
 
-            if (! $kelasExistsForTahunAjar) {
-                $this->addError('kelasId', 'Kelas yang dipilih tidak sesuai dengan tahun ajaran.');
-
+            // Cek apakah sekolah memiliki kelas tsb
+            $kelasExists = $sekolah->kelas()->whereKey($validated['kelasId'])->exists();
+            if (! $kelasExists) {
+                $this->addError('kelasId', 'Kelas tidak ditemukan di sekolah ini.');
                 return;
             }
 
-            Siswa::updateOrCreate(
-                ['id' => $this->siswaId],
-                [
-                    'kelas_id' => $validated['kelasId'],
-                    'nama' => $validated['nama'],
-                    'gender' => $validated['gender'],
-                    'rata_poin' => 0,
-                ],
-            );
-        } else {
-            $validated = $this->validate([
-                'nama' => ['required', 'string', 'max:100'],
-                'gender' => ['required', 'in:L,P'],
-                'tahunAjarYear' => ['required', 'string'],
-                'kelasNama' => ['required', 'string'],
-                'tambahMode' => ['required', 'in:1,2'],
-                'selectedSemester' => ['required_if:tambahMode,1', 'in:ganjil,genap'],
-            ], [
-                'nama.required' => 'Nama siswa wajib diisi.',
-                'tahunAjarYear.required' => 'Tahun ajaran wajib dipilih.',
-                'kelasNama.required' => 'Kelas wajib dipilih.',
-                'gender.required' => 'Jenis kelamin wajib dipilih.',
-            ]);
+            $exists = Siswa::where('kelas_id', $validated['kelasId'])
+                ->where('nama', $validated['nama'])
+                ->exists();
 
-            $year = $validated['tahunAjarYear'];
-
-            if ($this->tambahMode === '2') {
-                $ganjil = TahunAjar::where('nama', $year . ' Ganjil')->first();
-                $genap = TahunAjar::where('nama', $year . ' Genap')->first();
-
-                if (! $ganjil || ! $genap) {
-                    $this->addError('tahunAjarYear', 'Tahun ajaran ganjil dan genap untuk ' . $year . ' tidak lengkap di database.');
-                    return;
-                }
-
-                $ganjilKelas = $sekolah->kelas()
-                    ->where('nama', $validated['kelasNama'])
-                    ->where('tahun_ajar_id', $ganjil->id)
-                    ->first();
-
-                $genapKelas = $sekolah->kelas()
-                    ->where('nama', $validated['kelasNama'])
-                    ->where('tahun_ajar_id', $genap->id)
-                    ->first();
-
-                if (! $ganjilKelas || ! $genapKelas) {
-                    $this->addError('kelasNama', 'Kelas ' . $validated['kelasNama'] . ' tidak lengkap untuk semester ganjil dan genap.');
-                    return;
-                }
-
-                // Check duplicate in both semesters
-                $existsGanjil = Siswa::where('kelas_id', $ganjilKelas->id)
-                    ->where('nama', $validated['nama'])
-                    ->exists();
-
-                $existsGenap = Siswa::where('kelas_id', $genapKelas->id)
-                    ->where('nama', $validated['nama'])
-                    ->exists();
-
-                if ($existsGanjil || $existsGenap) {
-                    $this->addError('nama', 'Nama siswa dengan kelas tersebut sudah ada.');
-                    return;
-                }
-
-                // Create both
-                Siswa::create([
-                    'kelas_id' => $ganjilKelas->id,
-                    'nama' => $validated['nama'],
-                    'gender' => $validated['gender'],
-                    'rata_poin' => 0,
-                ]);
-
-                Siswa::create([
-                    'kelas_id' => $genapKelas->id,
-                    'nama' => $validated['nama'],
-                    'gender' => $validated['gender'],
-                    'rata_poin' => 0,
-                ]);
-            } else {
-                // tambahMode === '1'
-                $semName = $this->selectedSemester === 'ganjil' ? 'Ganjil' : 'Genap';
-                $taModel = TahunAjar::where('nama', $year . ' ' . $semName)->first();
-
-                if (! $taModel) {
-                    $this->addError('tahunAjarYear', 'Tahun ajaran ' . $year . ' ' . $semName . ' tidak ditemukan di database.');
-                    return;
-                }
-
-                $targetKelas = $sekolah->kelas()
-                    ->where('nama', $validated['kelasNama'])
-                    ->where('tahun_ajar_id', $taModel->id)
-                    ->first();
-
-                if (! $targetKelas) {
-                    $this->addError('kelasNama', 'Kelas ' . $validated['kelasNama'] . ' tidak ditemukan untuk semester ' . $semName . '.');
-                    return;
-                }
-
-                $exists = Siswa::where('kelas_id', $targetKelas->id)
-                    ->where('nama', $validated['nama'])
-                    ->exists();
-
-                if ($exists) {
-                    $this->addError('nama', 'Nama siswa dengan kelas tersebut sudah ada.');
-                    return;
-                }
-
-                Siswa::create([
-                    'kelas_id' => $targetKelas->id,
-                    'nama' => $validated['nama'],
-                    'gender' => $validated['gender'],
-                    'rata_poin' => 0,
-                ]);
+            if ($exists) {
+                $this->addError('nama', 'Nama siswa dengan kelas tersebut sudah ada.');
+                return;
             }
+
+            Siswa::create([
+                'kelas_id'  => $validated['kelasId'],
+                'nama'      => $validated['nama'],
+                'rata_poin' => 0,
+            ]);
         }
 
         session()->flash('success', $this->isEditing ? 'Data siswa berhasil diperbarui.' : 'Data siswa berhasil ditambahkan.');
-
         $this->resetForm();
         $this->dispatch('refreshDatatable');
     }
@@ -271,15 +132,13 @@ class SiswaPage extends Component
     #[On('edit-siswa')]
     public function edit(int $id): void
     {
-        $siswa = $this->baseSiswaQuery()->with('kelas')->findOrFail($id);
+        $siswa = $this->baseSiswaQuery()->findOrFail($id);
 
-        $this->siswaId = $siswa->id;
-        $this->kelasId = $siswa->kelas_id;
-        $this->tahunAjarId = $siswa->kelas?->tahun_ajar_id;
-        $this->nama = $siswa->nama;
-        $this->gender = $this->normalizeGender($siswa->gender);
+        $this->siswaId   = $siswa->id;
+        $this->kelasId   = $siswa->kelas_id;
+        $this->nama      = $siswa->nama;
         $this->isEditing = true;
-        $this->showForm = true;
+        $this->showForm  = true;
         $this->showImportForm = false;
     }
 
@@ -289,7 +148,7 @@ class SiswaPage extends Component
     }
 
     #[On('delete-siswa')]
-    public function delete(int $id, string $option): void
+    public function delete(int $id): void
     {
         $sekolah = $this->currentSekolah();
         if (! $sekolah) {
@@ -303,28 +162,8 @@ class SiswaPage extends Component
             return;
         }
 
-        if ($option === 'all') {
-            // Delete in all classes/semesters in the same school with same name & gender
-            $allSiswa = Siswa::where('nama', $siswa->nama)
-                ->where('gender', $siswa->gender)
-                ->whereHas('kelas', function ($query) use ($sekolah) {
-                    $query->where('sekolah_id', $sekolah->id);
-                })
-                ->get();
-
-            $count = 0;
-            foreach ($allSiswa as $s) {
-                $s->delete();
-                $count++;
-            }
-
-            session()->flash('success', "Data siswa {$siswa->nama} berhasil dihapus dari {$count} kelas.");
-        } else {
-            // Delete only for the selected semester/class
-            $siswa->delete();
-            session()->flash('success', "Data siswa {$siswa->nama} berhasil dihapus dari kelas saat ini.");
-        }
-
+        $siswa->delete();
+        session()->flash('success', "Data siswa {$siswa->nama} berhasil dihapus.");
         $this->dispatch('siswa-deleted');
         $this->dispatch('refreshDatatable');
     }
@@ -332,13 +171,13 @@ class SiswaPage extends Component
     public function updatedFilterKelasNama(): void
     {
         $kelasNama = ($this->filterKelasNama === '0' || $this->filterKelasNama === '') ? '' : $this->filterKelasNama;
-        $this->dispatch('siswa-filter-changed', kelasNama: $kelasNama, tahunAjarId: $this->filterTahunAjarId);
+        $this->dispatch('siswa-filter-changed', kelasNama: $kelasNama, isGanjil: $this->filterIsGanjil);
     }
 
-    public function updatedFilterTahunAjarId(): void
+    public function updatedFilterIsGanjil(): void
     {
         $kelasNama = ($this->filterKelasNama === '0' || $this->filterKelasNama === '') ? '' : $this->filterKelasNama;
-        $this->dispatch('siswa-filter-changed', kelasNama: $kelasNama, tahunAjarId: $this->filterTahunAjarId);
+        $this->dispatch('siswa-filter-changed', kelasNama: $kelasNama, isGanjil: $this->filterIsGanjil);
     }
 
     public function updatedSearch(): void
@@ -346,27 +185,13 @@ class SiswaPage extends Component
         $this->dispatch('siswa-search-changed', search: trim($this->search));
     }
 
-    public function updatedTahunAjarId(): void
-    {
-        $this->kelasId = null;
-    }
-
-    public function updatedTahunAjarYear(): void
-    {
-        $this->kelasNama = null;
-    }
-
     public function toggleForm(): void
     {
         $this->showForm = ! $this->showForm;
         $this->showImportForm = false;
         if ($this->showForm) {
-            $this->reset(['siswaId', 'kelasId', 'tahunAjarId', 'nama', 'gender', 'isEditing']);
+            $this->reset(['siswaId', 'kelasId', 'nama', 'isEditing']);
             $this->resetValidation();
-            $this->tahunAjarYear = null;
-            $this->kelasNama = null;
-            $this->tambahMode = '2';
-            $this->selectedSemester = 'ganjil';
         }
     }
 
@@ -375,7 +200,6 @@ class SiswaPage extends Component
         $this->showImportForm = ! $this->showImportForm;
         $this->showForm = false;
         if ($this->showImportForm) {
-            $this->tahunAjarYear = null;
             $this->fileImport = null;
         }
     }
@@ -383,40 +207,28 @@ class SiswaPage extends Component
     public function import(): void
     {
         $sekolah = $this->currentSekolah();
-
         if (! $sekolah) {
             session()->flash('error', 'Akun login saat ini belum terhubung dengan data sekolah.');
-
             return;
         }
 
         $this->validate([
-            'tahunAjarYear' => ['required', 'string'],
             'fileImport' => ['required', 'file', 'mimes:xlsx,xls,csv'],
         ], [
-            'tahunAjarYear.required' => 'Pilih tahun ajaran sebelum import.',
             'fileImport.required' => 'Pilih file Excel yang akan diimport.',
         ]);
 
-        $ganjil = TahunAjar::where('nama', $this->tahunAjarYear . ' Ganjil')->first();
-        $genap = TahunAjar::where('nama', $this->tahunAjarYear . ' Genap')->first();
-
-        if (! $ganjil || ! $genap) {
-            $this->addError('tahunAjarYear', 'Tahun ajaran ganjil dan genap untuk ' . $this->tahunAjarYear . ' tidak lengkap di database.');
-            return;
-        }
-
-        $import = new SiswaImport($sekolah, $this->tahunAjarYear, $ganjil, $genap);
+        $import = new SiswaImport($sekolah);
         Excel::import($import, $this->fileImport);
 
         $this->importFailures = $import->failures();
 
         if ($import->insertedCount() > 0) {
-            session()->flash('success', $import->insertedCount().' data siswa berhasil diimport.');
+            session()->flash('success', $import->insertedCount() . ' data siswa berhasil diimport.');
         }
 
         if ($this->importFailures !== []) {
-            session()->flash('warning', count($this->importFailures).' baris gagal diimport. Lihat keterangan di bawah form.');
+            session()->flash('warning', count($this->importFailures) . ' baris gagal diimport. Lihat keterangan di bawah form.');
         }
 
         $this->fileImport = null;
@@ -427,29 +239,23 @@ class SiswaPage extends Component
     public function export(): BinaryFileResponse
     {
         $sekolah = $this->currentSekolah();
-
         if (! $sekolah) {
             session()->flash('error', 'Akun login saat ini belum terhubung dengan data sekolah.');
             $this->skipRender();
         }
 
-        $kelasPart = 'semua kelas';
-        if ($this->filterKelasNama !== '' && $this->filterKelasNama !== '0') {
-            $kelasPart = 'kelas ' . $this->filterKelasNama;
-        }
+        $kelasPart    = $this->filterKelasNama !== '' && $this->filterKelasNama !== '0'
+            ? 'kelas ' . $this->filterKelasNama
+            : 'semua kelas';
 
-        $tahunAjarPart = 'semua tahun ajar';
-        if ($this->filterTahunAjarId) {
-            $ta = TahunAjar::find($this->filterTahunAjarId);
-            if ($ta) {
-                $tahunAjarPart = 'tahun ajar ' . str_replace('/', '-', $ta->nama);
-            }
-        }
+        $semesterPart = $this->filterIsGanjil === null
+            ? 'semua semester'
+            : ($this->filterIsGanjil === '1' ? 'ganjil' : 'genap');
 
-        $filename = "data siswa {$kelasPart} {$tahunAjarPart}.xlsx";
+        $filename = "data siswa {$kelasPart} {$semesterPart}.xlsx";
 
         return Excel::download(
-            new SiswaExport($sekolah, $this->filterKelasNama !== '' ? $this->filterKelasNama : null, $this->filterTahunAjarId ?: null),
+            new SiswaExport($sekolah, $this->filterKelasNama !== '' ? $this->filterKelasNama : null, $this->filterIsGanjil),
             $filename,
         );
     }
@@ -461,7 +267,7 @@ class SiswaPage extends Component
 
     private function resetForm(): void
     {
-        $this->reset(['siswaId', 'kelasId', 'tahunAjarId', 'nama', 'gender', 'isEditing', 'tambahMode', 'selectedSemester']);
+        $this->reset(['siswaId', 'kelasId', 'nama', 'isEditing']);
         $this->resetValidation();
         $this->showForm = false;
     }
@@ -471,22 +277,10 @@ class SiswaPage extends Component
         return Auth::user()?->sekolah;
     }
 
-    private function normalizeGender(?string $gender): string
-    {
-        $gender = strtoupper(trim((string) $gender));
-
-        return match ($gender) {
-            'L', 'LAKI', 'LAKI-LAKI' => 'L',
-            'P', 'PEREMPUAN' => 'P',
-            default => '',
-        };
-    }
-
     private function baseSiswaQuery()
     {
         $sekolah = $this->currentSekolah();
-
         return Siswa::query()
-            ->whereHas('kelas', fn ($query) => $query->where('sekolah_id', $sekolah?->id));
+            ->whereHas('kelas', fn ($q) => $q->where('sekolah_id', $sekolah?->id));
     }
 }
