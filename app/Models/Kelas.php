@@ -15,18 +15,12 @@ class Kelas extends Model
 
     protected $fillable = [
         'sekolah_id',
-        'tahun_ajar_id',
         'nama',
     ];
 
     public function sekolah(): BelongsTo
     {
         return $this->belongsTo(Sekolah::class);
-    }
-
-    public function tahunAjar(): BelongsTo
-    {
-        return $this->belongsTo(TahunAjar::class);
     }
 
     public function siswa(): HasMany

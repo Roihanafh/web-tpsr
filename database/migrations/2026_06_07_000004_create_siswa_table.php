@@ -15,8 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('kelas_id')->constrained('kelas')->cascadeOnDelete();
             $table->string('nama');
-            $table->enum('gender', ['L', 'P']);
             $table->float('rata_poin')->default(0);
+            $table->string('keterangan')->nullable();
+            $table->string('rekomendasi')->nullable();
             $table->timestamps();
         });
     }

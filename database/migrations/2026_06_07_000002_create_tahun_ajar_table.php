@@ -1,28 +1,10 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 
+// Tabel tahun_ajar dihapus — kelas tidak lagi memiliki relasi tahun ajar.
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
-    {
-        Schema::create('tahun_ajar', function (Blueprint $table) {
-            $table->id();
-            $table->string('nama'); // Contoh: "2023/2024 Ganjil"
-            $table->timestamps();
-        });
-    }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::dropIfExists('tahun_ajar');
-    }
+    public function up(): void {}
+    public function down(): void {}
 };

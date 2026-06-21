@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\Kelas;
 use App\Models\Sekolah;
 use App\Models\Siswa;
-use App\Models\TahunAjar;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -37,67 +36,44 @@ class KelasSiswaSeeder extends Seeder
             $guru->update(['sekolah_id' => $sekolah->id]);
         }
 
-        // Buat Tahun Ajar
-        $tahunAjarGanjil = TahunAjar::firstOrCreate(
-            ['nama' => '2025/2026 Ganjil']
-        );
+        // Buat Kelas — tidak ada tahun ajar, hanya sekolah_id + nama
+        $kelasA = Kelas::firstOrCreate([
+            'sekolah_id' => $sekolah->id,
+            'nama'       => '5-A',
+        ]);
 
-        $tahunAjarGenap = TahunAjar::firstOrCreate(
-            ['nama' => '2025/2026 Genap']
-        );
+        $kelasB = Kelas::firstOrCreate([
+            'sekolah_id' => $sekolah->id,
+            'nama'       => '5-B',
+        ]);
 
-        // Buat Kelas 5-A di kedua semester
-        $kelasAGanjil = Kelas::firstOrCreate(
-            [
-                'sekolah_id' => $sekolah->id,
-                'tahun_ajar_id' => $tahunAjarGanjil->id,
-                'nama' => '5-A'
-            ]
-        );
-
-        $kelasAGenap = Kelas::firstOrCreate(
-            [
-                'sekolah_id' => $sekolah->id,
-                'tahun_ajar_id' => $tahunAjarGenap->id,
-                'nama' => '5-A'
-            ]
-        );
-
-        // Buat Kelas 5-B di kedua semester
-        $kelasBGanjil = Kelas::firstOrCreate(
-            [
-                'sekolah_id' => $sekolah->id,
-                'tahun_ajar_id' => $tahunAjarGanjil->id,
-                'nama' => '5-B'
-            ]
-        );
-
-        $kelasBGenap = Kelas::firstOrCreate(
-            [
-                'sekolah_id' => $sekolah->id,
-                'tahun_ajar_id' => $tahunAjarGenap->id,
-                'nama' => '5-B'
-            ]
-        );
-
-        // Isi Kelas 5-A dengan siswa di kedua semester
-        $students = [
-            ['nama' => 'Ahmad Fauzi', 'gender' => 'L', 'rata_poin' => 0.0],
-            ['nama' => 'Budi Santoso', 'gender' => 'L', 'rata_poin' => 0.0],
-            ['nama' => 'Citra Lestari', 'gender' => 'P', 'rata_poin' => 0.0],
-            ['nama' => 'Dina Mariana', 'gender' => 'P', 'rata_poin' => 0.0],
-            ['nama' => 'Eko Prasetyo', 'gender' => 'L', 'rata_poin' => 0.0],
+        // Isi Kelas 5-A dengan siswa
+        $studentsA = [
+            ['nama' => 'Ahmad Fauzi',   'rata_poin' => 0.0],
+            ['nama' => 'Budi Santoso',  'rata_poin' => 0.0],
+            ['nama' => 'Citra Lestari', 'rata_poin' => 0.0],
+            ['nama' => 'Dina Mariana',  'rata_poin' => 0.0],
+            ['nama' => 'Eko Prasetyo',  'rata_poin' => 0.0],
         ];
 
-        if ($kelasAGanjil->siswa()->count() === 0) {
-            foreach ($students as $student) {
-                $kelasAGanjil->siswa()->create($student);
+        if ($kelasA->siswa()->count() === 0) {
+            foreach ($studentsA as $student) {
+                $kelasA->siswa()->create($student);
             }
         }
 
-        if ($kelasAGenap->siswa()->count() === 0) {
-            foreach ($students as $student) {
-                $kelasAGenap->siswa()->create($student);
+        // Isi Kelas 5-B dengan siswa
+        $studentsB = [
+            ['nama' => 'Fajar Nugroho',  'rata_poin' => 0.0],
+            ['nama' => 'Gita Permata',   'rata_poin' => 0.0],
+            ['nama' => 'Hendra Wijaya',  'rata_poin' => 0.0],
+            ['nama' => 'Indah Safitri',  'rata_poin' => 0.0],
+            ['nama' => 'Joko Susilo',    'rata_poin' => 0.0],
+        ];
+
+        if ($kelasB->siswa()->count() === 0) {
+            foreach ($studentsB as $student) {
+                $kelasB->siswa()->create($student);
             }
         }
     }

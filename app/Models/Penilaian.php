@@ -15,8 +15,23 @@ class Penilaian extends Model
     protected $fillable = [
         'siswa_id',
         'pertemuan',
-        'level',
+        'L0',
+        'L1',
+        'L2',
+        'L3',
+        'L4',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'L0' => 'integer',
+            'L1' => 'integer',
+            'L2' => 'integer',
+            'L3' => 'integer',
+            'L4' => 'integer',
+        ];
+    }
 
     public function siswa(): BelongsTo
     {
