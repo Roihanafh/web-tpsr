@@ -10,7 +10,7 @@ use Livewire\Component;
 
 class LaporanIndividuPage extends Component
 {
-    public mixed  $kelasId         = null;
+    public mixed  $kelasId         = 'all';
     public string $search          = '';
     public ?int   $selectedSiswaId = null;
     public bool   $showChart       = false;

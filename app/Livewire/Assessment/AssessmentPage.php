@@ -7,14 +7,20 @@ use App\Models\Siswa;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class AssessmentPage extends Component
 {
+    use WithFileUploads;
+
     public ?int    $kelasId   = null;
     public ?string $pertemuan = null;
     public array   $ratings   = [];
     public bool    $isAssessed = false;
     public int     $renderKey  = 0;  // force re-render select setelah kosongkan
+    public bool    $showImportForm = false;
+    public mixed   $fileImport     = null;
+    public array   $importFailures = [];
 
     public function mount(): void
     {
@@ -151,6 +157,24 @@ class AssessmentPage extends Component
 
         session()->flash('success', 'Penilaian pertemuan ' . $this->pertemuan . ' berhasil disimpan.');
         $this->resetValidation();
+    }
+
+    public function toggleImportForm(): void
+    {
+        $this->showImportForm = ! $this->showImportForm;
+        if ($this->showImportForm) {
+            $this->fileImport = null;
+        }
+    }
+
+    public function import(): void
+    {
+        // Logika import dikosongkan terlebih dahulu sesuai request
+    }
+
+    public function downloadTemplate(): void
+    {
+        // Logika download template dikosongkan terlebih dahulu sesuai request
     }
 
     private function recalcRataPoin(Siswa $student): void

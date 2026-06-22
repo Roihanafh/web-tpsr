@@ -23,7 +23,12 @@ class SekolahPage extends Component
 
     public string $search = '';
 
-    public bool $loadData = false;
+    public bool $loadData = true;
+
+    public function mount(): void
+    {
+        $this->dispatch('refreshDatatable');
+    }
 
     // Properties for teacher modal
     public ?int $selectedSekolahId = null;
@@ -40,11 +45,7 @@ class SekolahPage extends Component
         ]);
     }
 
-    public function tampilkanData(): void
-    {
-        $this->loadData = true;
-        $this->dispatch('refreshDatatable');
-    }
+
 
     public function toggleForm(): void
     {

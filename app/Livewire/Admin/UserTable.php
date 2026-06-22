@@ -36,27 +36,18 @@ class UserTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return User::query()->with(['roles', 'sekolah']);
-    }
-
-    public function applySearch(): Builder
-    {
-        $search = trim($this->search);
-
-        if ($search === '') {
-            return $this->getBuilder();
-        }
-
-        $this->setBuilder(
-            $this->getBuilder()->where(function (Builder $query) use ($search) {
-                $query->where('users.name', 'like', '%' . $search . '%')
-                    ->orWhere('users.email', 'like', '%' . $search . '%')
-                    ->orWhereHas('sekolah', fn (Builder $q) => $q->where('nama', 'like', '%' . $search . '%'))
-                    ->orWhereHas('roles', fn (Builder $q) => $q->where('name', 'like', '%' . $search . '%'));
-            })
-        );
-
-        return $this->getBuilder();
+        return User::query()
+            ->with(['roles', 'sekolah'])
+            ->when(
+                trim($this->search),
+                fn ($query) =>
+                    $query->where(function (Builder $q) {
+                        $q->where('users.name', 'like', '%' . trim($this->search) . '%')
+                            ->orWhere('users.email', 'like', '%' . trim($this->search) . '%')
+                            ->orWhereHas('sekolah', fn (Builder $q2) => $q2->where('nama', 'like', '%' . trim($this->search) . '%'))
+                            ->orWhereHas('roles', fn (Builder $q2) => $q2->where('name', 'like', '%' . trim($this->search) . '%'));
+                    })
+            );
     }
 
     public function columns(): array
@@ -103,6 +94,12 @@ class UserTable extends DataTableComponent
     public function updateSearch(string $search = ''): void
     {
         $this->search = $search;
+        $this->resetPage();
+    }
+
+    #[On('refreshDatatable')]
+    public function refreshTable(): void
+    {
         $this->resetPage();
     }
 }

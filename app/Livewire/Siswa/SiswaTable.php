@@ -46,21 +46,15 @@ class SiswaTable extends DataTableComponent
                 $q->where('sekolah_id', $sekolahId)
                   ->when($this->kelasNama !== '' && $this->kelasNama !== '0',
                       fn (Builder $q2) => $q2->where('nama', $this->kelasNama));
-            });
-    }
-
-    public function applySearch(): Builder
-    {
-        $search = trim($this->search);
-        if ($search === '') return $this->getBuilder();
-
-        $this->setBuilder(
-            $this->getBuilder()->where(function (Builder $q) use ($search) {
-                $q->where('siswa.nama', 'like', '%' . $search . '%')
-                  ->orWhereHas('kelas', fn (Builder $q2) => $q2->where('nama', 'like', '%' . $search . '%'));
             })
-        );
-        return $this->getBuilder();
+            ->when(
+                trim($this->search),
+                fn ($query) =>
+                    $query->where(function (Builder $q) {
+                        $q->where('siswa.nama', 'like', '%' . trim($this->search) . '%')
+                          ->orWhereHas('kelas', fn (Builder $q2) => $q2->where('nama', 'like', '%' . trim($this->search) . '%'));
+                    })
+            );
     }
 
     public function columns(): array
@@ -95,4 +89,10 @@ class SiswaTable extends DataTableComponent
 
     #[On('siswa-deleted')]
     public function onSiswaDeleted(): void { $this->resetPage(); }
+
+    #[On('refreshDatatable')]
+    public function refreshTable(): void
+    {
+        $this->resetPage();
+    }
 }

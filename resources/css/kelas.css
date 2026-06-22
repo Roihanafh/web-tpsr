@@ -13,7 +13,7 @@
 .kelas-toolbar {
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-end;
     gap: 1rem;
     margin-bottom: 1rem;
 }
@@ -238,6 +238,7 @@
 }
 
 @media (max-width: 768px) {
+
     .kelas-toolbar,
     .kelas-actions,
     .kelas-toolbar-filters,

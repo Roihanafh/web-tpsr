@@ -37,18 +37,13 @@ class KelasTable extends DataTableComponent
     public function builder(): Builder
     {
         $sekolahId = Auth::user()?->sekolah?->id;
-        return Kelas::query()->where('sekolah_id', $sekolahId);
-    }
-
-    public function applySearch(): Builder
-    {
-        $search = trim($this->search);
-        if ($search === '') return $this->getBuilder();
-
-        $this->setBuilder(
-            $this->getBuilder()->where('kelas.nama', 'like', '%' . $search . '%')
+        return Kelas::query()
+        ->where('sekolah_id', $sekolahId)
+        ->when(
+            trim($this->search),
+            fn ($query) =>
+                $query->where('kelas.nama', 'like', '%' . trim($this->search) . '%')
         );
-        return $this->getBuilder();
     }
 
     public function columns(): array
@@ -69,6 +64,12 @@ class KelasTable extends DataTableComponent
     public function updateSearch(string $search = ''): void
     {
         $this->search = $search;
+        $this->resetPage();
+    }
+
+    #[On('refreshDatatable')]
+    public function refreshTable(): void
+    {
         $this->resetPage();
     }
 }

@@ -19,24 +19,6 @@
 
     <div class="users-panel">
         <div class="users-toolbar">
-            <div class="users-toolbar-filters">
-                <button type="button" class="btn @if($loadData) btn-outline-info @else btn-info @endif users-btn" wire:click="tampilkanData" wire:loading.attr="disabled">
-                    <span wire:loading.remove wire:target="tampilkanData">
-                        @if($loadData)
-                            <i class="fas fa-sync-alt mr-1"></i>
-                            Reload Data
-                        @else
-                            <i class="fas fa-eye mr-1"></i>
-                            Tampilkan Data
-                        @endif
-                    </span>
-                    <span wire:loading wire:target="tampilkanData">
-                        <i class="fas fa-spinner fa-spin mr-1"></i>
-                        Memuat...
-                    </span>
-                </button>
-            </div>
-
             <div class="users-actions">
                 <div class="users-search-wrap">
                     <span class="users-search-icon">
@@ -136,22 +118,11 @@
             </div>
 
             <div class="users-table-wrap" style="min-height: 150px;">
-                <div class="users-table-loading" wire:loading.flex wire:target="search, tampilkanData">
+                <div class="users-table-loading" wire:loading.flex wire:target="search">
                     <i class="fas fa-spinner fa-spin mr-2"></i>
                     Memuat data...
                 </div>
-                @if ($loadData)
-                    <livewire:admin.user-table :key="'user-table-'.$search" />
-                @else
-                    <div class="text-center py-5">
-                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                        <h5 class="text-secondary">Data belum ditampilkan</h5>
-                        <p class="text-muted font-weight-normal">Klik tombol "Tampilkan Data" untuk memuat daftar user dari database.</p>
-                        <button type="button" class="btn btn-primary mt-2" wire:click="tampilkanData" wire:loading.attr="disabled">
-                            <i class="fas fa-eye mr-1"></i> Tampilkan Data
-                        </button>
-                    </div>
-                @endif
+                <livewire:admin.user-table :key="'user-table'" />
             </div>
         </div>
     </div>

@@ -35,25 +35,15 @@ class SekolahTable extends DataTableComponent
 
     public function builder(): Builder
     {
-        return Sekolah::query();
-    }
-
-    public function applySearch(): Builder
-    {
-        $search = trim($this->search);
-
-        if ($search === '') {
-            return $this->getBuilder();
-        }
-
-        $this->setBuilder(
-            $this->getBuilder()->where(function (Builder $query) use ($search) {
-                $query->where('sekolah.nama', 'like', '%' . $search . '%')
-                    ->orWhere('sekolah.alamat', 'like', '%' . $search . '%');
-            })
-        );
-
-        return $this->getBuilder();
+        return Sekolah::query()
+            ->when(
+                trim($this->search),
+                fn ($query) =>
+                    $query->where(function (Builder $q) {
+                        $q->where('sekolah.nama', 'like', '%' . trim($this->search) . '%')
+                          ->orWhere('sekolah.alamat', 'like', '%' . trim($this->search) . '%');
+                    })
+            );
     }
 
     public function columns(): array
@@ -87,6 +77,12 @@ class SekolahTable extends DataTableComponent
     public function updateSearch(string $search = ''): void
     {
         $this->search = $search;
+        $this->resetPage();
+    }
+
+    #[On('refreshDatatable')]
+    public function refreshTable(): void
+    {
         $this->resetPage();
     }
 }

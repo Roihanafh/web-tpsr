@@ -19,8 +19,7 @@
         <div class="siswa-toolbar">
             <div class="siswa-toolbar-filters">
                 <select class="form-control siswa-select" wire:model.live="filterKelasNama">
-                    <option value="">Pilih Kelas</option>
-                    <option value="0">Semua Kelas</option>
+                    <option value="">Semua Kelas</option>
                     @foreach ($filterKelasOptions as $kNama)
                         <option value="{{ $kNama }}">{{ $kNama }}</option>
                     @endforeach
@@ -33,16 +32,6 @@
                     <input type="text" class="form-control siswa-search" placeholder="Search"
                         wire:model.live.debounce.300ms="search">
                 </div>
-
-                <button type="button" class="btn btn-danger siswa-btn" wire:click="export"
-                    wire:loading.attr="disabled" wire:target="export">
-                    <span wire:loading.remove wire:target="export"><i class="fas fa-file-export mr-1"></i>Export</span>
-                    <span wire:loading wire:target="export"><i class="fas fa-spinner fa-spin mr-1"></i>Exporting</span>
-                </button>
-
-                <button type="button" class="btn btn-success siswa-btn" wire:click="toggleImportForm" wire:loading.attr="disabled">
-                    <i class="fas fa-file-import mr-1"></i>Import Excel
-                </button>
 
                 <button type="button" class="btn btn-primary siswa-btn" wire:click="toggleForm" wire:loading.attr="disabled">
                     <i class="fas fa-plus mr-1"></i>Tambah Siswa
@@ -104,57 +93,7 @@
             </div>
         @endif
 
-        @if ($showImportForm)
-            <div class="siswa-form-grid position-relative mt-3">
-                <div class="siswa-loading-layer" wire:loading.flex wire:target="import,downloadTemplate">
-                    <div class="siswa-loading-box">
-                        <i class="fas fa-spinner fa-spin"></i><span>Memproses...</span>
-                    </div>
-                </div>
 
-                <form wire:submit="import" class="siswa-import">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <label class="mb-0">Import Excel</label>
-                        <button type="button" class="btn btn-link p-0" wire:click="downloadTemplate">
-                            Download template
-                        </button>
-                    </div>
-                    <div class="form-row">
-                        <div class="col-md-12 mb-2">
-                            <div class="input-group">
-                                <input type="file"
-                                    class="form-control @error('fileImport') is-invalid @enderror"
-                                    wire:model="fileImport" accept=".xlsx,.xls,.csv"
-                                    wire:loading.attr="disabled" wire:target="fileImport,import">
-                                <div class="input-group-append">
-                                    <button type="submit" class="btn btn-success"
-                                        wire:loading.attr="disabled" wire:target="fileImport,import">
-                                        <span wire:loading.remove wire:target="fileImport,import">
-                                            <i class="fas fa-file-import mr-1"></i>Import Excel
-                                        </span>
-                                        <span wire:loading wire:target="fileImport,import">
-                                            <i class="fas fa-spinner fa-spin mr-1"></i>Mengimport
-                                        </span>
-                                    </button>
-                                </div>
-                                @error('fileImport') <span class="invalid-feedback d-block">{{ $message }}</span> @enderror
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        @endif
-
-        @if ($importFailures !== [])
-            <div class="alert alert-warning mt-3 mb-0">
-                <strong>Data gagal masuk database:</strong>
-                <ul class="mb-0 mt-2">
-                    @foreach ($importFailures as $failure)
-                        <li>Baris {{ $failure['line'] }} - {{ $failure['nama'] }}: {{ $failure['message'] }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
 
         <div class="siswa-table-shell">
             <div class="siswa-table-head">
@@ -168,10 +107,7 @@
                 <div class="siswa-table-loading" wire:loading.flex wire:target="filterKelasNama,search">
                     <i class="fas fa-spinner fa-spin mr-2"></i>Memuat data siswa...
                 </div>
-                <livewire:siswa.siswa-table
-                    :kelas-nama="$filterKelasNama"
-                    :key="'siswa-table-'.$filterKelasNama.'-'.$search"
-                />
+                <livewire:siswa.siswa-table :key="'siswa-table'" />
             </div>
         </div>
     </div>

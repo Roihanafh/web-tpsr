@@ -2,9 +2,6 @@
 
 namespace App\Livewire\Siswa;
 
-use App\Exports\SiswaExport;
-use App\Exports\SiswaTemplateExport;
-use App\Imports\SiswaImport;
 use App\Models\Sekolah;
 use App\Models\Siswa;
 use Illuminate\Contracts\View\View;
@@ -12,14 +9,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use Livewire\WithFileUploads;
-use Maatwebsite\Excel\Facades\Excel;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class SiswaPage extends Component
 {
-    use WithFileUploads;
-
     public ?int   $siswaId  = null;
     public ?int   $kelasId  = null;
     public string $nama     = '';
@@ -27,12 +19,13 @@ class SiswaPage extends Component
     public string $filterKelasNama = '';
     public string $search          = '';
 
-    public mixed $fileImport     = null;
-    public array $importFailures = [];
-
     public bool $isEditing      = false;
     public bool $showForm       = false;
-    public bool $showImportForm = false;
+
+    public function mount(): void
+    {
+        $this->dispatch('refreshDatatable');
+    }
 
     public function render(): View
     {
@@ -53,8 +46,6 @@ class SiswaPage extends Component
             'filterKelasNama'    => $this->filterKelasNama,
             'search'             => $this->search,
             'showForm'           => $this->showForm,
-            'showImportForm'     => $this->showImportForm,
-            'importFailures'     => $this->importFailures,
         ]);
     }
 
@@ -104,7 +95,6 @@ class SiswaPage extends Component
         $this->nama      = $siswa->nama;
         $this->isEditing = true;
         $this->showForm  = true;
-        $this->showImportForm = false;
     }
 
     public function cancelEdit(): void { $this->resetForm(); }
@@ -134,51 +124,10 @@ class SiswaPage extends Component
     public function toggleForm(): void
     {
         $this->showForm = ! $this->showForm;
-        $this->showImportForm = false;
         if ($this->showForm) { $this->reset(['siswaId', 'kelasId', 'nama', 'isEditing']); $this->resetValidation(); }
     }
 
-    public function toggleImportForm(): void
-    {
-        $this->showImportForm = ! $this->showImportForm;
-        $this->showForm = false;
-        if ($this->showImportForm) $this->fileImport = null;
-    }
 
-    public function import(): void
-    {
-        $sekolah = $this->currentSekolah();
-        if (! $sekolah) { session()->flash('error', 'Akun belum terhubung dengan sekolah.'); return; }
-
-        $this->validate(['fileImport' => ['required', 'file', 'mimes:xlsx,xls,csv']]);
-
-        $import = new SiswaImport($sekolah);
-        Excel::import($import, $this->fileImport);
-        $this->importFailures = $import->failures();
-
-        if ($import->insertedCount() > 0) session()->flash('success', $import->insertedCount() . ' data siswa berhasil diimport.');
-        if ($this->importFailures !== []) session()->flash('warning', count($this->importFailures) . ' baris gagal diimport.');
-
-        $this->fileImport = null;
-        $this->showImportForm = false;
-        $this->dispatch('refreshDatatable');
-    }
-
-    public function export(): BinaryFileResponse
-    {
-        $sekolah = $this->currentSekolah();
-        if (! $sekolah) { session()->flash('error', 'Akun belum terhubung dengan sekolah.'); $this->skipRender(); }
-
-        $kelasNama = $this->filterKelasNama !== '' && $this->filterKelasNama !== '0' ? $this->filterKelasNama : null;
-        $filename  = 'data siswa' . ($kelasNama ? ' kelas ' . $kelasNama : '') . '.xlsx';
-
-        return Excel::download(new SiswaExport($sekolah, $kelasNama), $filename);
-    }
-
-    public function downloadTemplate(): BinaryFileResponse
-    {
-        return Excel::download(new SiswaTemplateExport(), 'template-import-siswa.xlsx');
-    }
 
     private function resetForm(): void
     {
