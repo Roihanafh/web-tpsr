@@ -11,9 +11,8 @@ use Rappasoft\LaravelLivewireTables\Views\Column;
 
 class SiswaTable extends DataTableComponent
 {
-    public string  $kelasNama  = '';
-    public ?string $isGanjil   = null;  // '1', '0', atau null
-    public string  $search     = '';
+    public string $kelasNama = '';
+    public string $search    = '';
 
     protected $model = Siswa::class;
 
@@ -21,7 +20,7 @@ class SiswaTable extends DataTableComponent
     {
         $this->setTableName('siswa-table');
         $this->setPrimaryKey('id');
-        $this->setDefaultSort('siswa.id', 'asc');
+        $this->setDefaultSort('siswa.nama', 'asc');
         $this->setTheme('bootstrap-5');
         $this->setPaginationTheme('bootstrap');
         $this->setPerPageAccepted([10, 25, 50]);
@@ -43,28 +42,24 @@ class SiswaTable extends DataTableComponent
 
         return Siswa::query()
             ->with('kelas')
-            ->whereHas('kelas', function (Builder $query) use ($sekolahId) {
-                $query->where('sekolah_id', $sekolahId)
-                    ->when($this->isGanjil !== null, fn (Builder $q) => $q->where('is_ganjil', (bool) $this->isGanjil))
-                    ->when($this->kelasNama !== '' && $this->kelasNama !== '0', fn (Builder $q) => $q->where('nama', $this->kelasNama));
+            ->whereHas('kelas', function (Builder $q) use ($sekolahId) {
+                $q->where('sekolah_id', $sekolahId)
+                  ->when($this->kelasNama !== '' && $this->kelasNama !== '0',
+                      fn (Builder $q2) => $q2->where('nama', $this->kelasNama));
             });
     }
 
     public function applySearch(): Builder
     {
         $search = trim($this->search);
-
-        if ($search === '') {
-            return $this->getBuilder();
-        }
+        if ($search === '') return $this->getBuilder();
 
         $this->setBuilder(
-            $this->getBuilder()->where(function (Builder $query) use ($search) {
-                $query->where('siswa.nama', 'like', '%' . $search . '%')
-                    ->orWhereHas('kelas', fn (Builder $q) => $q->where('nama', 'like', '%' . $search . '%'));
+            $this->getBuilder()->where(function (Builder $q) use ($search) {
+                $q->where('siswa.nama', 'like', '%' . $search . '%')
+                  ->orWhereHas('kelas', fn (Builder $q2) => $q2->where('nama', 'like', '%' . $search . '%'));
             })
         );
-
         return $this->getBuilder();
     }
 
@@ -73,32 +68,21 @@ class SiswaTable extends DataTableComponent
         return [
             Column::make('No')
                 ->label(function ($row) {
-                    $rows       = $this->getRows();
-                    $collection = $rows->getCollection();
-                    $index      = $collection->search(fn ($item) => $item->id === $row->id);
-
+                    $rows  = $this->getRows();
+                    $index = $rows->getCollection()->search(fn ($item) => $item->id === $row->id);
                     return $index === false ? '-' : ($rows->firstItem() ?? 1) + $index;
                 }),
-            Column::make('Nama', 'nama')
-                ->sortable()
-                ->searchable(),
-            Column::make('Kelas', 'kelas.nama')
-                ->sortable()
-                ->searchable(),
-            Column::make('Semester')
-                ->label(fn ($row) => $row->kelas?->is_ganjil ? 'Ganjil' : 'Genap'),
-            Column::make('Rata-rata Poin', 'rata_poin')
-                ->sortable(),
-            Column::make('Aksi')
-                ->label(fn ($row) => view('siswa.partials.actions', ['siswa' => $row])),
+            Column::make('Nama', 'nama')->sortable()->searchable(),
+            Column::make('Kelas', 'kelas.nama')->sortable()->searchable(),
+            Column::make('Rata-rata Poin', 'rata_poin')->sortable(),
+            Column::make('Aksi')->label(fn ($row) => view('siswa.partials.actions', ['siswa' => $row])),
         ];
     }
 
     #[On('siswa-filter-changed')]
-    public function updateFilter(string $kelasNama = '', mixed $isGanjil = null): void
+    public function updateFilter(string $kelasNama = ''): void
     {
         $this->kelasNama = $kelasNama;
-        $this->isGanjil  = $isGanjil !== null ? (string) $isGanjil : null;
         $this->resetPage();
     }
 
@@ -110,8 +94,5 @@ class SiswaTable extends DataTableComponent
     }
 
     #[On('siswa-deleted')]
-    public function onSiswaDeleted(): void
-    {
-        $this->resetPage();
-    }
+    public function onSiswaDeleted(): void { $this->resetPage(); }
 }

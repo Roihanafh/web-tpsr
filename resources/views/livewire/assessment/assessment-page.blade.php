@@ -19,23 +19,13 @@
     <div class="assessment-panel">
         <div class="assessment-toolbar">
             <div class="assessment-toolbar-filters">
-                {{-- Pilih Semester --}}
-                <select class="form-control assessment-select" wire:model.live="isGanjil">
-                    <option value="">Pilih Semester</option>
-                    @foreach ($semesterOptions as $opt)
-                        <option value="{{ $opt['value'] }}">{{ $opt['label'] }}</option>
-                    @endforeach
-                </select>
-
-                {{-- Pilih Kelas --}}
-                <select class="form-control assessment-select" wire:model.live="kelasId" @disabled($isGanjil === null)>
+                <select class="form-control assessment-select" wire:model.live="kelasId">
                     <option value="">Pilih Kelas</option>
                     @foreach ($kelasOptions as $kelas)
                         <option value="{{ $kelas->id }}">{{ $kelas->nama }}</option>
                     @endforeach
                 </select>
 
-                {{-- Pilih Pertemuan --}}
                 <select class="form-control assessment-select" wire:model.live="pertemuan" @disabled(!$kelasId)>
                     <option value="">Pilih Pertemuan</option>
                     @for ($i = 1; $i <= 16; $i++)
@@ -45,10 +35,10 @@
             </div>
         </div>
 
-        @if ($isGanjil !== null && $kelasId && $pertemuan)
+        @if ($kelasId && $pertemuan)
             @if ($students->isNotEmpty())
                 <div class="assessment-table-shell mt-4 position-relative">
-                    <div class="assessment-loading-layer" wire:loading.flex wire:target="isGanjil,kelasId,pertemuan,save">
+                    <div class="assessment-loading-layer" wire:loading.flex wire:target="kelasId,pertemuan,save">
                         <div class="assessment-loading-box">
                             <i class="fas fa-spinner fa-spin"></i>
                             <span>Memproses...</span>
@@ -60,8 +50,7 @@
                             <div class="assessment-table-title">Lembar Penilaian TPSR</div>
                             <div class="assessment-table-subtitle">
                                 Pertemuan {{ $pertemuan }} &bull;
-                                Kelas {{ $kelasOptions->firstWhere('id', $kelasId)?->nama }} &bull;
-                                {{ $isGanjil ? 'Semester Ganjil' : 'Semester Genap' }}
+                                Kelas {{ $kelasOptions->firstWhere('id', $kelasId)?->nama }}
                             </div>
                         </div>
                         <div>
@@ -91,17 +80,13 @@
                             </thead>
                             <tbody>
                                 @foreach ($students as $siswa)
-                                    <tr wire:key="student-row-{{ $siswa->id }}-{{ $pertemuan }}">
-                                        <td class="align-middle">
-                                            <span class="font-weight-bold">{{ $siswa->nama }}</span>
-                                        </td>
+                                    <tr wire:key="row-{{ $siswa->id }}-{{ $pertemuan }}">
+                                        <td class="align-middle font-weight-bold">{{ $siswa->nama }}</td>
                                         @foreach (['L0','L1','L2','L3','L4'] as $lvl)
-                                            <td class="text-center align-middle" wire:key="student-{{ $siswa->id }}-{{ $lvl }}-{{ $pertemuan }}">
-                                                <select
-                                                    class="form-control form-control-sm"
+                                            <td class="text-center align-middle" wire:key="{{ $siswa->id }}-{{ $lvl }}-{{ $pertemuan }}">
+                                                <select class="form-control form-control-sm"
                                                     wire:model="ratings.{{ $siswa->id }}.{{ $lvl }}"
-                                                    style="min-width: 60px;"
-                                                >
+                                                    style="min-width: 60px;">
                                                     <option value="">-</option>
                                                     @for ($v = 1; $v <= 5; $v++)
                                                         <option value="{{ $v }}">{{ $v }}</option>
@@ -117,9 +102,7 @@
 
                     <div class="assessment-table-foot p-3 bg-light d-flex flex-wrap justify-content-end" style="gap: 0.5rem;">
                         <button type="button" class="btn btn-outline-danger px-4 py-2 font-weight-bold"
-                            wire:click="kosongkanPenilaian"
-                            wire:loading.attr="disabled"
-                            wire:target="kosongkanPenilaian">
+                            wire:click="kosongkanPenilaian" wire:loading.attr="disabled" wire:target="kosongkanPenilaian">
                             <span wire:loading.remove wire:target="kosongkanPenilaian">
                                 <i class="fas fa-eraser mr-2"></i>Kosongkan Penilaian
                             </span>
@@ -129,9 +112,7 @@
                         </button>
 
                         <button type="button" class="btn btn-primary px-4 py-2 font-weight-bold"
-                            wire:click="save"
-                            wire:loading.attr="disabled"
-                            wire:target="save">
+                            wire:click="save" wire:loading.attr="disabled" wire:target="save">
                             <span wire:loading.remove wire:target="save">
                                 <i class="fas fa-save mr-2"></i>Simpan Penilaian
                             </span>

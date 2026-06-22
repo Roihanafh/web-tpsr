@@ -17,14 +17,6 @@
 
     <div class="kelas-panel">
         <div class="kelas-toolbar">
-            <div class="kelas-toolbar-filters">
-                <select class="form-control kelas-select" wire:model.live="isGanjil">
-                    <option value="">Semua Semester</option>
-                    <option value="1">Ganjil</option>
-                    <option value="0">Genap</option>
-                </select>
-            </div>
-
             <div class="kelas-actions">
                 <div class="kelas-search-wrap">
                     <span class="kelas-search-icon"><i class="fas fa-search"></i></span>
@@ -58,7 +50,7 @@
 
                 <form wire:submit="save" class="kelas-form">
                     <div class="form-row">
-                        <div class="col-md-4 mb-2">
+                        <div class="col-md-6 mb-2">
                             <label>Nama Kelas</label>
                             <input type="text" maxlength="20"
                                 class="form-control @error('nama') is-invalid @enderror"
@@ -67,20 +59,8 @@
                             @error('nama') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
 
-                        <div class="col-md-4 mb-2">
-                            <label>Semester</label>
-                            <select class="form-control @error('formIsGanjil') is-invalid @enderror"
-                                wire:model="formIsGanjil"
-                                wire:loading.attr="disabled" wire:target="save">
-                                <option value="">Pilih semester</option>
-                                <option value="1">Ganjil</option>
-                                <option value="0">Genap</option>
-                            </select>
-                            @error('formIsGanjil') <span class="invalid-feedback">{{ $message }}</span> @enderror
-                        </div>
-
-                        <div class="col-md-4 mb-2 kelas-submit">
-                            <button type="submit" class="btn btn-primary kelas-btn"
+                        <div class="col-md-6 mb-2 kelas-submit d-flex align-items-end pb-1">
+                            <button type="submit" class="btn btn-primary kelas-btn mr-2"
                                 wire:loading.attr="disabled" wire:target="save">
                                 <span wire:loading.remove wire:target="save">
                                     <i class="fas fa-{{ $isEditing ? 'save' : 'plus' }} mr-1"></i>
@@ -93,9 +73,7 @@
 
                             @if ($isEditing)
                                 <button type="button" class="btn btn-outline-secondary kelas-btn"
-                                    wire:click="cancelEdit" wire:loading.attr="disabled">
-                                    Batal
-                                </button>
+                                    wire:click="cancelEdit">Batal</button>
                             @endif
                         </div>
                     </div>
@@ -159,17 +137,15 @@
             <div class="kelas-table-head">
                 <div>
                     <div class="kelas-table-title">Tabel Data Kelas</div>
-                    <div class="kelas-table-subtitle">Menampilkan data kelas berdasarkan filter yang dipilih.</div>
+                    <div class="kelas-table-subtitle">Menampilkan seluruh data kelas di sekolah ini.</div>
                 </div>
             </div>
 
             <div class="kelas-table-wrap">
-                <div class="kelas-table-loading" wire:loading.flex wire:target="isGanjil,search">
+                <div class="kelas-table-loading" wire:loading.flex wire:target="search">
                     <i class="fas fa-spinner fa-spin mr-2"></i>Memuat data kelas...
                 </div>
-                <livewire:kelas.kelas-table
-                    :key="'kelas-table-'.($isGanjil ?? 'all').'-'.$search"
-                />
+                <livewire:kelas.kelas-table :key="'kelas-table-'.$search" />
             </div>
         </div>
     </div>

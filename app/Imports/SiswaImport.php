@@ -12,11 +12,9 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class SiswaImport implements ToCollection, WithHeadingRow
 {
     private array $failures = [];
-    private int $inserted   = 0;
+    private int   $inserted = 0;
 
-    public function __construct(
-        private readonly Sekolah $sekolah,
-    ) {}
+    public function __construct(private readonly Sekolah $sekolah) {}
 
     public function collection(Collection $rows): void
     {
@@ -24,64 +22,26 @@ class SiswaImport implements ToCollection, WithHeadingRow
             $line      = $index + 2;
             $namaSiswa = trim((string) ($row['nama_siswa'] ?? $row['nama'] ?? ''));
             $kelasNama = strtoupper(trim((string) ($row['kelas'] ?? '')));
-            $semester  = strtolower(trim((string) ($row['semester'] ?? '')));
 
-            if ($namaSiswa === '') {
-                $this->addFailure($line, '-', 'Nama siswa wajib diisi.');
+            if ($namaSiswa === '') { $this->addFailure($line, '-', 'Nama siswa wajib diisi.'); continue; }
+            if (mb_strlen($namaSiswa) > 100) { $this->addFailure($line, $namaSiswa, 'Nama siswa maksimal 100 karakter.'); continue; }
+            if ($kelasNama === '') { $this->addFailure($line, $namaSiswa, 'Kelas wajib diisi.'); continue; }
+
+            $kelas = Kelas::where('sekolah_id', $this->sekolah->id)->where('nama', $kelasNama)->first();
+
+            if (! $kelas) { $this->addFailure($line, $namaSiswa, "Kelas {$kelasNama} tidak ditemukan."); continue; }
+
+            if (Siswa::where('kelas_id', $kelas->id)->where('nama', $namaSiswa)->exists()) {
+                $this->addFailure($line, $namaSiswa, 'Siswa sudah ada di kelas tersebut.');
                 continue;
             }
 
-            if (mb_strlen($namaSiswa) > 100) {
-                $this->addFailure($line, $namaSiswa, 'Nama siswa maksimal 100 karakter.');
-                continue;
-            }
-
-            if ($kelasNama === '') {
-                $this->addFailure($line, $namaSiswa, 'Kelas wajib diisi.');
-                continue;
-            }
-
-            if (! in_array($semester, ['ganjil', 'genap', ''])) {
-                $this->addFailure($line, $namaSiswa, 'Semester harus "ganjil", "genap", atau dikosongkan.');
-                continue;
-            }
-
-            $isGanjil = $semester === '' ? null : ($semester === 'ganjil');
-
-            $kelasQuery = Kelas::where('sekolah_id', $this->sekolah->id)
-                ->where('nama', $kelasNama);
-
-            if ($isGanjil !== null) {
-                $kelasQuery->where('is_ganjil', $isGanjil);
-            }
-
-            $kelas = $kelasQuery->first();
-
-            if (! $kelas) {
-                $this->addFailure($line, $namaSiswa, "Kelas {$kelasNama}" . ($semester !== '' ? " ({$semester})" : '') . " tidak ditemukan.");
-                continue;
-            }
-
-            $exists = Siswa::where('kelas_id', $kelas->id)
-                ->where('nama', $namaSiswa)
-                ->exists();
-
-            if ($exists) {
-                $this->addFailure($line, $namaSiswa, 'Data siswa sudah ada untuk kelas tersebut.');
-                continue;
-            }
-
-            Siswa::create([
-                'kelas_id'  => $kelas->id,
-                'nama'      => $namaSiswa,
-                'rata_poin' => 0,
-            ]);
-
+            Siswa::create(['kelas_id' => $kelas->id, 'nama' => $namaSiswa, 'rata_poin' => 0]);
             $this->inserted++;
         }
     }
 
-    public function failures(): array { return $this->failures; }
+    public function failures(): array    { return $this->failures; }
     public function insertedCount(): int { return $this->inserted; }
 
     private function addFailure(int $line, string $nama, string $message): void

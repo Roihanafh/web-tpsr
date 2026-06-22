@@ -1,22 +1,13 @@
 <div class="laporan-individu-page">
-
     @unless ($sekolah)
         <div class="alert alert-info">Akun ini belum memiliki relasi sekolah.</div>
     @endunless
 
     <div class="laporan-panel">
         <div class="laporan-toolbar">
-            <div class="laporan-toolbar-filters">
-                <select class="form-control laporan-select" wire:model.live="isGanjil">
-                    <option value="">Semua Semester</option>
-                    <option value="1">Ganjil</option>
-                    <option value="0">Genap</option>
-                </select>
-            </div>
-
             <div class="laporan-search-wrap">
                 <span class="laporan-search-icon"><i class="fas fa-search"></i></span>
-                <input type="text" class="form-control laporan-search" placeholder="Search"
+                <input type="text" class="form-control laporan-search" placeholder="Cari kelas..."
                     wire:model.live.debounce.300ms="search">
             </div>
         </div>
@@ -29,7 +20,7 @@
                             Grafik Perkembangan Kelas: <strong>{{ $chartData['kelas'] }}</strong>
                         </div>
                         <div class="laporan-chart-subtitle">
-                            Semester {{ $chartData['tahun_ajar'] }} &bull; {{ $chartData['siswa_count'] }} siswa
+                            {{ $chartData['siswa_count'] }} siswa
                         </div>
                     </div>
                     <button type="button" class="btn btn-sm btn-outline-secondary" wire:click="closeChart">
@@ -42,15 +33,15 @@
                 </div>
 
                 <div class="p-3 border-top bg-light">
-                    <h5 class="font-weight-bold mb-3" style="font-size: 1rem;">Tabel Ranking Siswa</h5>
-                    <div class="table-responsive" style="border: 1px solid #d1d5db; border-radius: 6px; background: #fff;">
+                    <h5 class="font-weight-bold mb-3" style="font-size:1rem;">Tabel Ranking Siswa</h5>
+                    <div class="table-responsive" style="border:1px solid #d1d5db;border-radius:6px;background:#fff;">
                         <table class="table laporan-table mb-0">
                             <thead>
                                 <tr>
-                                    <th style="width: 60px;">Rank</th>
+                                    <th style="width:60px;">Rank</th>
                                     <th>Nama Siswa</th>
-                                    <th style="width: 140px; text-align: center;">Rata-rata</th>
-                                    <th style="width: 160px; text-align: center;">Status</th>
+                                    <th style="width:140px;text-align:center;">Rata-rata</th>
+                                    <th style="width:160px;text-align:center;">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,8 +87,7 @@
                 </div>
             </div>
 
-            {{-- Hidden PDF template --}}
-            <div style="position:absolute; left:-9999px; top:0; visibility:hidden;">
+            <div style="position:absolute;left:-9999px;top:0;visibility:hidden;">
                 @include('livewire.laporan.pdf-kelas-preview', [
                     'kelas'       => $pdfData['kelas'],
                     'pengajar'    => $pdfData['pengajar'],
@@ -115,7 +105,7 @@
                             labels:    {{ Js::from($chartData['labels']) }},
                             values:    {{ Js::from($chartData['values']) }},
                             kelas:     {{ Js::from($chartData['kelas']) }},
-                            tahunAjar: {{ Js::from($chartData['tahun_ajar']) }},
+                            tahunAjar: {{ Js::from($chartData['kelas']) }},
                             slug:      {{ Js::from(\Illuminate\Support\Str::slug('laporan-kelas-' . $chartData['kelas'])) }}
                         }
                     }));
@@ -124,7 +114,7 @@
         @endif
 
         <div class="laporan-table-shell mt-4 position-relative">
-            <div class="laporan-loading-layer" wire:loading.flex wire:target="isGanjil,search,showDetail,closeChart">
+            <div class="laporan-loading-layer" wire:loading.flex wire:target="search,showDetail,closeChart">
                 <div class="laporan-loading-box">
                     <i class="fas fa-spinner fa-spin"></i><span>Memuat data...</span>
                 </div>
@@ -146,7 +136,6 @@
                             <tr>
                                 <th>No</th>
                                 <th>Kelas</th>
-                                <th>Semester</th>
                                 <th class="text-center">Grafik</th>
                             </tr>
                         </thead>
@@ -155,7 +144,6 @@
                                 <tr class="{{ $selectedKelasId === $kelas->id ? 'laporan-row-active' : '' }}">
                                     <td>{{ $index + 1 }}</td>
                                     <td>{{ $kelas->nama }}</td>
-                                    <td>{{ $kelas->is_ganjil ? 'Ganjil' : 'Genap' }}</td>
                                     <td class="text-center">
                                         <button type="button"
                                             class="btn btn-sm {{ $selectedKelasId === $kelas->id ? 'btn-primary' : 'btn-outline-primary' }} laporan-detail-btn"

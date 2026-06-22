@@ -1,13 +1,4 @@
 <div class="laporan-individu-page">
-    @if (session('success'))
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle mr-2"></i>{{ session('success') }}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-    @endif
-
     @unless ($sekolah)
         <div class="alert alert-info">Akun ini belum memiliki relasi sekolah.</div>
     @endunless
@@ -15,13 +6,7 @@
     <div class="laporan-panel">
         <div class="laporan-toolbar">
             <div class="laporan-toolbar-filters">
-                <select class="form-control laporan-select" wire:model.live="isGanjil">
-                    <option value="">Pilih Semester</option>
-                    <option value="1">Ganjil</option>
-                    <option value="0">Genap</option>
-                </select>
-
-                <select class="form-control laporan-select" wire:model.live="kelasId" @disabled($isGanjil === null)>
+                <select class="form-control laporan-select" wire:model.live="kelasId">
                     <option value="">Pilih Kelas</option>
                     <option value="all">Semua Kelas</option>
                     @foreach ($kelasOptions as $kelas)
@@ -33,16 +18,11 @@
             <div class="laporan-search-wrap">
                 <span class="laporan-search-icon"><i class="fas fa-search"></i></span>
                 <input type="text" class="form-control laporan-search" placeholder="Search"
-                    wire:model.live.debounce.300ms="search" @disabled(! $kelasId)>
+                    wire:model.live.debounce.300ms="search" @disabled(!$kelasId)>
             </div>
         </div>
 
-        @if (! $isGanjil)
-            <div class="laporan-empty-state">
-                <i class="fas fa-filter laporan-empty-icon"></i>
-                <p class="laporan-empty-text">Pilih semester terlebih dahulu.</p>
-            </div>
-        @elseif (! $kelasId)
+        @if (!$kelasId)
             <div class="laporan-empty-state">
                 <i class="fas fa-chalkboard laporan-empty-icon"></i>
                 <p class="laporan-empty-text">Pilih kelas untuk menampilkan data laporan.</p>
@@ -57,7 +37,7 @@
                                 Grafik Perkembangan: <strong>{{ $chartData['nama'] }}</strong>
                             </div>
                             <div class="laporan-chart-subtitle">
-                                {{ $chartData['kelas'] }} &mdash; {{ $chartData['tahun_ajar'] }}
+                                Kelas {{ $chartData['kelas'] }}
                                 &bull; {{ $chartData['pertemuan_dinilai'] }} pertemuan dinilai
                                 @if ($chartData['rata_laporan'] !== null)
                                     &bull; Rata-rata: <strong>{{ number_format($chartData['rata_laporan'], 2) }}</strong>
@@ -80,8 +60,7 @@
                     </div>
                 </div>
 
-                {{-- Hidden PDF template --}}
-                <div style="position:absolute; left:-9999px; top:0; visibility:hidden;">
+                <div style="position:absolute;left:-9999px;top:0;visibility:hidden;">
                     @include('livewire.laporan.pdf-preview', [
                         'siswa'       => $pdfData['siswa'],
                         'pengajar'    => $pdfData['pengajar'],
@@ -100,7 +79,7 @@
                                 values:    {{ Js::from($chartData['values']) }},
                                 nama:      {{ Js::from($chartData['nama']) }},
                                 kelas:     {{ Js::from($chartData['kelas']) }},
-                                tahunAjar: {{ Js::from($chartData['tahun_ajar']) }},
+                                tahunAjar: {{ Js::from($chartData['kelas']) }},
                                 slug:      {{ Js::from(\Illuminate\Support\Str::slug($chartData['nama'] ?? 'siswa')) }}
                             }
                         }));
@@ -109,7 +88,7 @@
             @endif
 
             <div class="laporan-table-shell mt-4 position-relative">
-                <div class="laporan-loading-layer" wire:loading.flex wire:target="isGanjil,kelasId,search,showDetail,closeChart">
+                <div class="laporan-loading-layer" wire:loading.flex wire:target="kelasId,search,showDetail,closeChart">
                     <div class="laporan-loading-box">
                         <i class="fas fa-spinner fa-spin"></i><span>Memuat data...</span>
                     </div>
@@ -119,7 +98,6 @@
                     <div class="laporan-table-title">Tabel Laporan Individu</div>
                     <div class="laporan-table-subtitle">
                         Kelas {{ $kelasOptions->firstWhere('id', $kelasId)?->nama ?? 'Semua' }}
-                        &bull; Semester {{ $isGanjil === '1' ? 'Ganjil' : 'Genap' }}
                     </div>
                 </div>
 
@@ -135,7 +113,6 @@
                                     <th>No</th>
                                     <th>Nama</th>
                                     <th>Kelas</th>
-                                    <th>Semester</th>
                                     <th>Rata-rata</th>
                                     <th class="text-center">Grafik</th>
                                 </tr>
@@ -146,7 +123,6 @@
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $siswa->nama }}</td>
                                         <td>{{ $siswa->kelas?->nama ?? '-' }}</td>
-                                        <td>{{ $siswa->kelas?->is_ganjil ? 'Ganjil' : 'Genap' }}</td>
                                         <td>
                                             @if ($siswa->rata_laporan !== null)
                                                 <span class="laporan-level-badge">{{ number_format($siswa->rata_laporan, 2) }}</span>
@@ -176,7 +152,6 @@
                     </div>
                 @endif
             </div>
-
         @endif
     </div>
 </div>

@@ -25,12 +25,6 @@
                         <option value="{{ $kNama }}">{{ $kNama }}</option>
                     @endforeach
                 </select>
-
-                <select class="form-control siswa-select" wire:model.live="filterIsGanjil">
-                    <option value="">Semua Semester</option>
-                    <option value="1">Ganjil</option>
-                    <option value="0">Genap</option>
-                </select>
             </div>
 
             <div class="siswa-actions">
@@ -82,9 +76,7 @@
                                 wire:loading.attr="disabled" wire:target="save">
                                 <option value="">Pilih kelas</option>
                                 @foreach ($kelasOptions as $kelas)
-                                    <option value="{{ $kelas->id }}">
-                                        {{ $kelas->nama }} ({{ $kelas->is_ganjil ? 'Ganjil' : 'Genap' }})
-                                    </option>
+                                    <option value="{{ $kelas->id }}">{{ $kelas->nama }}</option>
                                 @endforeach
                             </select>
                             @error('kelasId') <span class="invalid-feedback">{{ $message }}</span> @enderror
@@ -173,12 +165,12 @@
             </div>
 
             <div class="siswa-table-wrap">
-                <div class="siswa-table-loading" wire:loading.flex wire:target="filterKelasNama,filterIsGanjil,search">
+                <div class="siswa-table-loading" wire:loading.flex wire:target="filterKelasNama,search">
                     <i class="fas fa-spinner fa-spin mr-2"></i>Memuat data siswa...
                 </div>
                 <livewire:siswa.siswa-table
                     :kelas-nama="$filterKelasNama"
-                    :key="'siswa-table-'.$filterKelasNama.'-'.($filterIsGanjil ?? 'all').'-'.$search"
+                    :key="'siswa-table-'.$filterKelasNama.'-'.$search"
                 />
             </div>
         </div>
