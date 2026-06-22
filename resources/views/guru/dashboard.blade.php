@@ -4,7 +4,7 @@
     <div class="tpsr-banner">
         <div class="tpsr-banner-content">
             <span class="tpsr-banner-badge">Dashboard Utama</span>
-            <h1 class="tpsr-banner-title">Evaluasi Sikap & Tanggung Jawab (TPSR)</h1>
+            <h1 class="tpsr-banner-title">Evaluasi Sikap &amp; Tanggung Jawab TPSR - PJOK</h1>
             <p class="tpsr-banner-subtitle">
                 Pantau perkembangan karakter tanggung jawab sosial dan personal siswa Anda secara efisien.
             </p>

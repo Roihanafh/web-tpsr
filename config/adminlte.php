@@ -63,7 +63,7 @@ return [
     |
     */
 
-    'logo' => '<b>TPSR</b>-PJKR',
+    'logo' => '<b>TPSR</b>-PJOK',
     'logo_img' => null,
     'logo_img_class' => 'brand-image img-circle elevation-3',
     'logo_img_xl' => null,

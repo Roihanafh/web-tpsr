@@ -4,7 +4,7 @@
     <div class="tpsr-banner">
         <div class="tpsr-banner-content">
             <span class="tpsr-banner-badge">Panel Administrator</span>
-            <h1 class="tpsr-banner-title">Manajemen Sistem Evaluasi TPSR</h1>
+            <h1 class="tpsr-banner-title">Manajemen Sistem Evaluasi TPSR - PJOK</h1>
             <p class="tpsr-banner-subtitle">
                 Kelola data sekolah dan manajemen akun pengguna (guru & admin) secara terpusat.
             </p>
