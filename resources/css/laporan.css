@@ -1,6 +1,8 @@
 /* ===== Laporan (Individu & Kelas) ===== */
 
-.laporan-individu-page { color: #111827; }
+.laporan-individu-page {
+    color: #111827;
+}
 
 .laporan-panel {
     background: #fff;
@@ -225,9 +227,17 @@
     vertical-align: middle;
 }
 
-.laporan-table tbody tr:nth-child(even) { background: #fafafa; }
-.laporan-table tbody tr:hover { background: #eff6ff; }
-.laporan-row-active { background: #dbeafe !important; }
+.laporan-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.laporan-table tbody tr:hover {
+    background: #eff6ff;
+}
+
+.laporan-row-active {
+    background: #dbeafe !important;
+}
 
 .laporan-table tbody td:first-child,
 .laporan-table thead th:first-child {
@@ -259,8 +269,20 @@
     min-width: 80px;
 }
 
+.laporan-catatan-btn {
+    border-radius: 5px !important;
+    font-size: .8rem;
+    min-width: 80px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
+
     .laporan-toolbar,
     .laporan-toolbar-filters {
         align-items: stretch;

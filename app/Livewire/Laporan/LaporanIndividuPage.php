@@ -15,6 +15,11 @@ class LaporanIndividuPage extends Component
     public ?int   $selectedSiswaId = null;
     public bool   $showChart       = false;
 
+    public ?int   $catatanSiswaId  = null;
+    public string $catatanNama     = '';
+    public string $catatanText     = '';
+    public string $rekomendasiText = '';
+
     public function updatedKelasId(): void
     {
         $this->selectedSiswaId = null;
@@ -144,5 +149,44 @@ class LaporanIndividuPage extends Component
             if ($p->{$l} !== null) { $sum += (int) $p->{$l}; $cnt++; }
         }
         return [$sum, $cnt];
+    }
+
+    public function openCatatan(int $siswaId): void
+    {
+        $siswa = Siswa::findOrFail($siswaId);
+        
+        $all = Penilaian::where('siswa_id', $siswaId)->get();
+        if ($all->count() < 16) {
+            session()->flash('error', 'Catatan hanya bisa diisi jika siswa sudah dinilai untuk semua (16) pertemuan.');
+            return;
+        }
+
+        $this->catatanSiswaId  = $siswa->id;
+        $this->catatanNama     = $siswa->nama;
+        $this->catatanText     = $siswa->keterangan ?? '';
+        $this->rekomendasiText = $siswa->rekomendasi ?? '';
+
+        $this->dispatch('open-catatan-modal');
+    }
+
+    public function saveCatatan(): void
+    {
+        $this->validate([
+            'catatanText'     => ['nullable', 'string', 'max:500'],
+            'rekomendasiText' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        if ($this->catatanSiswaId) {
+            Siswa::where('id', $this->catatanSiswaId)->update([
+                'keterangan'  => $this->catatanText ?: null,
+                'rekomendasi' => $this->rekomendasiText ?: null,
+            ]);
+
+            session()->flash('success', 'Catatan & Rekomendasi siswa ' . $this->catatanNama . ' berhasil disimpan.');
+            $this->dispatch('close-catatan-modal');
+            
+            // Refresh render
+            $this->render();
+        }
     }
 }

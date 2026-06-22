@@ -114,7 +114,7 @@
                                     <th>Nama</th>
                                     <th>Kelas</th>
                                     <th>Rata-rata</th>
-                                    <th class="text-center">Grafik</th>
+                                    <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -132,18 +132,52 @@
                                             @endif
                                         </td>
                                         <td class="text-center">
-                                            <button type="button"
-                                                class="btn btn-sm {{ $selectedSiswaId === $siswa->id ? 'btn-primary' : 'btn-outline-primary' }} laporan-detail-btn"
-                                                wire:click="showDetail({{ $siswa->id }})"
-                                                wire:loading.attr="disabled"
-                                                wire:target="showDetail({{ $siswa->id }})">
-                                                <span wire:loading.remove wire:target="showDetail({{ $siswa->id }})">
-                                                    <i class="fas fa-chart-line mr-1"></i> Detail
-                                                </span>
-                                                <span wire:loading wire:target="showDetail({{ $siswa->id }})">
-                                                    <i class="fas fa-spinner fa-spin"></i>
-                                                </span>
-                                            </button>
+                                            <div class="d-flex justify-content-center" style="gap: 0.35rem;">
+                                                <button type="button"
+                                                    class="btn btn-sm {{ $selectedSiswaId === $siswa->id ? 'btn-primary' : 'btn-outline-primary' }} laporan-detail-btn"
+                                                    wire:click="showDetail({{ $siswa->id }})"
+                                                    wire:loading.attr="disabled"
+                                                    wire:target="showDetail({{ $siswa->id }})">
+                                                    <span wire:loading.remove wire:target="showDetail({{ $siswa->id }})">
+                                                        <i class="fas fa-chart-line mr-1"></i> Detail
+                                                    </span>
+                                                    <span wire:loading wire:target="showDetail({{ $siswa->id }})">
+                                                        <i class="fas fa-spinner fa-spin"></i>
+                                                    </span>
+                                                </button>
+
+                                                @if (($siswa->pertemuan_dinilai ?? 0) < 16)
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-secondary laporan-catatan-btn"
+                                                        style="opacity: 0.65; cursor: not-allowed;"
+                                                        onclick="Swal.fire({
+                                                            title: 'Penilaian Belum Lengkap',
+                                                            text: 'Silakan selesaikan penilaian 16 pertemuan terlebih dahulu sebelum mengisi catatan.',
+                                                            icon: 'warning',
+                                                            confirmButtonColor: '#3085d6',
+                                                            confirmButtonText: 'Mengerti'
+                                                        })">
+                                                        <span>
+                                                            <i class="fas fa-edit"></i>
+                                                            Catatan
+                                                        </span>
+                                                    </button>
+                                                @else
+                                                    <button type="button"
+                                                        class="btn btn-sm btn-outline-success laporan-catatan-btn"
+                                                        wire:click="openCatatan({{ $siswa->id }})"
+                                                        wire:loading.attr="disabled"
+                                                        wire:target="openCatatan({{ $siswa->id }})">
+                                                        <span wire:loading.remove wire:target="openCatatan({{ $siswa->id }})">
+                                                            <i class="fas fa-edit"></i>
+                                                            Catatan
+                                                        </span>
+                                                        <span wire:loading wire:target="openCatatan({{ $siswa->id }})">
+                                                            <i class="fas fa-spinner fa-spin mr-1"></i>
+                                                        </span>
+                                                    </button>
+                                                @endif
+                                            </div>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -154,4 +188,55 @@
             </div>
         @endif
     </div>
+
+    <!-- Bootstrap 4 Modal - Catatan & Rekomendasi Siswa -->
+    <div class="modal fade" id="catatanModal" tabindex="-1" role="dialog" aria-labelledby="catatanModalLabel" aria-hidden="true" wire:ignore.self>
+        <div class="modal-dialog" role="document">
+            <form wire:submit="saveCatatan">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="catatanModalLabel">Catatan & Rekomendasi: <strong>{{ $catatanNama }}</strong></h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body text-left">
+                        <div class="form-group">
+                            <label for="catatanText" class="font-weight-bold">Catatan Perkembangan Siswa</label>
+                            <textarea id="catatanText" class="form-control @error('catatanText') is-invalid @enderror" 
+                                wire:model="catatanText" rows="4" placeholder="Masukkan catatan perkembangan siswa..."></textarea>
+                            @error('catatanText') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="form-group mt-3">
+                            <label for="rekomendasiText" class="font-weight-bold">Rekomendasi</label>
+                            <textarea id="rekomendasiText" class="form-control @error('rekomendasiText') is-invalid @enderror" 
+                                wire:model="rekomendasiText" rows="4" placeholder="Masukkan rekomendasi untuk siswa..."></textarea>
+                            @error('rekomendasiText') <span class="invalid-feedback">{{ $message }}</span> @enderror
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                        <button type="submit" class="btn btn-success" wire:loading.attr="disabled" wire:target="saveCatatan">
+                            <span wire:loading.remove wire:target="saveCatatan"><i class="fas fa-save mr-1"></i>Simpan</span>
+                            <span wire:loading wire:target="saveCatatan"><i class="fas fa-spinner fa-spin mr-1"></i>Menyimpan...</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                window.addEventListener('open-catatan-modal', function() {
+                    $('#catatanModal').modal('show');
+                });
+                window.addEventListener('close-catatan-modal', function() {
+                    $('#catatanModal').modal('hide');
+                });
+            });
+        </script>
+    @endpush
 </div>
