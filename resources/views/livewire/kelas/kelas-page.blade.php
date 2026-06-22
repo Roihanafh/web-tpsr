@@ -44,7 +44,7 @@
                             <label>Nama Kelas</label>
                             <input type="text" maxlength="20"
                                 class="form-control @error('nama') is-invalid @enderror"
-                                wire:model="nama" placeholder="5-A"
+                                wire:model="nama" placeholder="Contoh 5-A"
                                 wire:loading.attr="disabled" wire:target="save">
                             @error('nama') <span class="invalid-feedback">{{ $message }}</span> @enderror
                         </div>
