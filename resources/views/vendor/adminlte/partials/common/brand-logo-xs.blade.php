@@ -59,7 +59,7 @@
             line-height: 1.2;
         " data-hide-on-collapse="true">
 
-            {{ ($user_role == 'guru') ? "Guru TPSR PJKR" : $user_role }}
+            {{ ($user_role == 'guru') ? "Guru TPSR PJOK" : $user_role }}
         </span>
     </div>
 

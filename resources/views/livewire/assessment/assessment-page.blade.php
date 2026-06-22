@@ -83,7 +83,7 @@
                                     <tr wire:key="row-{{ $siswa->id }}-{{ $pertemuan }}">
                                         <td class="align-middle font-weight-bold">{{ $siswa->nama }}</td>
                                         @foreach (['L0','L1','L2','L3','L4'] as $lvl)
-                                            <td class="text-center align-middle" wire:key="{{ $siswa->id }}-{{ $lvl }}-{{ $pertemuan }}">
+                                            <td class="text-center align-middle" wire:key="{{ $siswa->id }}-{{ $lvl }}-{{ $pertemuan }}-{{ $renderKey }}">
                                                 <select class="form-control form-control-sm"
                                                     wire:model="ratings.{{ $siswa->id }}.{{ $lvl }}"
                                                     style="min-width: 60px;">

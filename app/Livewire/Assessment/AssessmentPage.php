@@ -14,6 +14,7 @@ class AssessmentPage extends Component
     public ?string $pertemuan = null;
     public array   $ratings   = [];
     public bool    $isAssessed = false;
+    public int     $renderKey  = 0;  // force re-render select setelah kosongkan
 
     public function mount(): void
     {
@@ -37,6 +38,7 @@ class AssessmentPage extends Component
         return view('livewire.assessment.assessment-page', [
             'kelasOptions' => $kelasOptions,
             'students'     => $students,
+            'renderKey'    => $this->renderKey,
         ]);
     }
 
@@ -100,6 +102,7 @@ class AssessmentPage extends Component
         }
 
         $this->isAssessed = false;
+        $this->renderKey++;
         session()->flash('success', 'Penilaian pertemuan ' . $this->pertemuan . ' berhasil dikosongkan.');
         $this->resetValidation();
     }
