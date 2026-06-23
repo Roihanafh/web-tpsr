@@ -83,6 +83,27 @@ class KelasPage extends Component
         $this->dispatch('refreshDatatable');
     }
 
+    #[On('delete-all-kelas')]
+    public function deleteAll(): void
+    {
+        $sekolah = $this->currentSekolah();
+        if (! $sekolah) {
+            session()->flash('error', 'Akun belum terhubung dengan sekolah.');
+            return;
+        }
+
+        $count = $sekolah->kelas()->count();
+        if ($count === 0) {
+            session()->flash('warning', 'Tidak ada data kelas untuk dihapus.');
+            return;
+        }
+
+        $sekolah->kelas()->delete();
+
+        session()->flash('success', 'Seluruh data kelas dan data terkait berhasil dihapus.');
+        $this->dispatch('refreshDatatable');
+    }
+
     public function updatedSearch(): void
     {
         $this->dispatch('kelas-search-changed', search: trim($this->search));

@@ -36,6 +36,15 @@
                 <button type="button" class="btn btn-primary siswa-btn" wire:click="toggleForm" wire:loading.attr="disabled">
                     <i class="fas fa-plus mr-1"></i>Tambah Siswa
                 </button>
+
+                @if ($sekolah)
+                    <button type="button" class="btn btn-danger siswa-btn"
+                        onclick="confirmDeleteAllSiswa('{{ addslashes($filterKelasNama) }}')"
+                        wire:loading.attr="disabled">
+                        <i class="fas fa-trash-alt mr-1"></i>
+                        {{ $filterKelasNama && $filterKelasNama !== '0' && $filterKelasNama !== '' ? 'Hapus Siswa Kelas ' . $filterKelasNama : 'Hapus Semua Siswa' }}
+                    </button>
+                @endif
             </div>
         </div>
 

@@ -110,6 +110,45 @@ class SiswaPage extends Component
         $this->dispatch('refreshDatatable');
     }
 
+    #[On('delete-all-siswa')]
+    public function deleteAll(?string $kelasNama = null): void
+    {
+        $sekolah = $this->currentSekolah();
+        if (! $sekolah) {
+            session()->flash('error', 'Akun belum terhubung dengan sekolah.');
+            return;
+        }
+
+        if ($kelasNama && $kelasNama !== '0' && $kelasNama !== '') {
+            $kelas = $sekolah->kelas()->where('nama', $kelasNama)->first();
+            if (! $kelas) {
+                session()->flash('error', "Kelas {$kelasNama} tidak ditemukan.");
+                return;
+            }
+
+            $count = Siswa::where('kelas_id', $kelas->id)->count();
+            if ($count === 0) {
+                session()->flash('warning', "Tidak ada data siswa di kelas {$kelasNama} untuk dihapus.");
+                return;
+            }
+
+            Siswa::where('kelas_id', $kelas->id)->delete();
+            session()->flash('success', "Seluruh data siswa di kelas {$kelasNama} dan data terkait berhasil dihapus.");
+        } else {
+            $kelasIds = $sekolah->kelas()->pluck('id');
+            $count = Siswa::whereIn('kelas_id', $kelasIds)->count();
+            if ($count === 0) {
+                session()->flash('warning', 'Tidak ada data siswa untuk dihapus.');
+                return;
+            }
+
+            Siswa::whereIn('kelas_id', $kelasIds)->delete();
+            session()->flash('success', 'Seluruh data siswa dan data terkait di sekolah ini berhasil dihapus.');
+        }
+
+        $this->dispatch('refreshDatatable');
+    }
+
     public function updatedFilterKelasNama(): void
     {
         $kelasNama = ($this->filterKelasNama === '0' || $this->filterKelasNama === '') ? '' : $this->filterKelasNama;

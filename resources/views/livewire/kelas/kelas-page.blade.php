@@ -27,6 +27,14 @@
                 <button type="button" class="btn btn-primary kelas-btn" wire:click="toggleForm" wire:loading.attr="disabled">
                     <i class="fas fa-plus mr-1"></i>Tambah Kelas
                 </button>
+
+                @if ($sekolah)
+                    <button type="button" class="btn btn-danger kelas-btn"
+                        onclick="confirmDeleteAllKelas()"
+                        wire:loading.attr="disabled">
+                        <i class="fas fa-trash-alt mr-1"></i>Hapus Semua Kelas
+                    </button>
+                @endif
             </div>
         </div>
 
