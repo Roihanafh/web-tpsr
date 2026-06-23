@@ -136,6 +136,13 @@
                                         <p class="panduan-step-text" style="font-size:0.8rem;">Isi form evaluasi yang tampil, kemudian simpan hasil penilaian Anda dengan menekan tombol <strong>Simpan Penilaian</strong>.</p>
                                     </div>
                                 </div>
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">3</div>
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Penilaian via Import Excel (Alternatif Cepat)</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem;">Anda dapat mengunduh template spreadsheet <strong>SIPENA KARAKTER.xls</strong> di halaman Penilaian. Isi template tersebut dengan data skor penilaian (L0 s.d L4) untuk tiap siswa, kemudian unggah kembali menggunakan tombol <strong>Import Excel</strong> untuk pengisian massal secara instan.</p>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="panduan-navigation-footer mt-3" style="margin-top: 1.5rem; padding-top: 1rem; display: flex; justify-content: space-between;">
@@ -174,6 +181,13 @@
                                     <div class="panduan-step-content">
                                         <div class="panduan-step-title" style="font-size:0.9rem;">Download Output PDF</div>
                                         <p class="panduan-step-text" style="font-size:0.8rem;">Setelah data dipilih, Anda dapat mendownload file hasil laporan analisis tersebut dalam format PDF dengan mengklik tombol <strong>Download</strong>.</p>
+                                    </div>
+                                </div>
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">4</div>
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Pemberian Catatan &amp; Rekomendasi Siswa</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem;">Guru dapat memberikan catatan perkembangan dan rekomendasi kepada masing-masing siswa dengan mengeklik tombol <strong>Catatan</strong> pada tabel Laporan Individu. Catatan ini hanya dapat diisi apabila siswa bersangkutan <strong>sudah memiliki data penilaian lengkap untuk seluruh (16) pertemuan</strong>. Catatan ini akan otomatis tercetak pada Laporan PDF yang diunduh.</p>
                                     </div>
                                 </div>
                             </div>
