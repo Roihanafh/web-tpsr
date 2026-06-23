@@ -249,7 +249,22 @@
     @push('scripts')
         <script>
             document.addEventListener('DOMContentLoaded', function() {
-                window.addEventListener('open-catatan-modal', function() {
+                window.addEventListener('open-catatan-modal', function(e) {
+                    // Livewire 3 named dispatch params ada di e.detail langsung
+                    var detail      = e.detail || {};
+                    var catatan     = detail.catatan     !== undefined ? detail.catatan     : '';
+                    var rekomendasi = detail.rekomendasi !== undefined ? detail.rekomendasi : '';
+
+                    var taCatatan     = document.getElementById('catatanText');
+                    var taRekomendasi = document.getElementById('rekomendasiText');
+
+                    if (taCatatan)     taCatatan.value     = catatan;
+                    if (taRekomendasi) taRekomendasi.value = rekomendasi;
+
+                    // Beritahu Livewire agar propertinya sinkron
+                    if (taCatatan)     taCatatan.dispatchEvent(new Event('input'));
+                    if (taRekomendasi) taRekomendasi.dispatchEvent(new Event('input'));
+
                     $('#catatanModal').modal('show');
                 });
                 window.addEventListener('close-catatan-modal', function() {

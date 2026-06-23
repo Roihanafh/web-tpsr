@@ -30,11 +30,11 @@ class LaporanKelasPage extends Component
     {
         if ($rata === null) return '-';
         return match (true) {
-            $rata <= 1.00 => 'Perlu Perhatian',
-            $rata <= 2.00 => 'Cukup',
-            $rata <= 3.00 => 'Cukup Baik',
+            $rata <= 1.00 => 'Kurang Sekali',
+            $rata <= 2.00 => 'Kurang',
+            $rata <= 3.00 => 'Sedang',
             $rata <= 4.00 => 'Baik',
-            default       => 'Sangat Baik',
+            default       => 'Baik Sekali',
         };
     }
 

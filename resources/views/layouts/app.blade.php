@@ -26,13 +26,55 @@
     @stack('scripts')
 
     <script>
+        // ─── Plugin angka di tiap titik — HANYA untuk export (PDF snapshot) ───
+        var pointLabelsPlugin = {
+            id: 'pointLabels',
+            afterDatasetsDraw: function(chart) {
+                // Hanya aktif jika chart sedang dalam mode "forExport"
+                if (!chart.config._forExport) return;
+                var ctx = chart.ctx;
+                chart.data.datasets.forEach(function(dataset, i) {
+                    var meta = chart.getDatasetMeta(i);
+                    meta.data.forEach(function(point, index) {
+                        var val = dataset.data[index];
+                        if (val === null || val === undefined) return;
+                        ctx.save();
+                        ctx.fillStyle = '#1e40af';
+                        ctx.font = 'bold 11px Arial';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'bottom';
+                        ctx.fillText(parseFloat(val).toFixed(2), point.x, point.y - 6);
+                        ctx.restore();
+                    });
+                });
+            }
+        };
+
+        // ─── Konfigurasi Y axis 1-5 dengan padding 0.5 ───
+        var yAxisConfig = {
+            min: 0.5, max: 5.5,
+            afterBuildTicks: function(axis) {
+                axis.ticks = [1, 2, 3, 4, 5].map(function(v) { return { value: v }; });
+            },
+            ticks: {
+                callback: function(v) { return v; }
+            },
+            grid: {
+                drawOnChartArea: true,
+                color: 'rgba(0,0,0,0.1)'
+            },
+            title: { display: true, text: 'Nilai' }
+        };
+
+        // ═══════════════════════════════════════════════════════
+        // CHART INDIVIDU SISWA
+        // ═══════════════════════════════════════════════════════
         window.addEventListener('init-siswa-chart', function (e) {
-            var labels = e.detail.labels;
-            var values = e.detail.values;
-            var nama   = e.detail.nama;
-            var kelas  = e.detail.kelas;
-            var tahunAjar = e.detail.tahunAjar;
-            var slug   = e.detail.slug;
+            var labels    = e.detail.labels;
+            var values    = e.detail.values;
+            var nama      = e.detail.nama;
+            var kelas     = e.detail.kelas;
+            var slug      = e.detail.slug;
 
             function doInit() {
                 var canvas = document.getElementById('siswaChart');
@@ -61,219 +103,126 @@
                         }]
                     },
                     options: {
-                        devicePixelRatio: 3,
+                        devicePixelRatio: 1.5,
                         animation: {
                             duration: 600,
                             onComplete: function() {
-                                // Setelah animasi selesai, salin chart ke img PDF template
                                 var imgEl = document.getElementById('laporan-pdf-chart-img');
-                                if (imgEl && canvas) {
-                                    imgEl.src = canvas.toDataURL('image/png');
-                                }
+                                if (imgEl && canvas) imgEl.src = canvas.toDataURL('image/png');
                             }
                         },
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
                             legend: { display: true, position: 'top' },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (c) { return 'Level: L' + c.parsed.y; }
-                                }
-                            }
+                            tooltip: { callbacks: { label: function(c) { return 'Nilai: ' + c.parsed.y; } } }
                         },
                         scales: {
                             x: { title: { display: true, text: 'Pertemuan' } },
-                            y: {
-                                min: 0, max: 5.5,
-                                ticks: {
-                                    stepSize: 1,
-                                    callback: function (v) {
-                                        if (v % 1 !== 0) return null;
-                                        return 'L' + v;
-                                    }
-                                },
-                                title: { display: true, text: 'Level' }
-                            }
+                            y: yAxisConfig
                         }
-                    }
+                    },
+                    plugins: [pointLabelsPlugin]
                 });
 
-                // Tombol Download PDF
+                // ── Tombol Download PDF Individu ──
                 var btn = document.getElementById('btnDownloadChart');
                 if (btn) {
-                    // Hapus listener lama agar tidak dobel
                     btn.replaceWith(btn.cloneNode(true));
                     btn = document.getElementById('btnDownloadChart');
 
                     btn.addEventListener('click', function () {
-                        if (!window.jspdf || !window.jspdf.jsPDF) {
-                            alert('Library PDF tidak termuat dengan benar.');
-                            return;
-                        }
+                        if (!window.jspdf || !window.jspdf.jsPDF) { alert('Library PDF tidak termuat.'); return; }
 
                         const { jsPDF } = window.jspdf;
-                        const doc = new jsPDF({
-                            orientation: 'portrait',
-                            unit: 'mm',
-                            format: 'a4'
-                        });
+                        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-                        // 1. Judul Laporan
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(18);
-                        doc.setTextColor(0, 0, 0);
+                        // Judul
+                        doc.setFont('helvetica', 'bold'); doc.setFontSize(16); doc.setTextColor(0,0,0);
                         doc.text('Laporan Analisis Individu', 105, 22, { align: 'center' });
+                        doc.setDrawColor(0,0,0); doc.setLineWidth(0.5); doc.line(20, 27, 190, 27);
 
-                        // Garis pemisah
-                        doc.setDrawColor(0, 0, 0);
-                        doc.setLineWidth(0.6);
-                        doc.line(20, 27, 190, 27);
-
-                        // 2. Info Siswa (menggunakan autotable tanpa border)
-                        var name = (document.getElementById('pdf-siswa-nama')?.textContent || '-').trim();
+                        // Info Siswa
+                        var name     = (document.getElementById('pdf-siswa-nama')?.textContent || '-').trim();
                         var kelasVal = (document.getElementById('pdf-siswa-kelas')?.textContent || '-').trim();
                         var pengajar = (document.getElementById('pdf-siswa-pengajar')?.textContent || '-').trim();
-                        var sekolah = (document.getElementById('pdf-siswa-sekolah')?.textContent || '-').trim();
-                        var tahunAjar = (document.getElementById('pdf-siswa-tahun-ajar')?.textContent || '-').trim();
+                        var sekolah  = (document.getElementById('pdf-siswa-sekolah')?.textContent || '-').trim();
 
                         doc.autoTable({
-                            startY: 32,
-                            margin: { left: 20, right: 20 },
-                            theme: 'plain',
-                            styles: {
-                                fontSize: 10,
-                                cellPadding: 1.5,
-                                font: 'helvetica',
-                                textColor: [0, 0, 0]
-                            },
-                            columnStyles: {
-                                0: { fontStyle: 'bold', width: 30 },
-                                1: { width: 5 },
-                                2: { fontStyle: 'normal' }
-                            },
-                            body: [
-                                ['Nama', ':', name],
-                                ['Kelas', ':', kelasVal],
-                                ['Pengajar', ':', pengajar],
-                                ['Sekolah', ':', sekolah],
-                                ['Tahun Ajar', ':', tahunAjar]
-                            ]
+                            startY: 32, margin: { left: 20, right: 20 }, theme: 'plain',
+                            styles: { fontSize: 10, cellPadding: 1.5, font: 'helvetica', textColor: [0,0,0] },
+                            columnStyles: { 0: { fontStyle: 'bold', cellWidth: 38 }, 1: { cellWidth: 5 } },
+                            body: [['Nama',':',name],['Kelas',':',kelasVal],['Pengajar',':',pengajar],['Sekolah',':',sekolah]]
                         });
 
-                        var currentY = doc.lastAutoTable.finalY + 8;
+                        var currentY = doc.lastAutoTable.finalY + 6;
 
-                        // 3. Tambahkan Grafik
+                        // Grafik
                         if (canvas) {
                             try {
-                                var chartImgData = canvas.toDataURL('image/png');
-                                var pdfWidth = 160;
-                                var pdfHeight = 80; // default
+                                // Aktifkan label titik hanya saat export
+                                window._siswaChartInstance.config._forExport = true;
+                                window._siswaChartInstance.update('none');
+
+                                // Gambar background putih + chart ke canvas sementara
+                                var offscreen = document.createElement('canvas');
+                                offscreen.width  = canvas.width;
+                                offscreen.height = canvas.height;
+                                var octx = offscreen.getContext('2d');
+                                octx.fillStyle = '#ffffff';
+                                octx.fillRect(0, 0, offscreen.width, offscreen.height);
+                                octx.drawImage(canvas, 0, 0);
+
+                                var imgData = offscreen.toDataURL('image/jpeg', 0.85);
+                                var pw = 155, ph = 70;
                                 if (canvas.width && canvas.height) {
-                                    // Hitung aspect ratio agar tidak terdistorsi/lonjong
-                                    var canvasRatio = canvas.width / canvas.height;
-                                    pdfHeight = pdfWidth / canvasRatio;
-                                    if (pdfHeight > 90) pdfHeight = 90;
-                                    if (pdfHeight < 50) pdfHeight = 50;
+                                    ph = pw / (canvas.width / canvas.height);
+                                    if (ph > 80) ph = 80; if (ph < 45) ph = 45;
                                 }
-                                doc.addImage(chartImgData, 'PNG', 25, currentY, pdfWidth, pdfHeight);
-                                
-                                // Label grafik
-                                doc.setFont('helvetica', 'italic');
-                                doc.setFontSize(9);
-                                doc.setTextColor(80, 80, 80);
-                                doc.text('Grafik Penilaian', 105, currentY + pdfHeight + 5, { align: 'center' });
-                                
-                                currentY += pdfHeight + 13;
-                            } catch (e) {
-                                console.error('Gagal mengambil data chart:', e);
-                                currentY += 5;
-                            }
+                                doc.addImage(imgData, 'JPEG', 27, currentY, pw, ph);
+                                doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(80,80,80);
+                                doc.text('Grafik Penilaian Per Pertemuan', 105, currentY + ph + 4, { align: 'center' });
+                                currentY += ph + 11;
+
+                                // Kembalikan ke mode normal
+                                window._siswaChartInstance.config._forExport = false;
+                                window._siswaChartInstance.update('none');
+                            } catch(err) { currentY += 5; }
                         }
 
-                        // 4. Tabel Jumlah Perolehan
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
-                        doc.setTextColor(0, 0, 0);
-                        doc.text('Jumlah Perolehan', 20, currentY);
-
-                        var levelCounts = [];
-                        for (var i = 0; i <= 5; i++) {
-                            var el = document.getElementById('pdf-siswa-lvl-' + i);
-                            levelCounts.push(el ? el.textContent.trim() : '0');
-                        }
+                        // Rata-rata, Status, Catatan, Rekomendasi — satu tabel agar titik dua sejajar
+                        var rata        = (document.getElementById('pdf-siswa-rata')?.textContent || '0.00').trim();
+                        var statusV     = (document.getElementById('pdf-siswa-status')?.textContent || '-').trim();
+                        var catatan     = (document.getElementById('pdf-siswa-catatan')?.textContent || '-').trim();
+                        var rekomendasi = (document.getElementById('pdf-siswa-rekomendasi')?.textContent || '-').trim();
 
                         doc.autoTable({
-                            startY: currentY + 3,
-                            margin: { left: 20, right: 20 },
-                            theme: 'grid',
-                            headStyles: {
-                                fillColor: [243, 244, 246],
-                                textColor: [0, 0, 0],
-                                lineColor: [100, 100, 100],
-                                lineWidth: 0.15,
-                                fontStyle: 'bold',
-                                halign: 'center'
-                            },
-                            bodyStyles: {
-                                textColor: [0, 0, 0],
-                                lineColor: [100, 100, 100],
-                                lineWidth: 0.15,
-                                halign: 'center'
-                            },
-                            styles: {
-                                fontSize: 9,
-                                font: 'helvetica',
-                                cellPadding: 3
-                            },
-                            head: [['L0', 'L1', 'L2', 'L3', 'L4', 'L5']],
-                            body: [levelCounts]
-                        });
-
-                        // 5. Rata-rata dan Status
-                        var rata = (document.getElementById('pdf-siswa-rata')?.textContent || '0.00').trim();
-                        var statusVal = (document.getElementById('pdf-siswa-status')?.textContent || '-').trim();
-
-                        doc.autoTable({
-                            startY: doc.lastAutoTable.finalY + 8,
-                            margin: { left: 20, right: 20 },
-                            theme: 'plain',
-                            styles: {
-                                fontSize: 10,
-                                cellPadding: 1.5,
-                                font: 'helvetica',
-                                textColor: [0, 0, 0]
-                            },
-                            columnStyles: {
-                                0: { fontStyle: 'bold', width: 35 },
-                                1: { width: 5 },
-                                2: { fontStyle: 'normal' }
-                            },
+                            startY: currentY, margin: { left: 20, right: 20 }, theme: 'plain',
+                            styles: { fontSize: 10, cellPadding: 1.5, font: 'helvetica', textColor: [0,0,0], overflow: 'linebreak' },
+                            columnStyles: { 0: { fontStyle: 'bold', cellWidth: 38 }, 1: { cellWidth: 5 } },
                             body: [
                                 ['Rata-rata Point', ':', rata],
-                                ['Status', ':', statusVal]
+                                ['Status', ':', statusV],
+                                ['Catatan', ':', catatan],
+                                ['Rekomendasi', ':', rekomendasi]
                             ]
                         });
 
-                        var yearClean = (tahunAjar || '').replace(/\//g, '-').toLowerCase();
-                        var kelasPart = (kelas || '').toLowerCase();
-                        var filename = 'laporan analisis individu ' + nama.toLowerCase() + 
-                                       (kelasPart ? ' kelas ' + kelasPart : '') + 
-                                       (yearClean ? ' tahun ajar ' + yearClean : '') + '.pdf';
-                        doc.save(filename);
+                        doc.save('laporan individu ' + name.toLowerCase() + (kelasVal ? ' kelas ' + kelasVal.toLowerCase() : '') + '.pdf');
                     });
                 }
             }
-
             doInit();
         });
 
+        // ═══════════════════════════════════════════════════════
+        // CHART KELAS
+        // ═══════════════════════════════════════════════════════
         window.addEventListener('init-kelas-chart', function (e) {
-            var labels = e.detail.labels;
-            var values = e.detail.values;
-            var kelas  = e.detail.kelas;
-            var tahunAjar = e.detail.tahunAjar;
-            var slug   = e.detail.slug;
+            var labels    = e.detail.labels;
+            var values    = e.detail.values;
+            var kelas     = e.detail.kelas;
+            var slug      = e.detail.slug;
 
             function doInitKelas() {
                 var canvas = document.getElementById('kelasChart');
@@ -302,188 +251,132 @@
                         }]
                     },
                     options: {
-                        devicePixelRatio: 3,
+                        devicePixelRatio: 1.5,
                         animation: {
                             duration: 600,
                             onComplete: function() {
                                 var imgEl = document.getElementById('laporan-kelas-pdf-chart-img');
-                                if (imgEl && canvas) {
-                                    imgEl.src = canvas.toDataURL('image/png');
-                                }
+                                if (imgEl && canvas) imgEl.src = canvas.toDataURL('image/png');
                             }
                         },
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
                             legend: { display: true, position: 'top' },
-                            tooltip: {
-                                callbacks: {
-                                    label: function (c) { return 'Rata-rata: ' + (c.parsed.y !== null ? c.parsed.y.toFixed(2) : '-'); }
-                                }
-                            }
+                            tooltip: { callbacks: { label: function(c) { return 'Rata-rata: ' + (c.parsed.y !== null ? c.parsed.y.toFixed(2) : '-'); } } }
                         },
                         scales: {
                             x: { title: { display: true, text: 'Pertemuan' } },
-                            y: {
-                                min: 0, max: 5.5,
-                                ticks: {
-                                    stepSize: 1,
-                                    callback: function (v) {
-                                        if (v % 1 !== 0) return null;
-                                        return 'L' + v;
-                                    }
-                                },
-                                title: { display: true, text: 'Level' }
-                            }
+                            y: yAxisConfig
                         }
-                    }
+                    },
+                    plugins: [pointLabelsPlugin]
                 });
 
-                // Tombol Download PDF Kelas
+                // ── Tombol Download PDF Kelas ──
                 var btn = document.getElementById('btnDownloadKelasChart');
                 if (btn) {
                     btn.replaceWith(btn.cloneNode(true));
                     btn = document.getElementById('btnDownloadKelasChart');
 
                     btn.addEventListener('click', function () {
-                        if (!window.jspdf || !window.jspdf.jsPDF) {
-                            alert('Library PDF tidak termuat dengan benar.');
-                            return;
-                        }
+                        if (!window.jspdf || !window.jspdf.jsPDF) { alert('Library PDF tidak termuat.'); return; }
 
                         const { jsPDF } = window.jspdf;
-                        const doc = new jsPDF({
-                            orientation: 'portrait',
-                            unit: 'mm',
-                            format: 'a4'
-                        });
+                        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 
-                        // 1. Judul Laporan
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(18);
-                        doc.setTextColor(0, 0, 0);
+                        // Judul
+                        doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.setTextColor(0,0,0);
                         doc.text('Laporan Analisis Kelas', 105, 22, { align: 'center' });
-
-                        // Subtitle
-                        doc.setFont('helvetica', 'normal');
-                        doc.setFontSize(14);
+                        doc.setFont('helvetica','normal'); doc.setFontSize(13);
                         doc.text('Kelas ' + kelas, 105, 28, { align: 'center' });
+                        doc.setDrawColor(0,0,0); doc.setLineWidth(0.5); doc.line(20, 32, 190, 32);
 
-                        // Garis pemisah
-                        doc.setDrawColor(0, 0, 0);
-                        doc.setLineWidth(0.6);
-                        doc.line(20, 32, 190, 32);
-
-                        // 2. Info Kelas
-                        var sekolah = (document.getElementById('pdf-kelas-sekolah')?.textContent || '-').trim();
+                        // Info Kelas
+                        var sekolah  = (document.getElementById('pdf-kelas-sekolah')?.textContent || '-').trim();
                         var pengajar = (document.getElementById('pdf-kelas-pengajar')?.textContent || '-').trim();
-                        var tahunAjar = (document.getElementById('pdf-kelas-tahun-ajar')?.textContent || '-').trim();
 
                         doc.autoTable({
-                            startY: 37,
-                            margin: { left: 20, right: 20 },
-                            theme: 'plain',
-                            styles: {
-                                fontSize: 10,
-                                cellPadding: 1.5,
-                                font: 'helvetica',
-                                textColor: [0, 0, 0]
-                            },
-                            columnStyles: {
-                                0: { fontStyle: 'bold', width: 30 },
-                                1: { width: 5 },
-                                2: { fontStyle: 'normal' }
-                            },
-                            body: [
-                                ['Sekolah', ':', sekolah],
-                                ['Pengajar', ':', pengajar],
-                                ['Tahun Ajar', ':', tahunAjar]
-                            ]
+                            startY: 37, margin: { left: 20, right: 20 }, theme: 'plain',
+                            styles: { fontSize: 10, cellPadding: 1.5, font: 'helvetica', textColor: [0,0,0] },
+                            columnStyles: { 0: { fontStyle: 'bold', cellWidth: 38 }, 1: { cellWidth: 5 } },
+                            body: [['Sekolah',':',sekolah],['Pengajar',':',pengajar]]
                         });
 
-                        var currentY = doc.lastAutoTable.finalY + 8;
+                        var currentY = doc.lastAutoTable.finalY + 6;
 
-                        // 3. Tambahkan Grafik
+                        // Grafik
                         if (canvas) {
                             try {
-                                var chartImgData = canvas.toDataURL('image/png');
-                                var pdfWidth = 160;
-                                var pdfHeight = 80; // default
+                                // Aktifkan label titik hanya saat export
+                                window._kelasChartInstance.config._forExport = true;
+                                window._kelasChartInstance.update('none');
+
+                                var offscreen = document.createElement('canvas');
+                                offscreen.width  = canvas.width;
+                                offscreen.height = canvas.height;
+                                var octx = offscreen.getContext('2d');
+                                octx.fillStyle = '#ffffff';
+                                octx.fillRect(0, 0, offscreen.width, offscreen.height);
+                                octx.drawImage(canvas, 0, 0);
+
+                                var imgData = offscreen.toDataURL('image/jpeg', 0.85);
+                                var pw = 155, ph = 70;
                                 if (canvas.width && canvas.height) {
-                                    // Hitung aspect ratio agar tidak terdistorsi/lonjong
-                                    var canvasRatio = canvas.width / canvas.height;
-                                    pdfHeight = pdfWidth / canvasRatio;
-                                    if (pdfHeight > 90) pdfHeight = 90;
-                                    if (pdfHeight < 50) pdfHeight = 50;
+                                    ph = pw / (canvas.width / canvas.height);
+                                    if (ph > 80) ph = 80; if (ph < 45) ph = 45;
                                 }
-                                doc.addImage(chartImgData, 'PNG', 25, currentY, pdfWidth, pdfHeight);
+                                doc.addImage(imgData, 'JPEG', 27, currentY, pw, ph);
+                                doc.setFont('helvetica','italic'); doc.setFontSize(8); doc.setTextColor(80,80,80);
+                                doc.text('Grafik Perkembangan Kelas', 105, currentY + ph + 4, { align: 'center' });
+                                currentY += ph + 11;
 
-                                doc.setFont('helvetica', 'italic');
-                                doc.setFontSize(9);
-                                doc.setTextColor(80, 80, 80);
-                                doc.text('Grafik Perkembangan Kelas', 105, currentY + pdfHeight + 5, { align: 'center' });
-
-                                currentY += pdfHeight + 13;
-                            } catch (e) {
-                                console.error('Gagal mengambil data chart:', e);
-                                currentY += 5;
-                            }
+                                window._kelasChartInstance.config._forExport = false;
+                                window._kelasChartInstance.update('none');
+                            } catch(err) { currentY += 5; }
                         }
 
-                        // 4. Tabel Ranking Siswa
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(11);
-                        doc.setTextColor(0, 0, 0);
+                        // Tabel Ranking
+                        doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(0,0,0);
                         doc.text('Tabel Ranking Siswa', 20, currentY);
-
                         doc.autoTable({
-                            html: '#pdf-kelas-ranking-table',
-                            startY: currentY + 3,
-                            margin: { left: 20, right: 20 },
-                            theme: 'grid',
-                            headStyles: {
-                                fillColor: [243, 244, 246],
-                                textColor: [0, 0, 0],
-                                lineColor: [100, 100, 100],
-                                lineWidth: 0.15,
-                                fontStyle: 'bold',
-                                halign: 'center'
-                            },
-                            bodyStyles: {
-                                textColor: [0, 0, 0],
-                                lineColor: [100, 100, 100],
-                                lineWidth: 0.15
-                            },
-                            columnStyles: {
-                                0: { halign: 'center', width: 12 },
-                                1: { halign: 'left' },
-                                2: { halign: 'center', width: 35 },
-                                3: { halign: 'center', width: 40 }
-                            },
-                            styles: {
-                                fontSize: 9,
-                                font: 'helvetica',
-                                cellPadding: 3
-                            }
+                            html: '#pdf-kelas-ranking-table', startY: currentY + 3, margin: { left: 20, right: 20 }, theme: 'grid',
+                            headStyles: { fillColor: [243,244,246], textColor: [0,0,0], lineColor: [100,100,100], lineWidth: 0.15, fontStyle: 'bold', halign: 'center' },
+                            bodyStyles: { textColor: [0,0,0], lineColor: [100,100,100], lineWidth: 0.15 },
+                            columnStyles: { 0: { halign:'center', cellWidth:12 }, 1: { halign:'left' }, 2: { halign:'center', cellWidth:32 }, 3: { halign:'center', cellWidth:38 } },
+                            styles: { fontSize: 8, font: 'helvetica', cellPadding: 2.5 }
                         });
 
-                        // 5. Rata-rata Point Kelas
+                        // Rata-rata kelas
                         var classAvg = (document.getElementById('pdf-kelas-avg')?.textContent || '0.00').trim();
-                        doc.setFont('helvetica', 'bold');
-                        doc.setFontSize(10);
-                        doc.setTextColor(0, 0, 0);
-                        doc.text('Rata-rata Point Kelas : ' + classAvg, 20, doc.lastAutoTable.finalY + 8);
+                        doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(0,0,0);
+                        doc.text('Rata-rata Point Kelas : ' + classAvg, 20, doc.lastAutoTable.finalY + 7);
 
-                        var yearClean = (tahunAjar || '').replace(/\//g, '-').toLowerCase();
-                        var filename = 'laporan analisis kelas ' + (kelas || '').toLowerCase() + 
-                                       (yearClean ? ' tahun ajar ' + yearClean : '') + '.pdf';
-                        doc.save(filename);
+                        // Tabel Catatan & Rekomendasi (jika ada)
+                        var catatanTable = document.getElementById('pdf-kelas-catatan-table');
+                        if (catatanTable) {
+                            var catatanY = doc.lastAutoTable.finalY + 15;
+                            doc.setFont('helvetica','bold'); doc.setFontSize(10); doc.setTextColor(0,0,0);
+                            doc.text('Catatan & Rekomendasi Siswa', 20, catatanY);
+                            doc.autoTable({
+                                html: '#pdf-kelas-catatan-table', startY: catatanY + 3, margin: { left: 20, right: 20 }, theme: 'grid',
+                                headStyles: { fillColor: [243,244,246], textColor: [0,0,0], lineColor: [100,100,100], lineWidth: 0.15, fontStyle: 'bold' },
+                                bodyStyles: { textColor: [0,0,0], lineColor: [100,100,100], lineWidth: 0.15, valign: 'top' },
+                                columnStyles: {
+                                    0: { halign: 'center', cellWidth: 12 },
+                                    1: { cellWidth: 38 },
+                                    2: { cellWidth: 'auto' },
+                                    3: { cellWidth: 'auto' }
+                                },
+                                styles: { fontSize: 8, font: 'helvetica', cellPadding: 2.5, overflow: 'linebreak' }
+                            });
+                        }
+
+                        doc.save('laporan kelas ' + (kelas || '').toLowerCase() + '.pdf');
                     });
                 }
             }
-
             doInitKelas();
         });
-
     </script>
 @stop
