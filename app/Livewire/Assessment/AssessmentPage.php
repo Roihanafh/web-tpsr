@@ -73,9 +73,9 @@ class AssessmentPage extends Component
         }
 
         $students = Siswa::where('kelas_id', $this->kelasId)->get();
-        // Default: semua - (kosong)
+        // Default: semua 5 untuk mempercepat penilaian
         foreach ($students as $s) {
-            $this->ratings[$s->id] = ['L0' => '', 'L1' => '', 'L2' => '', 'L3' => '', 'L4' => ''];
+            $this->ratings[$s->id] = ['L0' => 5, 'L1' => 5, 'L2' => 5, 'L3' => 5, 'L4' => 5];
         }
 
         $existing = Penilaian::whereIn('siswa_id', $students->pluck('id'))
@@ -104,7 +104,7 @@ class AssessmentPage extends Component
 
         foreach ($students as $s) {
             $this->recalcRataPoin($s);
-            $this->ratings[$s->id] = ['L0' => '', 'L1' => '', 'L2' => '', 'L3' => '', 'L4' => ''];
+            $this->ratings[$s->id] = ['L0' => 5, 'L1' => 5, 'L2' => 5, 'L3' => 5, 'L4' => 5];
         }
 
         $this->isAssessed = false;
