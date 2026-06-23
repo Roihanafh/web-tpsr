@@ -21,6 +21,7 @@ class AssessmentPage extends Component
     public bool    $showImportForm = false;
     public mixed   $fileImport     = null;
     public array   $importFailures = [];
+    public array   $importResult   = [];   // [{nama, pertemuan, action}]
 
     public function mount(): void
     {
@@ -163,18 +164,79 @@ class AssessmentPage extends Component
     {
         $this->showImportForm = ! $this->showImportForm;
         if ($this->showImportForm) {
-            $this->fileImport = null;
+            $this->fileImport    = null;
+            $this->importFailures = [];
+            $this->importResult   = [];
         }
     }
 
     public function import(): void
     {
-        // Logika import dikosongkan terlebih dahulu sesuai request
+        if (! Auth::user()?->can('view_assessment')) abort(403);
+
+        $sekolah = Auth::user()?->sekolah;
+        if (! $sekolah) {
+            session()->flash('error', 'Akun belum terhubung dengan sekolah.');
+            return;
+        }
+
+        $this->validate([
+            'fileImport' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:5120'],
+        ], [
+            'fileImport.required' => 'File wajib dipilih.',
+            'fileImport.mimes'    => 'Format file harus XLS, XLSX, atau CSV.',
+        ]);
+
+        $path = $this->fileImport->getRealPath();
+
+        $importer = new \App\Imports\SipenaPenilaianImport($sekolah);
+
+        try {
+            $importer->import($path);
+        } catch (\Throwable $e) {
+            session()->flash('error', 'Gagal memproses file: ' . $e->getMessage());
+            return;
+        }
+
+        // Simpan hasil ke property untuk ditampilkan di view
+        $this->importResult   = $importer->imported;
+        $this->importFailures = array_merge(
+            array_map(fn ($w) => ['line' => '-', 'message' => '⚠️ ' . $w], $importer->warnings),
+            array_map(fn ($s) => ['line' => $s['nama'], 'message' => $s['reason']], $importer->skipped),
+        );
+
+        $importCount = count($importer->imported);
+
+        if ($importCount > 0) {
+            // Reload penilaian jika kelas & pertemuan sesuai
+            if ($importer->kelasNama && $importer->pertemuan) {
+                $matchKelas = \App\Models\Kelas::where('sekolah_id', $sekolah->id)
+                    ->where('nama', $importer->kelasNama)->first();
+                if ($matchKelas) {
+                    $this->kelasId   = $matchKelas->id;
+                    $this->pertemuan = (string) $importer->pertemuan;
+                    $this->loadPenilaian();
+                }
+            }
+
+            session()->flash('success',
+                "{$importCount} siswa berhasil diimport untuk pertemuan {$importer->pertemuan}, kelas {$importer->kelasNama}."
+            );
+        } else {
+            session()->flash('error', 'Tidak ada data siswa yang berhasil diimport.');
+        }
+
+        $this->fileImport     = null;
+        $this->showImportForm = false;
     }
 
-    public function downloadTemplate(): void
+    public function downloadTemplate(): \Symfony\Component\HttpFoundation\StreamedResponse
     {
-        // Logika download template dikosongkan terlebih dahulu sesuai request
+        return response()->streamDownload(function () {
+            readfile(public_path('SIPENA KARAKTER.xls'));
+        }, 'SIPENA KARAKTER.xls', [
+            'Content-Type' => 'application/vnd.ms-excel',
+        ]);
     }
 
     private function recalcRataPoin(Siswa $student): void

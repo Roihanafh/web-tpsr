@@ -84,10 +84,21 @@
 
         @if ($importFailures !== [])
             <div class="alert alert-warning mt-3 mb-3">
-                <strong>Data gagal masuk database:</strong>
+                <strong><i class="fas fa-exclamation-triangle mr-1"></i>Peringatan / Data yang dilewati:</strong>
                 <ul class="mb-0 mt-2">
                     @foreach ($importFailures as $failure)
-                        <li>Baris {{ $failure['line'] }}: {{ $failure['message'] }}</li>
+                        <li><strong>{{ $failure['line'] }}</strong>: {{ $failure['message'] }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        @if ($importResult !== [])
+            <div class="alert alert-success mt-3 mb-3">
+                <strong><i class="fas fa-check-circle mr-1"></i>{{ count($importResult) }} siswa berhasil diimport:</strong>
+                <ul class="mb-0 mt-2" style="max-height: 200px; overflow-y:auto;">
+                    @foreach ($importResult as $r)
+                        <li>{{ $r['nama'] }} — Pertemuan {{ $r['pertemuan'] }} <span class="badge badge-light">{{ $r['action'] }}</span></li>
                     @endforeach
                 </ul>
             </div>
