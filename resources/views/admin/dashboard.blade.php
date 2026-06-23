@@ -15,9 +15,6 @@
                 <a href="{{ route('admin.sekolah') }}" class="btn tpsr-banner-btn-secondary">
                     <i class="fas fa-school mr-1"></i> Kelola Sekolah
                 </a>
-                <a href="#" data-toggle="modal" data-target="#panduanModal" class="btn tpsr-banner-btn-secondary">
-                    <i class="fas fa-book-open mr-1"></i> Buku Panduan
-                </a>
             </div>
         </div>
         <div class="tpsr-banner-graphic d-none d-md-flex">
