@@ -172,8 +172,11 @@ class LaporanIndividuPage extends Component
     public function saveCatatan(): void
     {
         $this->validate([
-            'catatanText'     => ['nullable', 'string', 'max:500'],
-            'rekomendasiText' => ['nullable', 'string', 'max:500'],
+            'catatanText'     => ['required', 'string', 'min:1', 'max:500'],
+            'rekomendasiText' => ['required', 'string', 'min:1', 'max:500'],
+        ], [
+            'catatanText.required'     => 'Catatan perkembangan siswa wajib diisi.',
+            'rekomendasiText.required' => 'Rekomendasi wajib diisi.',
         ]);
 
         if ($this->catatanSiswaId) {

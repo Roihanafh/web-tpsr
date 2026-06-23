@@ -121,7 +121,26 @@
                                 @foreach ($siswaList as $index => $siswa)
                                     <tr class="{{ $selectedSiswaId === $siswa->id ? 'laporan-row-active' : '' }}">
                                         <td>{{ $index + 1 }}</td>
-                                        <td>{{ $siswa->nama }}</td>
+                                        <td>
+                                            <div>{{ $siswa->nama }}</div>
+                                            @php
+                                                $hasCatatan   = ! empty($siswa->keterangan);
+                                                $hasRekomendasi = ! empty($siswa->rekomendasi);
+                                            @endphp
+                                            @if ($hasCatatan && $hasRekomendasi)
+                                                <div class="mt-1">
+                                                    <span class="badge badge-success" style="font-size:0.68rem;font-weight:600;padding:2px 6px;border-radius:3px;">
+                                                        <i class="fas fa-check-circle mr-1"></i>Sudah Dicatat
+                                                    </span>
+                                                </div>
+                                            @elseif (($siswa->pertemuan_dinilai ?? 0) >= 16)
+                                                <div class="mt-1">
+                                                    <span class="badge badge-warning" style="font-size:0.68rem;font-weight:600;padding:2px 6px;border-radius:3px;color:#111;">
+                                                        <i class="fas fa-exclamation-circle mr-1"></i>Belum Dicatat
+                                                    </span>
+                                                </div>
+                                            @endif
+                                        </td>
                                         <td>{{ $siswa->kelas?->nama ?? '-' }}</td>
                                         <td>
                                             @if ($siswa->rata_laporan !== null)
