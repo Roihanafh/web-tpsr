@@ -59,7 +59,11 @@ RUN install-php-extensions \
     bcmath \
     gd \
     opcache \
-    intl
+    intl \
+    mbstring \
+    simplexml \
+    xmlreader \
+    xmlwriter
 
 # Set PHP configurations for production
 RUN echo "upload_max_filesize = 64M" > /usr/local/etc/php/conf.d/custom-limits.ini && \
