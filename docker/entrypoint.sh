@@ -67,10 +67,16 @@ chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # 4. Clear old caches and re-cache for production performance
-echo "Caching Laravel configuration, routes, and views..."
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
+# Must run as www-data so cache files are owned by the same user as PHP-FPM
+echo "Clearing old caches..."
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+echo "Re-caching as www-data..."
+su -s /bin/sh www-data -c "APP_URL=${APP_URL} php artisan config:cache"
+su -s /bin/sh www-data -c "php artisan route:cache"
+su -s /bin/sh www-data -c "php artisan view:cache"
 
 # 5. Run Database Migrations & Seeders
 if [ "${RUN_MIGRATIONS:-true}" = "true" ]; then
