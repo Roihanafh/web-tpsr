@@ -63,7 +63,8 @@ RUN install-php-extensions \
     mbstring \
     simplexml \
     xmlreader \
-    xmlwriter
+    xmlwriter \
+    openssl
 
 # Set PHP configurations for production
 RUN echo "upload_max_filesize = 64M" > /usr/local/etc/php/conf.d/custom-limits.ini && \

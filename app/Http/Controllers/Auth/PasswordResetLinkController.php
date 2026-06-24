@@ -35,6 +35,10 @@ class PasswordResetLinkController extends Controller
                 $request->only('email')
             );
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Mail send failed: ' . $e->getMessage(), [
+                'exception' => get_class($e),
+                'trace'     => $e->getTraceAsString(),
+            ]);
             return back()
                 ->withInput($request->only('email'))
                 ->withErrors(['email' => 'Gagal mengirim email. Pastikan koneksi internet aktif dan coba beberapa saat lagi.']);
