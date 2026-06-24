@@ -53,6 +53,14 @@ else
     echo "No dynamic PORT environment variable found, defaulting Nginx to port 80"
 fi
 
+# 2b. Auto-set APP_URL from RAILWAY_PUBLIC_DOMAIN if APP_URL is not explicitly set
+if [ -z "$APP_URL" ] && [ -n "$RAILWAY_PUBLIC_DOMAIN" ]; then
+    export APP_URL="https://${RAILWAY_PUBLIC_DOMAIN}"
+    echo "APP_URL auto-set to: $APP_URL"
+elif [ -n "$APP_URL" ]; then
+    echo "APP_URL already set to: $APP_URL"
+fi
+
 # 3. Ensure permissions are correct for Storage and Cache
 echo "Setting storage and bootstrap/cache permissions..."
 chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache

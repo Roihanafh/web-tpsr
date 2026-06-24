@@ -4,12 +4,23 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-// Only start Alpine if Livewire is not present on the page.
-// Livewire 3 will automatically boot and start Alpine if it is present.
+// Livewire 3 boots Alpine automatically via @livewireScripts.
+// Only start Alpine manually if Livewire is NOT on the page.
+// We defer to 'livewire:init' event — if it fires, Livewire handles Alpine.
+// Otherwise start Alpine ourselves after a short tick.
+let alpineStarted = false;
+
+document.addEventListener('livewire:init', () => {
+    alpineStarted = true;
+});
+
 document.addEventListener('DOMContentLoaded', () => {
-    if (!window.Livewire) {
-        Alpine.start();
-    }
+    setTimeout(() => {
+        if (!alpineStarted && !window.__alpine_started) {
+            window.__alpine_started = true;
+            Alpine.start();
+        }
+    }, 0);
 });
 
 // Hide brand user info when sidebar collapses
