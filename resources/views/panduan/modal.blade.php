@@ -25,6 +25,9 @@
                         <a class="panduan-modal-nav-link" id="modal-tab-laporan" data-toggle="pill" href="#modal-content-laporan" role="tab" aria-controls="modal-content-laporan" aria-selected="false">
                             <i class="fas fa-chart-line"></i> Laporan Analisis
                         </a>
+                        <a class="panduan-modal-nav-link" id="modal-tab-troubleshoot" data-toggle="pill" href="#modal-content-troubleshoot" role="tab" aria-controls="modal-content-troubleshoot" aria-selected="false">
+                            <i class="fas fa-tools"></i> Troubleshooting
+                        </a>
                     </div>
 
                     {{-- Modal Main Content --}}
@@ -228,6 +231,138 @@
 
                             <div class="panduan-navigation-footer mt-3" style="margin-top: 1.5rem; padding-top: 1rem; display: flex; justify-content: space-between;">
                                 <button onclick="showModalTab('modal-tab-penilaian')" class="btn-panduan-prev py-1.5 px-3" style="font-size:0.8rem;">
+                                    <i class="fas fa-arrow-left"></i> Sebelumnya
+                                </button>
+                                <button onclick="showModalTab('modal-tab-troubleshoot')" class="btn-panduan-next py-1.5 px-3" style="font-size:0.8rem;">
+                                    Selanjutnya: Troubleshooting <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Tab 5: Troubleshooting --}}
+                        <div class="tab-pane fade" id="modal-content-troubleshoot" role="tabpanel" aria-labelledby="modal-tab-troubleshoot">
+                            <h5 class="font-weight-bold text-dark mb-3">Troubleshooting</h5>
+                            <p class="text-secondary mb-3" style="font-size: 0.9rem;">
+                                Kumpulan masalah umum yang mungkin ditemui beserta solusinya.
+                            </p>
+                            <div class="panduan-step-list">
+
+                                {{-- 1 --}}
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">
+                                            <i class="fas fa-exclamation-circle text-warning mr-1"></i>
+                                            Lupa Sandi / Tidak Bisa Login
+                                        </div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem; line-height:1.7;">
+                                            Klik <strong>Lupa Sandi</strong> di halaman login, lalu masukkan alamat email yang didaftarkan saat registrasi.<br>
+                                            <strong>Pastikan:</strong> email yang dimasukkan valid dan sama persis dengan email akun Anda.<br>
+                                            Link reset akan dikirim ke inbox — cek juga folder <em>Spam/Junk</em> jika tidak muncul dalam beberapa menit.<br>
+                                            Jika email terdaftar tidak dikenali, hubungi Admin sekolah untuk mereset akun Anda.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- 2 --}}
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">
+                                            <i class="fas fa-exclamation-circle text-warning mr-1"></i>
+                                            Import Excel Gagal / "Tidak Ada Data Siswa yang Berhasil Diimport"
+                                        </div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem; line-height:1.7;">
+                                            Periksa hal berikut pada file Excel Anda:<br>
+                                            • Pastikan file yang diunggah berformat <strong>.xlsx</strong> dan ukurannya tidak melebihi <strong>5 MB</strong>.<br>
+                                            • Pastikan Anda mengisi data pada tab <strong>Input_TPSR</strong>, bukan tab lain.<br>
+                                            • Sel <strong>B2</strong> wajib diisi nama kelas (contoh: <code>5-A</code>).<br>
+                                            • Nama siswa dimulai dari baris 5 kolom A — jangan ada baris kosong di antara data siswa.<br>
+                                            • Nilai L0–L4 hanya boleh berisi angka <strong>1, 2, 3, atau 4</strong>. Nilai selain itu (termasuk 5) akan diabaikan.<br>
+                                            • Jangan mengganti nama tab atau struktur kolom template.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- 3 --}}
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">
+                                            <i class="fas fa-exclamation-circle text-warning mr-1"></i>
+                                            Peringatan "Kelas Tidak Ditemukan, Otomatis Dibuat" Muncul
+                                        </div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem; line-height:1.7;">
+                                            Ini terjadi karena nama kelas di sel <strong>B2</strong> file Excel tidak cocok dengan nama kelas yang sudah ada di sistem.<br>
+                                            Sistem akan membuat kelas baru secara otomatis, namun jika ini tidak diinginkan:<br>
+                                            • Periksa ejaan dan format nama kelas (contoh: <code>5-A</code> bukan <code>5 A</code> atau <code>5a</code>).<br>
+                                            • Nama kelas bersifat <em>case-insensitive</em> tetapi tanda hubung dan spasi tetap diperhatikan.<br>
+                                            • Kelas yang terbuat secara tidak sengaja dapat dihapus melalui menu <strong>Manajemen Kelas</strong>.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- 4 --}}
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">
+                                            <i class="fas fa-exclamation-circle text-warning mr-1"></i>
+                                            Tombol "Catatan" Tidak Bisa Diklik / Berwarna Abu-abu
+                                        </div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem; line-height:1.7;">
+                                            Tombol Catatan hanya aktif jika siswa sudah memiliki data penilaian untuk <strong>seluruh 16 pertemuan</strong>.<br>
+                                            Jika masih abu-abu, pastikan semua pertemuan (1–16) sudah diisi nilainya untuk siswa tersebut melalui menu <strong>Penilaian TPSR</strong>.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- 5 --}}
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">
+                                            <i class="fas fa-exclamation-circle text-warning mr-1"></i>
+                                            Grafik Laporan Kosong / Data Tidak Muncul
+                                        </div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem; line-height:1.7;">
+                                            Grafik hanya ditampilkan jika ada data penilaian yang tersimpan.<br>
+                                            • Pastikan kelas dan siswa sudah memiliki minimal satu pertemuan yang dinilai.<br>
+                                            • Jika baru saja mengimport, coba refresh halaman atau pilih kelas kembali dari dropdown.<br>
+                                            • Jika grafik tidak muncul pada PDF, pastikan browser tidak memblokir JavaScript.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- 6 --}}
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">
+                                            <i class="fas fa-exclamation-circle text-warning mr-1"></i>
+                                            Akun Tidak Memiliki Akses ke Fitur Tertentu
+                                        </div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem; line-height:1.7;">
+                                            Akun <strong>Guru</strong> hanya dapat mengakses data sekolah yang terhubung dengan akunnya.<br>
+                                            Jika muncul pesan <em>"Akun belum terhubung dengan sekolah"</em>, hubungi Admin untuk menautkan akun Anda ke sekolah yang sesuai.<br>
+                                            Akun <strong>Admin</strong> memiliki akses penuh ke semua data sekolah, kelas, guru, dan siswa.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {{-- 7 --}}
+                                <div class="panduan-step-card py-2 px-3 mb-2">
+                                    <div class="panduan-step-content">
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">
+                                            <i class="fas fa-exclamation-circle text-warning mr-1"></i>
+                                            Data Siswa / Kelas Tidak Muncul di Daftar
+                                        </div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem; line-height:1.7;">
+                                            • Pastikan data sudah ditambahkan melalui menu <strong>Manajemen Kelas</strong> atau via Import.<br>
+                                            • Coba hapus teks pada kolom pencarian (search) karena filter aktif dapat menyembunyikan data.<br>
+                                            • Reload halaman jika data baru tidak langsung terlihat setelah proses import selesai.
+                                        </p>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                            <div class="panduan-navigation-footer mt-3" style="margin-top: 1.5rem; padding-top: 1rem; display: flex; justify-content: space-between;">
+                                <button onclick="showModalTab('modal-tab-laporan')" class="btn-panduan-prev py-1.5 px-3" style="font-size:0.8rem;">
                                     <i class="fas fa-arrow-left"></i> Sebelumnya
                                 </button>
                                 <button type="button" class="btn-panduan-next py-1.5 px-3" data-dismiss="modal" style="font-size:0.8rem; background: #22c55e;">
