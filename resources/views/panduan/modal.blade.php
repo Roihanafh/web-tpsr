@@ -120,27 +120,44 @@
                             <h5 class="font-weight-bold text-dark mb-3">Penilaian TPSR</h5>
                             <p class="text-secondary mb-3" style="font-size: 0.9rem;">
                                 Menu Penilaian digunakan untuk memberikan penilaian kepada siswa dari kelas yang diampu.
+                                Tersedia dua cara: input langsung di sistem atau import via file Excel.
                             </p>
                             <div class="panduan-step-list">
                                 <div class="panduan-step-card py-2 px-3 mb-2">
                                     <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">1</div>
                                     <div class="panduan-step-content">
-                                        <div class="panduan-step-title" style="font-size:0.9rem;">Gunakan Filter Dropdown</div>
-                                        <p class="panduan-step-text" style="font-size:0.8rem;">Sebelum melakukan penilaian, Pengguna wajib menentukan data yang akan dinilai melalui filter yang tersedia. </p>
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Pilih Kelas &amp; Pertemuan</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem;">
+                                            Gunakan dropdown <strong>Pilih Kelas</strong> dan <strong>Pilih Pertemuan</strong> (1–16)
+                                            untuk menentukan data yang akan dinilai. Tabel penilaian akan muncul otomatis setelah keduanya dipilih.
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="panduan-step-card py-2 px-3 mb-2">
                                     <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">2</div>
                                     <div class="panduan-step-content">
-                                        <div class="panduan-step-title" style="font-size:0.9rem;">Simpan Penilaian</div>
-                                        <p class="panduan-step-text" style="font-size:0.8rem;">Isi form evaluasi yang tampil, kemudian simpan hasil penilaian Anda dengan menekan tombol <strong>Simpan Penilaian</strong>.</p>
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Isi &amp; Simpan Penilaian</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem;">
+                                            Isi nilai <strong>L0–L4</strong> (skala 1–4) untuk setiap siswa pada tabel yang muncul,
+                                            lalu klik <strong>Simpan Penilaian</strong>.
+                                            Untuk mengosongkan semua nilai pertemuan yang aktif, gunakan tombol <strong>Kosongkan Penilaian</strong>.
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="panduan-step-card py-2 px-3 mb-2">
                                     <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">3</div>
                                     <div class="panduan-step-content">
-                                        <div class="panduan-step-title" style="font-size:0.9rem;">Penilaian via Import Excel (Alternatif Cepat)</div>
-                                        <p class="panduan-step-text" style="font-size:0.8rem;">Anda dapat mengunduh template spreadsheet <strong>SIPENA KARAKTER.xls</strong> di halaman Penilaian. Isi template tersebut dengan data skor penilaian (L0 s.d L4) untuk tiap siswa, kemudian unggah kembali menggunakan tombol <strong>Import Excel</strong> untuk pengisian massal secara instan.</p>
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Import via Excel (Alternatif Cepat)</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem; line-height: 1.7;">
+                                            Klik <strong>Import Excel</strong> → <strong>Download template</strong> untuk mengunduh file <strong>TPSR_template.xlsx</strong>.<br>
+                                            Isi template pada tab <strong>Input_TPSR</strong>:<br>
+                                            &nbsp;&nbsp;• Sel <strong>B2</strong> = nama kelas (harus sama persis dengan nama di sistem, atau akan dibuat otomatis jika belum ada).<br>
+                                            &nbsp;&nbsp;• Kolom <strong>A</strong> mulai baris 5 = nama siswa.<br>
+                                            &nbsp;&nbsp;• Kolom <strong>B–F</strong> = nilai L0–L4 Pertemuan 1, kolom <strong>G–K</strong> = Pertemuan 2, dst. hingga Pertemuan 16 (kolom CC).<br>
+                                            &nbsp;&nbsp;• Nilai yang valid: <strong>1, 2, 3, atau 4</strong>. Sel kosong berarti tidak dinilai.<br>
+                                            Setelah file diisi, unggah kembali via tombol <strong>Import Excel</strong>.
+                                            Sistem akan langsung menampilkan tabel kelas tersebut pada pertemuan terakhir yang memiliki data.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
@@ -159,35 +176,52 @@
                         <div class="tab-pane fade" id="modal-content-laporan" role="tabpanel" aria-labelledby="modal-tab-laporan">
                             <h5 class="font-weight-bold text-dark mb-3">Laporan Analisis</h5>
                             <p class="text-secondary mb-3" style="font-size: 0.9rem;">
-                                Menu Laporan Analisis digunakan untuk melihat hasil dari penilaian TPSR secara keseluruhan serta mendownload hasilnya dalam bentuk format berkas PDF.
+                                Menu Laporan Analisis terdiri dari dua submenu: <strong>Laporan Individu</strong> dan <strong>Laporan Kelas</strong>.
+                                Hasil laporan dapat diunduh dalam format PDF maupun Excel.
                             </p>
                             <div class="panduan-step-list">
                                 <div class="panduan-step-card py-2 px-3 mb-2">
                                     <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">1</div>
                                     <div class="panduan-step-content">
-                                        <div class="panduan-step-title" style="font-size:0.9rem;">Tentukan Data Melalui Filter</div>
-                                        <p class="panduan-step-text" style="font-size:0.8rem;">Sebelum melihat data laporan analisis, Pengguna wajib menentukan data yang ingin dilihat terlebih dahulu melalui filter yang tersedia. </p>
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Pilih Data &amp; Lihat Detail</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem;">
+                                            Gunakan filter atau cari nama kelas/siswa yang diinginkan,
+                                            lalu klik tombol <strong>Detail</strong> pada kolom Grafik untuk menampilkan grafik perkembangan dan tabel ranking.
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="panduan-step-card py-2 px-3 mb-2">
                                     <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">2</div>
                                     <div class="panduan-step-content">
-                                        <div class="panduan-step-title" style="font-size:0.9rem;">Lihat Detail Laporan</div>
-                                        <p class="panduan-step-text" style="font-size:0.8rem;">Pengguna bisa memilih dan melihat detail data yang diinginkan dengan mengklik tombol <strong>Detail</strong> yang ada pada kolom Grafik. </p>
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Download PDF</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem;">
+                                            Setelah detail muncul, klik tombol <strong>Download PDF</strong> untuk mengunduh laporan analisis dalam format PDF.
+                                            PDF mencakup grafik perkembangan, tabel ranking, dan catatan/rekomendasi siswa (jika ada).
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="panduan-step-card py-2 px-3 mb-2">
                                     <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">3</div>
                                     <div class="panduan-step-content">
-                                        <div class="panduan-step-title" style="font-size:0.9rem;">Download Output PDF</div>
-                                        <p class="panduan-step-text" style="font-size:0.8rem;">Setelah data dipilih, Anda dapat mendownload file hasil laporan analisis tersebut dalam format PDF dengan mengklik tombol <strong>Download</strong>.</p>
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Export Excel (Laporan Kelas)</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem;">
+                                            Khusus di halaman <strong>Laporan Kelas</strong>, tersedia tombol <strong>Export Excel</strong> di samping tombol Download PDF.
+                                            File yang diunduh berformat <strong>TPSR_&lt;NamaKelas&gt;.xlsx</strong> dengan tiga tab:
+                                            <strong>Input_TPSR</strong> (data nilai L0–L4 per pertemuan),
+                                            <strong>Resume_Karakter</strong> (mapping ke 10 dimensi karakter),
+                                            dan <strong>Dashboard_Karakter</strong> (rata-rata karakter seluruh pertemuan).
+                                        </p>
                                     </div>
                                 </div>
                                 <div class="panduan-step-card py-2 px-3 mb-2">
                                     <div class="panduan-step-number" style="width:28px; height:28px; font-size: 0.85rem;">4</div>
                                     <div class="panduan-step-content">
-                                        <div class="panduan-step-title" style="font-size:0.9rem;">Pemberian Catatan &amp; Rekomendasi Siswa</div>
-                                        <p class="panduan-step-text" style="font-size:0.8rem;">Guru dapat memberikan catatan perkembangan dan rekomendasi kepada masing-masing siswa dengan mengeklik tombol <strong>Catatan</strong> pada tabel Laporan Individu. Catatan ini hanya dapat diisi apabila siswa bersangkutan <strong>sudah memiliki data penilaian lengkap untuk seluruh (16) pertemuan</strong>. Catatan ini akan otomatis tercetak pada Laporan PDF yang diunduh.</p>
+                                        <div class="panduan-step-title" style="font-size:0.9rem;">Catatan &amp; Rekomendasi Siswa</div>
+                                        <p class="panduan-step-text" style="font-size:0.8rem;">
+                                            Pada <strong>Laporan Individu</strong>, klik tombol <strong>Catatan</strong> pada tabel untuk mengisi catatan perkembangan dan rekomendasi per siswa.
+                                            Catatan hanya dapat diisi jika siswa bersangkutan sudah memiliki data penilaian lengkap untuk seluruh 16 pertemuan,
+                                            dan akan otomatis tercetak pada laporan PDF yang diunduh.
+                                        </p>
                                     </div>
                                 </div>
                             </div>
