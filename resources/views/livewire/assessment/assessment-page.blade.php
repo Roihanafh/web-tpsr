@@ -143,11 +143,11 @@
                             <thead>
                                 <tr>
                                     <th>Nama Siswa</th>
-                                    <th class="text-center" style="width: 10%;">L0</th>
-                                    <th class="text-center" style="width: 10%;">L1</th>
-                                    <th class="text-center" style="width: 10%;">L2</th>
-                                    <th class="text-center" style="width: 10%;">L3</th>
-                                    <th class="text-center" style="width: 10%;">L4</th>
+                                    <th class="text-center" style="width: 10%;">Respect</th>
+                                    <th class="text-center" style="width: 10%;">Participation</th>
+                                    <th class="text-center" style="width: 10%;">Self Direction</th>
+                                    <th class="text-center" style="width: 10%;">Caring</th>
+                                    <th class="text-center" style="width: 10%;">Transfer</th>
                                 </tr>
                             </thead>
                             <tbody>
