@@ -58,7 +58,15 @@
                                         </td>
                                         <td class="text-center">
                                             @if ($siswa->rata_laporan !== null)
-                                                <span class="badge {{ $siswa->rata_laporan >= 3.0 ? 'badge-success' : ($siswa->rata_laporan >= 2.0 ? 'badge-info' : 'badge-warning') }}">
+                                                @php
+                                                    $r = $siswa->rata_laporan;
+                                                    $badgeClass = $r >= 3.5 ? 'badge-success'
+                                                        : ($r >= 3.0 ? 'badge-primary'
+                                                        : ($r >= 2.5 ? 'badge-info'
+                                                        : ($r >= 2.0 ? 'badge-warning'
+                                                        : 'badge-danger')));
+                                                @endphp
+                                                <span class="badge {{ $badgeClass }}">
                                                     {{ $siswa->status_laporan }}
                                                 </span>
                                             @else
