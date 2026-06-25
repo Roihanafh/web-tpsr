@@ -74,9 +74,9 @@ class AssessmentPage extends Component
         }
 
         $students = Siswa::where('kelas_id', $this->kelasId)->get();
-        // Default: semua 5 untuk mempercepat penilaian
+        // Default: semua 4
         foreach ($students as $s) {
-            $this->ratings[$s->id] = ['L0' => 5, 'L1' => 5, 'L2' => 5, 'L3' => 5, 'L4' => 5];
+            $this->ratings[$s->id] = ['L0' => 4, 'L1' => 4, 'L2' => 4, 'L3' => 4, 'L4' => 4];
         }
 
         $existing = Penilaian::whereIn('siswa_id', $students->pluck('id'))
@@ -105,7 +105,7 @@ class AssessmentPage extends Component
 
         foreach ($students as $s) {
             $this->recalcRataPoin($s);
-            $this->ratings[$s->id] = ['L0' => 5, 'L1' => 5, 'L2' => 5, 'L3' => 5, 'L4' => 5];
+            $this->ratings[$s->id] = ['L0' => 4, 'L1' => 4, 'L2' => 4, 'L3' => 4, 'L4' => 4];
         }
 
         $this->isAssessed = false;
@@ -189,7 +189,7 @@ class AssessmentPage extends Component
 
         $path = $this->fileImport->getRealPath();
 
-        $importer = new \App\Imports\SipenaPenilaianImport($sekolah);
+        $importer = new \App\Imports\TpsrTemplateImport($sekolah);
 
         try {
             $importer->import($path);
@@ -208,19 +208,27 @@ class AssessmentPage extends Component
         $importCount = count($importer->imported);
 
         if ($importCount > 0) {
-            // Reload penilaian jika kelas & pertemuan sesuai
-            if ($importer->kelasNama && $importer->pertemuan) {
+            // Reload ke kelas yang diimport dan langsung tampilkan pertemuan terakhir
+            if ($importer->kelasNama) {
                 $matchKelas = \App\Models\Kelas::where('sekolah_id', $sekolah->id)
                     ->where('nama', $importer->kelasNama)->first();
                 if ($matchKelas) {
                     $this->kelasId   = $matchKelas->id;
-                    $this->pertemuan = (string) $importer->pertemuan;
+                    $this->pertemuan = $importer->lastPertemuan !== null
+                        ? (string) $importer->lastPertemuan
+                        : null;
+                    $this->ratings   = [];
+                    $this->renderKey++;
                     $this->loadPenilaian();
                 }
             }
 
+            $kelasInfo = $importer->kelasIsNew
+                ? "kelas {$importer->kelasNama} (baru dibuat)"
+                : "kelas {$importer->kelasNama}";
+
             session()->flash('success',
-                "{$importCount} siswa berhasil diimport untuk pertemuan {$importer->pertemuan}, kelas {$importer->kelasNama}."
+                "{$importCount} siswa berhasil diimport ke {$kelasInfo}."
             );
         } else {
             session()->flash('error', 'Tidak ada data siswa yang berhasil diimport.');
@@ -233,9 +241,9 @@ class AssessmentPage extends Component
     public function downloadTemplate(): \Symfony\Component\HttpFoundation\StreamedResponse
     {
         return response()->streamDownload(function () {
-            readfile(public_path('SIPENA KARAKTER.xls'));
-        }, 'SIPENA KARAKTER.xls', [
-            'Content-Type' => 'application/vnd.ms-excel',
+            readfile(public_path('TPSR_template.xlsx'));
+        }, 'TPSR_template.xlsx', [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
     }
 

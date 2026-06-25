@@ -19,14 +19,17 @@
     <div class="assessment-panel">
         <div class="assessment-toolbar">
             <div class="assessment-toolbar-filters">
-                <select class="form-control assessment-select" wire:model.live="kelasId">
+                <select class="form-control assessment-select" wire:model.live="kelasId"
+                    wire:key="filter-kelas-{{ $renderKey }}">
                     <option value="">Pilih Kelas</option>
                     @foreach ($kelasOptions as $kelas)
                         <option value="{{ $kelas->id }}">{{ $kelas->nama }}</option>
                     @endforeach
                 </select>
 
-                <select class="form-control assessment-select" wire:model.live="pertemuan" @disabled(!$kelasId)>
+                <select class="form-control assessment-select" wire:model.live="pertemuan"
+                    wire:key="filter-pertemuan-{{ $renderKey }}"
+                    @disabled(!$kelasId)>
                     <option value="">Pilih Pertemuan</option>
                     @for ($i = 1; $i <= 16; $i++)
                         <option value="{{ $i }}">Pertemuan {{ $i }}</option>
@@ -98,7 +101,7 @@
                 <strong><i class="fas fa-check-circle mr-1"></i>{{ count($importResult) }} siswa berhasil diimport:</strong>
                 <ul class="mb-0 mt-2" style="max-height: 200px; overflow-y:auto;">
                     @foreach ($importResult as $r)
-                        <li>{{ $r['nama'] }} — Pertemuan {{ $r['pertemuan'] }} <span class="badge badge-light">{{ $r['action'] }}</span></li>
+                        <li>{{ $r['nama'] }} <span class="badge badge-light">{{ $r['action'] }}</span> &mdash; {{ $r['pertemuan_count'] }} pertemuan</li>
                     @endforeach
                 </ul>
             </div>
@@ -156,8 +159,7 @@
                                                 <select class="form-control form-control-sm"
                                                     wire:model="ratings.{{ $siswa->id }}.{{ $lvl }}"
                                                     style="min-width: 60px;">
-                                                    <option value="">-</option>
-                                                    @for ($v = 1; $v <= 5; $v++)
+                                                    @for ($v = 1; $v <= 4; $v++)
                                                         <option value="{{ $v }}">{{ $v }}</option>
                                                     @endfor
                                                 </select>
