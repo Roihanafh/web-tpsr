@@ -69,11 +69,11 @@ Relasi: `belongsTo(Kelas)`, `hasMany(Penilaian)`
 | id        | bigint PK                 |                               |
 | siswa_id  | FK                        | → siswa.id cascade            |
 | pertemuan | enum('1'…'16')            |                               |
-| L0        | enum('1','2','3','4','5') | nullable — aspek/dimensi TPSR |
-| L1        | enum('1','2','3','4','5') | nullable                      |
-| L2        | enum('1','2','3','4','5') | nullable                      |
-| L3        | enum('1','2','3','4','5') | nullable                      |
-| L4        | enum('1','2','3','4','5') | nullable                      |
+| L0        | enum('1','2','3','4') | nullable — aspek/dimensi TPSR |
+| L1        | enum('1','2','3','4') | nullable                      |
+| L2        | enum('1','2','3','4') | nullable                      |
+| L3        | enum('1','2','3','4') | nullable                      |
+| L4        | enum('1','2','3','4') | nullable                      |
 
 > Unique constraint: `(siswa_id, pertemuan)` — satu siswa satu record per pertemuan.
 > Nilai L0–L4 dicast ke `integer` di model.

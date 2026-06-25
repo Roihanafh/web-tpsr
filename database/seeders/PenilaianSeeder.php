@@ -32,11 +32,11 @@ class PenilaianSeeder extends Seeder
 
             for ($pertemuan = 1; $pertemuan <= 16; $pertemuan++) {
                 $scores = [
-                    'L0' => rand(1, 5),
-                    'L1' => rand(1, 5),
-                    'L2' => rand(1, 5),
-                    'L3' => rand(1, 5),
-                    'L4' => rand(1, 5),
+                    'L0' => rand(1, 4),
+                    'L1' => rand(1, 4),
+                    'L2' => rand(1, 4),
+                    'L3' => rand(1, 4),
+                    'L4' => rand(1, 4),
                 ];
 
                 $totalNilai  += array_sum($scores);

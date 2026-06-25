@@ -15,11 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('siswa_id')->constrained('siswa')->cascadeOnDelete();
             $table->enum('pertemuan', array_map('strval', range(1, 16)));
-            $table->enum('L0', ['1', '2', '3', '4', '5'])->nullable();
-            $table->enum('L1', ['1', '2', '3', '4', '5'])->nullable();
-            $table->enum('L2', ['1', '2', '3', '4', '5'])->nullable();
-            $table->enum('L3', ['1', '2', '3', '4', '5'])->nullable();
-            $table->enum('L4', ['1', '2', '3', '4', '5'])->nullable();
+            $table->enum('L0', ['1', '2', '3', '4'])->nullable();
+            $table->enum('L1', ['1', '2', '3', '4'])->nullable();
+            $table->enum('L2', ['1', '2', '3', '4'])->nullable();
+            $table->enum('L3', ['1', '2', '3', '4'])->nullable();
+            $table->enum('L4', ['1', '2', '3', '4'])->nullable();
             $table->timestamps();
 
             // Satu siswa hanya boleh punya satu record per pertemuan
