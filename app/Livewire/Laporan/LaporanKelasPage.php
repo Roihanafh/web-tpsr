@@ -2,6 +2,8 @@
 
 namespace App\Livewire\Laporan;
 
+use App\Exports\TpsrKelasExport;
+use App\Models\Kelas;
 use App\Models\Penilaian;
 use App\Models\Siswa;
 use Illuminate\Contracts\View\View;
@@ -24,6 +26,29 @@ class LaporanKelasPage extends Component
     {
         $this->selectedKelasId = null;
         $this->showChart       = false;
+    }
+
+    public function exportExcel(): \Symfony\Component\HttpFoundation\StreamedResponse
+    {
+        $sekolah = Auth::user()?->sekolah;
+        if (! $sekolah || ! $this->selectedKelasId) {
+            session()->flash('error', 'Pilih kelas terlebih dahulu.');
+            return response()->stream(fn () => null, 400);
+        }
+
+        $kelas = $sekolah->kelas()->where('id', $this->selectedKelasId)->firstOrFail();
+
+        $exporter = new TpsrKelasExport();
+        $tmpPath  = $exporter->export($kelas);
+
+        $filename = 'TPSR_' . preg_replace('/[^A-Za-z0-9_\-]/', '_', $kelas->nama) . '.xlsx';
+
+        return response()->streamDownload(function () use ($tmpPath) {
+            readfile($tmpPath);
+            @unlink($tmpPath);
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 
     public static function getStatus(?float $rata): string

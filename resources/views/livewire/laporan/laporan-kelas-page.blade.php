@@ -84,6 +84,16 @@
                     <button type="button" class="btn btn-danger laporan-download-btn" id="btnDownloadKelasChart">
                         <i class="fas fa-download mr-1"></i> Download PDF
                     </button>
+                    <button type="button" class="btn btn-success laporan-download-btn ml-2"
+                        wire:click="exportExcel"
+                        wire:loading.attr="disabled" wire:target="exportExcel">
+                        <span wire:loading.remove wire:target="exportExcel">
+                            <i class="fas fa-file-excel mr-1"></i> Export Excel
+                        </span>
+                        <span wire:loading wire:target="exportExcel">
+                            <i class="fas fa-spinner fa-spin mr-1"></i> Menyiapkan...
+                        </span>
+                    </button>
                 </div>
             </div>
 
