@@ -50,11 +50,11 @@
             }
         };
 
-        // ─── Konfigurasi Y axis 1-5 dengan padding 0.5 ───
+        // ─── Konfigurasi Y axis 1-4 dengan padding 0.5 ───
         var yAxisConfig = {
-            min: 0.5, max: 5.5,
+            min: 0.5, max: 4.5,
             afterBuildTicks: function(axis) {
-                axis.ticks = [1, 2, 3, 4, 5].map(function(v) { return { value: v }; });
+                axis.ticks = [1, 2, 3, 4].map(function(v) { return { value: v }; });
             },
             ticks: {
                 callback: function(v) { return v; }
