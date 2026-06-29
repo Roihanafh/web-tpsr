@@ -41,7 +41,7 @@ class PasswordResetLinkController extends Controller
             ]);
             return back()
                 ->withInput($request->only('email'))
-                ->withErrors(['email' => '[Debug] ' . $e->getMessage()]);
+                ->withErrors(['email' => 'Gagal mengirim email. Pastikan koneksi internet aktif dan coba beberapa saat lagi.']);
         }
 
         return $status == Password::RESET_LINK_SENT
