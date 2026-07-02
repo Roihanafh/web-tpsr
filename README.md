@@ -1,59 +1,206 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# TPSR - Teknologi Penilaian Sarana Raya
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Aplikasi web untuk manajemen penilaian berbasis teknologi dengan role-based access control.
 
-## About Laravel
+## 🚀 Quick Start
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+```bash
+# 1. Clone & Install
+git clone <repo-url>
+cd web-tpsr
+composer install
+npm install
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+# 2. Setup Environment
+cp .env.example .env
+php artisan key:generate
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+# 3. Setup Database (MySQL harus running)
+php artisan migrate:fresh --seed
 
-## Learning Laravel
+# 4. Build Assets
+npm run build
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+# 5. Run Server
+php artisan serve
+```
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Aplikasi accessible di: **http://localhost:8000**
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 👥 Test Users
 
-### Premium Partners
+| Role | Email | Password |
+|------|-------|----------|
+| Guru | guru@example.com | password |
+| Admin | admin@example.com | password |
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+---
 
-## Contributing
+## 📚 Features
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Guru Dashboard
+- 📊 Dashboard dengan statistik pembelajaran
+- 📚 Manajemen Kelas & Siswa
+- 📋 Penilaian TPSR (Quick Assessment & Checklist)
+- 📈 Analisis Per Siswa & Per Kelas
+- 📄 Laporan Individu & Kelas
 
-## Code of Conduct
+### Admin Dashboard
+- 👥 Manajemen User
+- ⚙️ Pengaturan Sistem
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Authentication
+- Login/Register
+- Forgot Password
+- Email Verification
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 🛠️ Tech Stack
 
-## License
+- **Backend:** Laravel 11
+- **Frontend:** AdminLTE 3, Blade, TailwindCSS
+- **Database:** MySQL 8.0+
+- **Build Tool:** Vite
+- **Permission:** Spatie Laravel Permission
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+
+## 📖 Dokumentasi Lengkap
+
+Lihat [INSTALLATION.md](./INSTALLATION.md) untuk panduan instalasi detail.
+
+### Quick Commands
+
+```bash
+# Development
+npm run dev              # Hot reload frontend
+php artisan serve       # Run server
+
+# Production
+npm run build           # Build assets
+php artisan config:cache  # Cache config
+
+# Database
+php artisan migrate                    # Run migrations
+php artisan migrate:fresh --seed       # Reset & seed
+php artisan db:seed --class=PermissionSeeder  # Seed permissions
+
+# Cache
+php artisan cache:clear                # Clear application cache
+php artisan config:clear               # Clear config cache
+
+# Debugging
+php artisan tinker                     # Interactive shell
+```
+
+---
+
+## 📁 Struktur Database
+
+### Tables
+- `users` - User accounts
+- `roles` - Role definitions (guru, admin)
+- `permissions` - Permission definitions
+- `role_has_permissions` - Role-Permission relations
+- `model_has_roles` - User-Role relations
+
+---
+
+## 🔐 Permission System
+
+### Permissions
+```
+✓ view_dashboard         - Akses dashboard
+✓ view_classes          - Lihat manajemen kelas
+✓ view_students         - Lihat data siswa
+✓ view_assessment       - Akses penilaian TPSR
+✓ view_analysis         - Akses analisis
+✓ view_reports          - Akses laporan
+✓ manage_users          - Kelola user
+✓ manage_settings       - Kelola settings
+```
+
+### Menu Visibility
+Menu automatically hidden/shown berdasarkan role user via `can` permission check di AdminLTE config.
+
+---
+
+## 📝 Project Structure
+
+```
+web-tpsr/
+├── app/
+│   ├── Http/Controllers/
+│   ├── Models/User.php (+ HasRoles trait)
+│   └── Providers/
+├── config/
+│   ├── adminlte.php (menu configuration)
+│   ├── permission.php
+│   └── auth.php
+├── database/
+│   ├── migrations/
+│   └── seeders/
+│       ├── PermissionSeeder.php
+│       └── UserSeeder.php
+├── resources/
+│   ├── views/
+│   │   ├── layouts/app.blade.php
+│   │   └── dashboard.blade.php
+│   └── css/js/
+├── routes/
+│   ├── web.php
+│   └── auth.php
+└── INSTALLATION.md
+```
+
+---
+
+## 🔄 Workflow
+
+### User Registration Flow
+1. User registrasi → Email verification
+2. Admin assign role (guru/admin)
+3. User login → Role-based menu displayed
+
+### Adding New User
+```php
+php artisan tinker
+$user = User::create(['name' => 'Name', 'email' => 'email@example.com', 'password' => bcrypt('password')]);
+$user->assignRole('guru');  // or 'admin'
+exit;
+```
+
+---
+
+## 🚨 Troubleshooting
+
+### Common Issues
+
+| Error | Solution |
+|-------|----------|
+| Permission not found | `php artisan cache:clear && php artisan config:clear` |
+| Table not found | `php artisan migrate:fresh --seed` |
+| Assets not loading | `npm install && npm run build` |
+| Port already in use | `php artisan serve --port=8080` |
+
+---
+
+## 📞 Support
+
+- Lihat [INSTALLATION.md](./INSTALLATION.md) untuk troubleshooting lengkap
+- Laravel Docs: https://laravel.com/docs
+- AdminLTE: https://adminlte.io/docs
+
+---
+
+## 📄 License
+
+MIT License - Gratis untuk penggunaan komersial maupun non-komersial.
+
+---
+
+**Last Updated:** June 4, 2026  
+**Version:** 1.0.0
