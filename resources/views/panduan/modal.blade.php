@@ -101,8 +101,7 @@
                                             • <strong>Filter:</strong> Untuk memilih data yang ingin dilihat.<br>
                                             • <strong>Tambah Data:</strong> Untuk menambahkan data baru.<br>
                                             • <strong>Edit Data:</strong> Untuk mengganti data yang sudah ada.<br>
-                                            • <strong>Import:</strong> Menambahkan data via Excel memakai template yang disediakan.<br>
-                                            • <strong>Export:</strong> Mendownload data yang sudah ada di dalam sistem.
+                                            • <strong>Hapus Data:</strong> Untuk menghapus data yang dipilih.<br>
                                         </p>
                                     </div>
                                 </div>
